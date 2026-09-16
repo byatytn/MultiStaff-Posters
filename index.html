@@ -119,8 +119,8 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .week-head b{font-size:8px}
   .week-head strong{font-size:14px}
   .day{min-height:70px;padding:3px}
-  .shift{padding:5px 2px;border-radius:6px;margin-bottom:3px}
-  .shift .time{font-size:8px;white-space:nowrap}
+  .shift{box-sizing:border-box;width:100%;max-width:100%;padding:5px 1px;border-radius:6px;margin-bottom:3px;overflow:hidden}
+  .shift .time{font-size:7px;white-space:nowrap;letter-spacing:-.15px;overflow:hidden;text-overflow:clip}
   .emptyday{height:61px;font-size:8px;white-space:nowrap;overflow:hidden}
   .addday{padding:4px 1px;font-size:8px;white-space:nowrap;overflow:hidden}
   .adminbar{align-items:stretch;flex-direction:column}
