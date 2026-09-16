@@ -255,7 +255,9 @@ app.put('/api/state', requireAdmin, async (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: res => res.setHeader('Cache-Control', 'no-store, max-age=0')
+}));
 app.get(/.*/, (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 const port = process.env.PORT || 3000;
