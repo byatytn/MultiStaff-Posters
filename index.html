@@ -55,6 +55,11 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 <div class="employee-list" id="employeeList"></div>
 <div class="modal-actions"><button class="btn" id="employeesClose">Закрыть</button><button class="btn primary" id="employeesAdd">＋ Сотрудник</button></div>
 </div></div>
+<div class="modal-bg" id="passwordBg"><div class="modal">
+<h2>Режим администратора</h2><div class="meta">Введите пароль для редактирования графика и сотрудников.</div>
+<div class="field"><label>Пароль</label><input id="adminPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Пароль"></div>
+<div class="modal-actions"><button class="btn" id="passwordCancel">Отмена</button><button class="btn primary" id="passwordLogin">Войти</button></div>
+</div></div>
 <div class="toast" id="toast"></div>
 <script>
 const KEY='multistaff_schedule_v1';
@@ -72,15 +77,18 @@ function makeState(){return{employees:defaultEmployees.map(e=>({...e})),shifts:[
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
 let state=makeState(), cursor=monday(new Date()), admin=false, editing=null;
 let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null;
-const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg');
+let adminToken=sessionStorage.getItem('multistaff_admin_token')||'';
+const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg'),passwordBg=$('passwordBg');
 function sameState(a,b){return JSON.stringify({employees:a.employees,shifts:a.shifts})===JSON.stringify({employees:b.employees,shifts:b.shifts})}
 let saveQueue=Promise.resolve();
 function persist(){
   localStorage.setItem(KEY,JSON.stringify(state));
+  if(!adminToken){ toast('Войдите как администратор для общего сохранения'); return Promise.resolve(); }
   saveQueue=saveQueue.then(async()=>{
     savingToServer=true;
     try{
-      const r=await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({employees:state.employees,shifts:state.shifts})});
+      const r=await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json',...(adminToken?{Authorization:'Bearer '+adminToken}:{})},body:JSON.stringify({employees:state.employees,shifts:state.shifts})});
+      if(r.status===401){adminToken='';sessionStorage.removeItem('multistaff_admin_token');setAdmin(false);toast('Сессия администратора истекла');return;}
       if(!r.ok)throw new Error('save failed');
       const data=await r.json();
       lastServerUpdatedAt=data.updatedAt||new Date().toISOString();
@@ -161,19 +169,47 @@ function render(){
 function colorFor(t){return t==='training'?'purple':t==='open'?'green':t==='close'?'yellow':''}
 function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function fillEmployees(){ $('employee').innerHTML=state.employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join('') }
-function newShift(emp,date){editing=null;$('modalTitle').textContent='Новая смена';$('employee').value=emp||state.employees[0]?.id||'';$('date').value=date||iso(cursor);$('type').value='shift';$('start').value='09:00';$('end').value='18:00';$('note').value='';$('delete').style.display='none';$('meta').textContent='Добавление в график';bg.style.display='flex'}
+function newShift(emp,date){if(!admin)return toast('Войдите как администратор');editing=null;$('modalTitle').textContent='Новая смена';$('employee').value=emp||state.employees[0]?.id||'';$('date').value=date||iso(cursor);$('type').value='shift';$('start').value='09:00';$('end').value='18:00';$('note').value='';$('delete').style.display='none';$('meta').textContent='Добавление в график';bg.style.display='flex'}
 function openShift(id){const s=state.shifts.find(x=>x.id===id);if(!s)return;editing=s;$('modalTitle').textContent='Смена';$('employee').value=s.employeeId;$('date').value=s.date;$('type').value=s.type;$('start').value=s.start;$('end').value=s.end;$('note').value=s.note||'';$('delete').style.display=admin?'inline-block':'none';$('meta').textContent='Изменение смены';bg.style.display='flex'}
 function close(){bg.style.display='none';editing=null}
 function setAdmin(v){admin=v;$('mode').textContent=admin?'Режим администратора':'Режим сотрудника';$('mode').classList.toggle('admin',admin);$('adminbar').classList.toggle('show',admin);$('addShift').style.display=admin?'inline-block':'none';render()}
-$('mode').onclick=()=>setAdmin(!admin);
+$('mode').onclick=()=>{
+  if(admin){setAdmin(false);return}
+  $('adminPassword').value='';
+  passwordBg.style.display='flex';
+  setTimeout(()=>$('adminPassword').focus(),50);
+};
 $('prev').onclick=()=>{cursor=addDays(cursor,-7);render()};$('next').onclick=()=>{cursor=addDays(cursor,7);render()};
 function goToday(){cursor=monday(new Date());render()}$('today').onclick=goToday;$('today2').onclick=goToday;
 $('jump').onchange=()=>{cursor=monday(localDate($('jump').value));render()};
 $('search').oninput=render;$('cancel').onclick=close;bg.onclick=e=>{if(e.target===bg)close()};empBg.onclick=e=>{if(e.target===empBg)closeEmp()};
 $('saveModal').onclick=()=>{if(!admin||!$('employee').value)return;const obj={employeeId:+$('employee').value,date:$('date').value,type:$('type').value,start:$('start').value,end:$('end').value,note:$('note').value.trim()};if(!obj.date||!obj.start||!obj.end)return toast('Заполни дату и время');if(editing)Object.assign(editing,obj);else state.shifts.push({id:Date.now(),...obj});persist();close();render();toast('График сохранён')};
 $('delete').onclick=()=>{if(!editing)return;if(confirm('Удалить смену?')){state.shifts=state.shifts.filter(s=>s.id!==editing.id);persist();close();render();toast('Смена удалена')}};
-$('addShift').onclick=()=>newShift();
-$('save').onclick=()=>{persist();toast('График сохранён')};
+async function loginAdmin(){
+  const password=$('adminPassword').value;
+  if(!password)return toast('Введите пароль');
+  $('passwordLogin').disabled=true;
+  try{
+    const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(data.error||'Неверный пароль');
+    adminToken=data.token;
+    sessionStorage.setItem('multistaff_admin_token',adminToken);
+    passwordBg.style.display='none';
+    setAdmin(true);
+    toast('Режим администратора включён');
+  }catch(e){
+    toast(e.message||'Ошибка входа');
+    $('adminPassword').select();
+  }finally{$('passwordLogin').disabled=false}
+}
+$('passwordLogin').onclick=loginAdmin;
+$('passwordCancel').onclick=()=>passwordBg.style.display='none';
+$('adminPassword').onkeydown=e=>{if(e.key==='Enter')loginAdmin()};
+passwordBg.onclick=e=>{if(e.target===passwordBg)passwordBg.style.display='none'};
+
+$('addShift').onclick=()=>admin?newShift():toast('Войдите как администратор');
+$('save').onclick=()=>{if(!admin)return toast('Войдите как администратор');persist();toast('График сохранён')};
 $('addEmployee').onclick=()=>openEmp();
 function renderEmployees(){const box=$('employeeList');if(!state.employees.length){box.innerHTML='<div class="empty-employees">Сотрудников пока нет</div>';return}box.innerHTML=state.employees.map(e=>'<div class="employee-row"><div class="avatar">'+initials(e.name)+'</div><div class="employee-info"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div><div class="employee-actions"><button class="iconbtn" title="Редактировать" data-edit-employee="'+e.id+'">✎</button><button class="iconbtn" title="Удалить" data-delete-employee="'+e.id+'">×</button></div></div>').join('');
 box.querySelectorAll('[data-edit-employee]').forEach(b=>b.onclick=()=>{closeEmployees();openEmp(+b.dataset.editEmployee)});
@@ -183,11 +219,11 @@ function closeEmployees(){employeesBg.style.display='none'}
 function deleteEmployee(id){const e=state.employees.find(x=>x.id===id);if(!e)return;if(confirm('Удалить '+e.name+' и все его смены?')){state.employees=state.employees.filter(x=>x.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();fillEmployees();render();renderEmployees();toast('Сотрудник удалён')}} 
 $('employeesCard').onclick=openEmployees;$('employeesClose').onclick=closeEmployees;$('employeesAdd').onclick=()=>{closeEmployees();openEmp()};employeesBg.onclick=e=>{if(e.target===employeesBg)closeEmployees()};
 $('importBtn').onclick=()=>admin?$('import').click():toast('Импорт доступен администратору');
-function openEmp(id){const e=id?state.employees.find(x=>x.id===id):null;$('empTitle').textContent=e?'Сотрудник':'Новый сотрудник';$('empName').value=e?.name||'';$('empRole').value=(e?.role==='УС'||e?.role==='МС')?e.role:'УС';$('empDelete').style.display=e?'inline-block':'none';$('empSave').dataset.id=e?.id||'';empBg.style.display='flex'}
+function openEmp(id){if(!admin)return toast('Войдите как администратор');const e=id?state.employees.find(x=>x.id===id):null;$('empTitle').textContent=e?'Сотрудник':'Новый сотрудник';$('empName').value=e?.name||'';$('empRole').value=(e?.role==='УС'||e?.role==='МС')?e.role:'УС';$('empDelete').style.display=e?'inline-block':'none';$('empSave').dataset.id=e?.id||'';empBg.style.display='flex'}
 function closeEmp(){empBg.style.display='none'}
 $('empCancel').onclick=closeEmp;
-$('empSave').onclick=()=>{const name=$('empName').value.trim(),role=$('empRole').value.trim()||'Сотрудник';if(!name)return toast('Укажи имя');const id=+$('empSave').dataset.id;if(id){const e=state.employees.find(x=>x.id===id);e.name=name;e.role=role}else state.employees.push({id:Date.now(),name,role});persist();closeEmp();fillEmployees();render();toast('Сотрудник сохранён')};
-$('empDelete').onclick=()=>{const id=+$('empSave').dataset.id;if(!id)return;if(confirm('Удалить сотрудника и его смены?')){state.employees=state.employees.filter(e=>e.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();closeEmp();fillEmployees();render();toast('Сотрудник удалён')}};
+$('empSave').onclick=()=>{if(!admin)return toast('Войдите как администратор');const name=$('empName').value.trim(),role=$('empRole').value.trim()||'Сотрудник';if(!name)return toast('Укажи имя');const id=+$('empSave').dataset.id;if(id){const e=state.employees.find(x=>x.id===id);e.name=name;e.role=role}else state.employees.push({id:Date.now(),name,role});persist();closeEmp();fillEmployees();render();toast('Сотрудник сохранён')};
+$('empDelete').onclick=()=>{if(!admin)return toast('Войдите как администратор');const id=+$('empSave').dataset.id;if(!id)return;if(confirm('Удалить сотрудника и его смены?')){state.employees=state.employees.filter(e=>e.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();closeEmp();fillEmployees();render();toast('Сотрудник удалён')}};
 $('import').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importICS(r.result);r.readAsText(f);e.target.value=''};
 function parseICS(text){const lines=text.replace(/\r/g,'').split('\n');const events=[];let ev=null;for(const raw of lines){const line=raw.trim();if(line==='BEGIN:VEVENT'){ev={}}else if(line==='END:VEVENT'){if(ev)events.push(ev);ev=null}else if(ev){const p=line.indexOf(':');if(p<0)continue;const k=line.slice(0,p).split(';')[0],v=line.slice(p+1);ev[k]=v}}return events}
 function parseDT(v){if(!v)return null;const x=v.replace(/[^0-9]/g,'').slice(0,14);if(x.length<8)return null;return x.slice(0,4)+'-'+x.slice(4,6)+'-'+x.slice(6,8)}
