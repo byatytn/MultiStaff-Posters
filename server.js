@@ -175,12 +175,33 @@ function scheduleSnapshotData(d) {
     });
   }
 
-  const shifts = Array.isArray(d?.shifts) ? d.shifts.map(s => ({
-    ...s,
-    employeeId: Number.isFinite(Number(s?.employeeId)) ? Number(s.employeeId) : s?.employeeId,
-    id: Number.isFinite(Number(s?.id)) ? Number(s.id) : s?.id
-  })) : [];
+  const shifts = Array.isArray(d?.shifts) ? d.shifts.map(s => {
+    const rawDate = s?.date;
+    let date = '';
+    if (typeof rawDate === 'string') {
+      // StaffShedules normally stores YYYY-MM-DD. Older records may contain
+      // an ISO datetime; the calendar works with local calendar dates only.
+      date = rawDate.slice(0, 10);
+    } else if (rawDate && typeof rawDate.toDate === 'function') {
+      const dt = rawDate.toDate();
+      date = [
+        dt.getFullYear(),
+        String(dt.getMonth() + 1).padStart(2, '0'),
+        String(dt.getDate()).padStart(2, '0')
+      ].join('-');
+    }
 
+    return {
+      ...s,
+      date,
+      employeeId: Number.isFinite(Number(s?.employeeId)) ? Number(s.employeeId) : s?.employeeId,
+      id: Number.isFinite(Number(s?.id)) ? Number(s.id) : s?.id
+    };
+  }) : [];
+
+  // Normalize the two fields used for calendar matching. This keeps old
+  // StaffShedules records compatible without touching Users or changing the
+  // Firestore source data.
   return { employees, shifts };
 }
 
