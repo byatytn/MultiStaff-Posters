@@ -4,109 +4,129 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090b0e">
-<meta name="description" content="MultiStaff Posters — управление рекламными плакатами кинотеатра «Атмосфера».">
-<title>MultiStaff Posters — Атмосфера</title>
+<meta name="description" content="MultiStaff — график сотрудников кинотеатра «Атмосфера».">
+<title>MultiStaff — График</title>
 <style>
-:root{--bg:#090b0e;--line:#29303a;--text:#f5f7fa;--muted:#8f98a6;--red:#ef3038;--purple:#7846ff;--shadow:0 24px 70px #0008}
+:root{--bg:#090b0e;--panel:#101419;--panel2:#14191f;--line:#29303a;--text:#f5f7fa;--muted:#8f98a6;--red:#ef3038;--purple:#7846ff;--green:#32d583;--yellow:#f5b94c;--shadow:0 24px 70px #0008}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 button,input,select{font:inherit}button{cursor:pointer}body{background:radial-gradient(900px 500px at 50% -120px,#202631 0,#0d1014 48%,#090b0e 100%)}
 header{position:sticky;top:0;z-index:20;border-bottom:1px solid #252b34;background:#0d1014e8;backdrop-filter:blur(18px)}
-.top,.toolbar,main{max-width:1180px;margin:auto}.top{padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font-weight:900;letter-spacing:.8px;font-size:24px}.brand i{font-style:normal;color:var(--red)}.sub{font-size:12px;color:var(--muted);margin-top:2px}.city{font-size:13px;color:#cbd2dc;border:1px solid var(--line);padding:8px 11px;border-radius:9px}
-.toolbar{padding:0 20px 14px;display:flex;gap:9px;align-items:center}.tabs{display:flex;gap:7px}.tab,.mode,.btn{border:1px solid var(--line);background:#13171c;color:#aeb6c2;border-radius:10px;padding:10px 17px}.tab.active{color:#fff;border-color:#9b242b;background:#241216;box-shadow:0 0 20px #ef303815}.mode{margin-left:auto}.mode.admin{border-color:#6e48e8;background:#1d1630;color:#fff}.btn{color:#fff;padding:10px 13px}.btn.primary{background:var(--red);border-color:var(--red);font-weight:700}.btn.danger{background:#2a1417;border-color:#663036;color:#ffb9bd}
+.top,.toolbar,main{max-width:1240px;margin:auto}.top{padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font-weight:900;letter-spacing:.8px;font-size:24px}.brand i{font-style:normal;color:var(--red)}.sub{font-size:12px;color:var(--muted);margin-top:2px}.city{font-size:13px;color:#cbd2dc;border:1px solid var(--line);padding:8px 11px;border-radius:9px}
+.toolbar{padding:0 20px 14px;display:flex;gap:9px;align-items:center}.tabs{display:flex;gap:7px}.tab,.mode,.btn{border:1px solid var(--line);background:#13171c;color:#aeb6c2;border-radius:10px;padding:10px 17px}.tab.active{color:#fff;border-color:#9b242b;background:#241216;box-shadow:0 0 20px #ef303815}.mode{margin-left:auto}.mode.admin{border-color:#6e48e8;background:#1d1630;color:#fff}.btn{color:#fff;padding:10px 13px}.btn.primary{background:var(--red);border-color:var(--red);font-weight:700}.btn.ghost{background:#13171c}.btn.danger{background:#2a1417;border-color:#663036;color:#ffb9bd}
 main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:13px}.title h1{margin:0;font-size:22px}.title p{margin:4px 0 0;color:var(--muted);font-size:13px}.tools{display:flex;gap:8px}.search{width:210px;border:1px solid var(--line);background:#11151a;color:#fff;border-radius:10px;padding:10px 12px;outline:none}.search:focus{border-color:#687384}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}.card{background:#101419;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}.mapwrap{padding:10px}.map{position:relative;overflow:hidden;border-radius:11px;background:#0b0e12;touch-action:none}.map svg{display:block;width:100%;height:auto}.poster{cursor:grab}.poster.dragging{cursor:grabbing}.poster rect{transition:filter .12s,stroke .12s}.poster:hover rect{filter:brightness(1.13)}.poster.selected rect{stroke:#fff;stroke-width:2.5;filter:brightness(1.16)}.poster text{pointer-events:none;fill:#fff;font-weight:800;text-anchor:middle;dominant-baseline:middle;font-size:9px}.poster image{pointer-events:none}.resize-handle{display:none;fill:#fff;stroke:#7846ff;stroke-width:2;cursor:nwse-resize}.poster.selected .resize-handle{display:block}.hint{text-align:center;color:var(--muted);font-size:12px;padding:10px 4px 3px}.legend{display:flex;justify-content:center;gap:18px;color:var(--muted);font-size:12px;padding:0 0 5px}.dot{width:13px;height:8px;border-radius:2px;display:inline-block;margin-right:5px}.dot.red{background:var(--red)}.dot.purple{background:var(--purple)}
-.side{padding:16px}.side h2{font-size:16px;margin:0 0 4px}.side .muted{font-size:12px;color:var(--muted);margin-bottom:15px}.stat{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #20262e;font-size:13px}.stat b{color:#fff}.list{margin-top:14px;display:grid;gap:7px;max-height:380px;overflow:auto}.item{display:flex;align-items:center;gap:9px;padding:9px;border:1px solid #252c35;border-radius:9px;background:#14191f}.item .mini{width:10px;height:26px;border-radius:2px}.item span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.empty{color:var(--muted);font-size:12px;padding:12px 0}
-.adminbar{display:none;border:1px solid #3b2c63;background:#171226;border-radius:12px;padding:11px 12px;margin-bottom:13px;align-items:center;justify-content:space-between;gap:10px}.adminbar.show{display:flex}.adminbar span{font-size:12px;color:#c7b8f4}.admin-actions{display:flex;gap:7px}.small{padding:8px 10px;font-size:12px}
-.modal-bg{display:none;position:fixed;inset:0;background:#000b;align-items:center;justify-content:center;padding:16px;z-index:50}.modal{width:min(460px,100%);background:#171b21;border:1px solid #333b46;border-radius:17px;padding:19px;box-shadow:0 30px 100px #000c}.modal h2{margin:0 0 4px;font-size:20px}.meta{color:var(--muted);font-size:12px}.field{margin-top:14px}.field label{display:block;color:#aab3bf;font-size:12px;margin-bottom:6px}.field input,.select{width:100%;padding:12px;border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px;outline:none}.field input:focus,.select:focus{border-color:var(--red)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.file{font-size:12px;color:#aab3bf}.preview{display:none;width:100%;height:90px;object-fit:contain;background:#0c0f13;border-radius:8px;margin-top:7px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.adminbar{display:none;border:1px solid #3b2c63;background:#171226;border-radius:12px;padding:11px 12px;margin-bottom:13px;align-items:center;justify-content:space-between;gap:10px}.adminbar.show{display:flex}.adminbar span{font-size:12px;color:#c7b8f4}.admin-actions{display:flex;gap:7px}
+.card{background:#101419;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}.calendar-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);gap:10px}.month{font-size:17px;font-weight:800}.nav{display:flex;gap:6px}.iconbtn{border:1px solid var(--line);background:#13171c;color:#dce2e9;border-radius:9px;width:38px;height:38px}.date-tools{display:flex;gap:7px;align-items:center}.date-tools input{border:1px solid var(--line);background:#11151a;color:#fff;border-radius:9px;padding:9px}
+.week{display:grid;grid-template-columns:220px repeat(7,minmax(110px,1fr));overflow:auto}.cell{border-right:1px solid #20262e;border-bottom:1px solid #20262e;min-width:110px}.week-head{background:#12171d;min-height:64px;padding:10px;text-align:center}.week-head b{display:block;font-size:12px;color:#9fa8b5;text-transform:uppercase}.week-head strong{font-size:19px}.week-head.today{background:#201419}.week-head.today strong{color:#ff5b62}.employee-head{position:sticky;left:0;z-index:4;background:#12171d;text-align:left;padding:10px;font-size:12px;color:#9fa8b5}.employee{position:sticky;left:0;z-index:3;background:#101419;padding:10px;min-height:96px;display:flex;align-items:center;gap:9px}.avatar{width:34px;height:34px;border-radius:10px;background:#242b34;display:grid;place-items:center;font-size:12px;font-weight:800;flex:none}.ename{min-width:0}.ename b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ename span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.day{min-height:96px;padding:6px;background:#0e1216;transition:.15s}.day.over{background:#151a20}.shift{position:relative;background:#191e25;border:1px solid #303844;border-left:3px solid var(--red);border-radius:9px;padding:8px 8px;margin-bottom:5px;cursor:pointer;box-shadow:0 8px 20px #0003}.shift:hover{border-color:#55606e;transform:translateY(-1px)}.shift .time{font-size:12px;font-weight:800}.shift .type{font-size:10px;color:#aeb6c2;margin-top:3px}.shift .note{font-size:10px;color:#737d8a;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shift.purple{border-left-color:var(--purple)}.shift.green{border-left-color:var(--green)}.shift.yellow{border-left-color:var(--yellow)}.emptyday{height:83px;border:1px dashed #252c35;border-radius:8px;display:grid;place-items:center;color:#56606d;font-size:11px;opacity:.65}.addday{width:100%;border:1px dashed #303844;background:transparent;color:#697482;border-radius:7px;padding:6px;font-size:11px;margin-top:3px}.addday:hover{color:#fff;border-color:#596474}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.stat{padding:13px 14px;background:#101419;border:1px solid var(--line);border-radius:13px}.stat span{font-size:11px;color:var(--muted)}.stat b{display:block;font-size:22px;margin-top:3px}
+.modal-bg{display:none;position:fixed;inset:0;background:#000b;align-items:center;justify-content:center;padding:16px;z-index:50}.modal{width:min(480px,100%);background:#171b21;border:1px solid #333b46;border-radius:17px;padding:19px;box-shadow:0 30px 100px #000c}.modal h2{margin:0 0 4px;font-size:20px}.meta{color:var(--muted);font-size:12px}.field{margin-top:14px}.field label{display:block;color:#aab3bf;font-size:12px;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px;outline:none}.field textarea{resize:vertical;min-height:70px}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.file{font-size:12px;color:#aab3bf}
 .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e9edf2;color:#111;padding:10px 14px;border-radius:10px;font-size:13px;box-shadow:0 15px 45px #0008;transition:.2s;z-index:80}.toast.show{opacity:1;transform:translate(-50%,0)}
-@media(max-width:850px){.layout{grid-template-columns:1fr}.side{display:none}.headrow{align-items:stretch;flex-direction:column}.tools{width:100%}.search{flex:1;width:auto}.toolbar{padding-left:10px;padding-right:10px}.top{padding-left:14px;padding-right:14px}main{padding:12px 10px 30px}}
-@media(max-width:500px){.brand{font-size:20px}.city{display:none}.tab,.mode{padding:9px 11px}.toolbar{overflow:auto}.tabs{flex:none}.mode{margin-left:auto;white-space:nowrap}.admin-actions .small{padding:7px}.adminbar{align-items:flex-start;flex-direction:column}.admin-actions{width:100%}.admin-actions button{flex:1}.mapwrap{padding:6px}.row{grid-template-columns:1fr}}
+#import{display:none}
+@media(max-width:850px){.summary{grid-template-columns:repeat(2,1fr)}.headrow{align-items:stretch;flex-direction:column}.tools{width:100%}.search{flex:1;width:auto}.toolbar{padding-left:10px;padding-right:10px}.top{padding-left:14px;padding-right:14px}main{padding:12px 10px 30px}.week{grid-template-columns:165px repeat(7,110px)}.employee{min-height:88px}}
+@media(max-width:500px){.brand{font-size:20px}.city{display:none}.tab,.mode{padding:9px 11px}.toolbar{overflow:auto}.tabs{flex:none}.mode{white-space:nowrap}.calendar-head{align-items:flex-start;flex-direction:column}.date-tools{width:100%}.date-tools input{flex:1}.summary{gap:7px}.stat{padding:10px}.stat b{font-size:19px}.row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
-<div class="top"><div><div class="brand">MULTI<i>STAFF</i></div><div class="sub">POSTERS · Кинотеатр «Атмосфера»</div></div><div class="city">Киев</div></div>
-<div class="toolbar"><div class="tabs"><button class="tab active" data-floor="1">1 этаж</button><button class="tab" data-floor="2">2 этаж</button></div><button class="mode" id="mode">Режим сотрудника</button></div>
+<div class="top"><div><div class="brand">MULTI<i>STAFF</i></div><div class="sub">SCHEDULE · Кинотеатр «Атмосфера»</div></div><div class="city">Киев</div></div>
+<div class="toolbar"><div class="tabs"><button class="tab active" id="weekTab">Неделя</button><button class="tab" id="monthTab">Месяц</button></div><button class="mode" id="mode">Режим сотрудника</button></div>
 </header>
 <main>
-<div class="headrow"><div class="title"><h1 id="floorTitle">1 этаж</h1><p>Нажмите на плакат, чтобы посмотреть или изменить фильм.</p></div><div class="tools"><input class="search" id="search" placeholder="Поиск фильма…"><button class="btn primary" id="add">＋ Плакат</button></div></div>
-<div class="adminbar" id="adminbar"><span>⚙ Администратор · тяните плакат плавно · белый уголок меняет размер</span><div class="admin-actions"><button class="btn small" id="reset">Сбросить карту</button><button class="btn primary small" id="save">Сохранить</button></div></div>
-<div class="layout"><section class="card"><div class="mapwrap"><div class="map"><svg viewBox="0 0 1000 560" id="map"></svg></div></div><div class="legend"><span><i class="dot red"></i>маленький</span><span><i class="dot purple"></i>большой</span></div><div class="hint" id="hint">Сотрудник: можно менять только название фильма</div></section>
-<aside class="card side"><h2>Плакаты</h2><div class="muted">Быстрый список текущего этажа</div><div class="stat"><span>Всего</span><b id="count">0</b></div><div class="stat"><span>Маленьких</span><b id="smallCount">0</b></div><div class="stat"><span>Больших</span><b id="largeCount">0</b></div><div class="list" id="list"></div></aside></div>
+<div class="headrow"><div class="title"><h1>График сотрудников</h1><p>Выберите день и добавляйте смены сотрудникам. Календарь можно импортировать.</p></div><div class="tools"><input class="search" id="search" placeholder="Поиск сотрудника…"><button class="btn ghost" id="importBtn">⇩ Календарь</button><button class="btn primary" id="addShift">＋ Смена</button><input id="import" type="file" accept=".ics,.ical,text/calendar"></div></div>
+<div class="adminbar" id="adminbar"><span>⚙ Администратор · редактирование графика и сотрудников</span><div class="admin-actions"><button class="btn small" id="addEmployee">＋ Сотрудник</button><button class="btn primary small" id="save">Сохранить</button></div></div>
+<div class="summary"><div class="stat"><span>Смен на неделе</span><b id="weekShifts">0</b></div><div class="stat"><span>Сотрудников</span><b id="employeeCount">0</b></div><div class="stat"><span>Рабочих сегодня</span><b id="todayWorkers">0</b></div><div class="stat"><span>Часов запланировано</span><b id="weekHours">0</b></div></div>
+<section class="card"><div class="calendar-head"><div class="nav"><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="today">●</button><button class="iconbtn" id="next">›</button></div><div class="month" id="period"></div><div class="date-tools"><input type="date" id="jump"><button class="btn" id="today2">Сегодня</button></div></div>
+<div class="week" id="calendar"></div></section>
 </main>
-<div class="modal-bg" id="bg"><div class="modal"><h2 id="modalTitle">Плакат</h2><div class="meta" id="meta"></div><div class="field"><label>Название фильма</label><input id="movie" placeholder="Например: Аватар 3"></div>
-<div id="adminFields"><div class="field"><label>Тип плаката</label><select class="select" id="type"><option value="small">Маленький</option><option value="large">Большой</option></select></div>
-<div class="field row"><div><label>Ширина</label><input id="width" type="number" min="24" max="260"></div><div><label>Высота</label><input id="height" type="number" min="18" max="180"></div></div>
-<div class="field"><label>Изображение</label><input class="file" id="image" type="file" accept="image/*"><img class="preview" id="preview"></div></div>
-<div class="modal-actions"><button class="btn" id="cancel">Отмена</button><button class="btn danger" id="delete">Удалить</button><button class="btn primary" id="saveModal">Сохранить</button></div></div></div><div class="toast" id="toast"></div>
+<div class="modal-bg" id="bg"><div class="modal">
+<h2 id="modalTitle">Новая смена</h2><div class="meta" id="meta"></div>
+<div class="field"><label>Сотрудник</label><select id="employee"></select></div>
+<div class="field row"><div><label>Дата</label><input id="date" type="date"></div><div><label>Тип смены</label><select id="type"><option value="shift">Смена</option><option value="open">Открытие</option><option value="close">Закрытие</option><option value="training">Обучение</option><option value="other">Другое</option></select></div></div>
+<div class="field row"><div><label>Начало</label><input id="start" type="time" value="09:00"></div><div><label>Конец</label><input id="end" type="time" value="18:00"></div></div>
+<div class="field"><label>Комментарий</label><textarea id="note" placeholder="Например: зал 4–5, касса, замена…"></textarea></div>
+<div class="modal-actions"><button class="btn" id="cancel">Отмена</button><button class="btn danger" id="delete">Удалить</button><button class="btn primary" id="saveModal">Сохранить</button></div>
+</div></div>
+<div class="modal-bg" id="empBg"><div class="modal">
+<h2 id="empTitle">Новый сотрудник</h2><div class="field"><label>Имя и фамилия</label><input id="empName" placeholder="Например: Иван Петренко"></div>
+<div class="field"><label>Должность</label><input id="empRole" placeholder="Кассир"></div>
+<div class="modal-actions"><button class="btn" id="empCancel">Отмена</button><button class="btn danger" id="empDelete">Удалить</button><button class="btn primary" id="empSave">Сохранить</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
 <script>
-const KEY='multistaff_posters_v3';
-function makePoster(id,x,y,type){return{id,x,y,type,movie:'',w:type==='large'?92:62,h:type==='large'?42:30,image:''}}
-const initial={1:[
-[150,62,'small'],[215,62,'small'],[280,62,'small'],[345,62,'small'],[655,62,'small'],[720,62,'small'],[785,62,'small'],[850,62,'small'],
-[405,100,'large'],[470,100,'large'],[530,100,'large'],[595,100,'large'],
-[150,480,'small'],[215,480,'small'],[280,480,'small'],[345,480,'small'],[655,480,'small'],[720,480,'small'],[785,480,'small'],[850,480,'small']
-].map((p,i)=>makePoster(i+1,p[0],p[1],p[2])),2:[
-[135,82,'small'],[225,82,'small'],[775,82,'small'],[865,82,'small'],[135,465,'small'],[225,465,'small'],[775,465,'small'],[865,465,'small']
-].map((p,i)=>makePoster(i+21,p[0],p[1],p[2]))};
-function clone(x){return JSON.parse(JSON.stringify(x))}
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&x[1]&&x[2]?x:clone(initial)}catch{return clone(initial)}}
-let state=load(),floor=1,current=null,admin=false,drag=null,raf=0,ignoreClick=false;
-const svg=document.getElementById('map'),bg=document.getElementById('bg');
+const KEY='multistaff_schedule_v1';
+const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const TYPES={shift:'Смена',open:'Открытие',close:'Закрытие',training:'Обучение',other:'Другое'};
+const defaultEmployees=[
+{id:1,name:'Александр',role:'Кассир'},{id:2,name:'Анна',role:'Кассир'},{id:3,name:'Максим',role:'Старший кассир'},{id:4,name:'Ольга',role:'Кассир'}
+];
+function iso(d){return d.toISOString().slice(0,10)}
+function localDate(s){const [y,m,day]=s.split('-').map(Number);return new Date(y,m-1,day)}
+function monday(d){const x=new Date(d);x.setHours(0,0,0,0);const n=x.getDay()||7;x.setDate(x.getDate()-n+1);return x}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function fmt(d){return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}
+function makeState(){return{employees:defaultEmployees,shifts:[]}}
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
+let state=load(), cursor=monday(new Date()), admin=false, editing=null;
+const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg');
 function persist(){localStorage.setItem(KEY,JSON.stringify(state))}
-function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function point(e){const r=svg.getBoundingClientRect();return{x:(e.clientX-r.left)*1000/r.width,y:(e.clientY-r.top)*560/r.height}}
-function draw(){
- const items=state[floor],q=document.getElementById('search').value.trim().toLowerCase();let s='';
- if(floor===1)s+='<path d="M45 45H275V0H725V45H955V515H725V560H275V515H45Z" fill="#929292"/><rect x="275" y="0" width="450" height="45" fill="#fff"/><rect x="275" y="515" width="450" height="45" fill="#fff"/><text x="500" y="543" text-anchor="middle" font-size="26" fill="#111">БАР</text>';
- else s+='<path d="M45 45H955V515H45Z" fill="#929292"/><rect x="250" y="45" width="500" height="215" fill="#fff"/><text x="285" y="88" font-size="25" fill="#111">БАНК</text><text x="650" y="88" font-size="25" fill="#111">ЯБКО</text>';
- items.filter(x=>!q||x.movie.toLowerCase().includes(q)).forEach(x=>{
-  const c=x.type==='large'?'#7846ff':'#ef3038',sel=current&&current.id===x.id?' selected':'',label=x.movie||('№'+x.id);
-  const img=x.image?'<image href="'+x.image+'" x="3" y="3" width="'+Math.max(1,x.w-6)+'" height="'+Math.max(1,x.h-6)+'" preserveAspectRatio="xMidYMid slice"/>':'';
-  s+='<g class="poster'+sel+'" data-id="'+x.id+'" transform="translate('+(x.x-x.w/2)+','+(x.y-x.h/2)+')"><rect width="'+x.w+'" height="'+x.h+'" rx="3" fill="'+c+'"/>'+img+'<text x="'+x.w/2+'" y="'+x.h/2+'">'+esc(label)+'</text>';
-  if(admin&&current&&current.id===x.id)s+='<rect class="resize-handle" x="'+(x.w-9)+'" y="'+(x.h-9)+'" width="9" height="9" rx="2" data-resize="1"/>';
-  s+='</g>';
- });
- svg.innerHTML=s;bindPosters();updateSide();
-}
-function bindPosters(){
- svg.querySelectorAll('.poster').forEach(el=>{
-  const id=+el.dataset.id;
-  el.addEventListener('pointerdown',e=>{
-   if(!admin)return;
-   if(e.target.dataset.resize==='1'){startResize(e,id);return}
-   e.preventDefault();e.stopPropagation();const p=point(e),item=state[floor].find(a=>a.id===id);current=item;
-   drag={id,mode:'move',dx:item.x-p.x,dy:item.y-p.y,moved:false,pointer:e.pointerId};el.classList.add('dragging');svg.setPointerCapture?.(e.pointerId);draw();
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>e.classList.remove('show'),1500)}
+function initials(n){return n.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()}
+function weekShifts(){const from=iso(cursor),to=iso(addDays(cursor,6));return state.shifts.filter(s=>s.date>=from&&s.date<=to)}
+function hours(s){const [a,b]=[s.start,s.end].map(t=>{const [h,m]=t.split(':').map(Number);return h*60+m});let mins=b-a;if(mins<0)mins+=1440;return mins/60}
+function render(){
+ const q=$('search').value.trim().toLowerCase(), days=Array.from({length:7},(_,i)=>addDays(cursor,i)), shifts=weekShifts();
+ $('period').textContent=days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+(days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
+ $('jump').value=iso(cursor);
+ $('weekShifts').textContent=shifts.length;$('employeeCount').textContent=state.employees.length;
+ const today=iso(new Date());$('todayWorkers').textContent=new Set(state.shifts.filter(s=>s.date===today).map(s=>s.employeeId)).size;
+ $('weekHours').textContent=shifts.reduce((a,s)=>a+hours(s),0).toFixed(1).replace('.0','');
+ let html='<div class="cell employee-head">Сотрудник</div>';
+ days.forEach((d,i)=>{const t=iso(d)===today;html+='<div class="cell week-head'+(t?' today':'')+'"><b>'+DAYS[i]+'</b><strong>'+d.getDate()+'</strong></div>'});
+ state.employees.filter(e=>!q||e.name.toLowerCase().includes(q)||e.role.toLowerCase().includes(q)).forEach(e=>{
+  html+='<div class="cell employee"><div class="avatar">'+initials(e.name)+'</div><div class="ename"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div></div>';
+  days.forEach(d=>{
+   const date=iso(d), list=state.shifts.filter(s=>s.employeeId===e.id&&s.date===date);
+   html+='<div class="cell day" data-date="'+date+'" data-emp="'+e.id+'">';
+   if(!list.length) html+='<div class="emptyday">Нет смен</div>';
+   list.forEach(s=>{html+='<div class="shift '+colorFor(s.type)+'" data-id="'+s.id+'"><div class="time">'+s.start+' — '+s.end+'</div><div class="type">'+TYPES[s.type]+'</div>'+(s.note?'<div class="note">'+esc(s.note)+'</div>':'')+'</div>'});
+   if(admin)html+='<button class="addday" data-add="'+e.id+'" data-date="'+date+'">＋ добавить</button>';
+   html+='</div>';
   });
-  el.addEventListener('click',e=>{if(ignoreClick){ignoreClick=false;e.preventDefault();return}open(id)});
  });
+ $('calendar').innerHTML=html;
+ $('calendar').querySelectorAll('.shift').forEach(x=>x.onclick=()=>openShift(+x.dataset.id));
+ $('calendar').querySelectorAll('.addday').forEach(x=>x.onclick=()=>newShift(+x.dataset.add,x.dataset.date));
 }
-function startResize(e,id){
- e.preventDefault();e.stopPropagation();const item=state[floor].find(a=>a.id===id);current=item;const p=point(e);
- drag={id,mode:'resize',startX:p.x,startY:p.y,startW:item.w,startH:item.h,moved:false,pointer:e.pointerId};svg.setPointerCapture?.(e.pointerId);
-}
-svg.addEventListener('pointermove',e=>{
- if(!admin||!drag)return;const p=point(e),item=state[floor].find(a=>a.id===drag.id);if(!item)return;
- if(drag.mode==='move'){item.x=Math.max(35,Math.min(965,p.x+drag.dx));item.y=Math.max(25,Math.min(535,p.y+drag.dy))}
- else{item.w=Math.max(24,Math.min(260,drag.startW+(p.x-drag.startX)*2));item.h=Math.max(18,Math.min(180,drag.startH+(p.y-drag.startY)*2))}
- drag.moved=true;if(!raf)raf=requestAnimationFrame(()=>{raf=0;draw()});
-});
-svg.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;drag=null;if(moved){ignoreClick=true;persist();toast('Изменение применено')}draw()});
-svg.addEventListener('pointercancel',()=>{drag=null;draw()});
-function updateSide(){const items=state[floor],list=document.getElementById('list');document.getElementById('count').textContent=items.length;document.getElementById('smallCount').textContent=items.filter(x=>x.type==='small').length;document.getElementById('largeCount').textContent=items.filter(x=>x.type==='large').length;list.innerHTML=items.map(x=>'<div class="item" data-id="'+x.id+'"><i class="mini" style="background:'+(x.type==='large'?'#7846ff':'#ef3038')+'"></i><span>'+(x.movie||('Плакат №'+x.id))+'</span></div>').join('')||'<div class="empty">На этом этаже пока нет плакатов.</div>';list.querySelectorAll('.item').forEach(x=>x.onclick=()=>open(+x.dataset.id))}
-function open(id){current=state[floor].find(x=>x.id===id);if(!current)return;document.getElementById('modalTitle').textContent='Плакат №'+current.id;document.getElementById('meta').textContent=(current.type==='large'?'Большой':'Маленький')+' · «Атмосфера» · '+floor+' этаж';document.getElementById('movie').value=current.movie||'';document.getElementById('type').value=current.type;document.getElementById('width').value=Math.round(current.w);document.getElementById('height').value=Math.round(current.h);document.getElementById('preview').style.display=current.image?'block':'none';document.getElementById('preview').src=current.image||'';document.getElementById('delete').style.display=admin?'inline-block':'none';document.getElementById('adminFields').style.display=admin?'block':'none';bg.style.display='flex';document.getElementById('movie').focus()}
-function close(){bg.style.display='none';current=null;draw()}
-function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.classList.remove('show'),1500)}
-function setAdmin(v){admin=v;current=null;document.getElementById('mode').textContent=admin?'Режим администратора':'Режим сотрудника';document.getElementById('mode').classList.toggle('admin',admin);document.getElementById('adminbar').classList.toggle('show',admin);document.getElementById('add').style.display=admin?'inline-block':'none';document.getElementById('hint').textContent=admin?'Администратор: тяните плакат плавно. Белый уголок справа снизу — изменение размера.':'Сотрудник: можно менять только название фильма';draw()}
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{floor=+b.dataset.floor;current=null;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('floorTitle').textContent=floor+' этаж';draw()});
-document.getElementById('mode').onclick=()=>setAdmin(!admin);document.getElementById('search').oninput=draw;document.getElementById('cancel').onclick=close;bg.onclick=e=>{if(e.target===bg)close()};
-document.getElementById('saveModal').onclick=()=>{if(!current)return;current.movie=document.getElementById('movie').value.trim();if(admin){current.type=document.getElementById('type').value;current.w=Math.max(24,Math.min(260,+document.getElementById('width').value||current.w));current.h=Math.max(18,Math.min(180,+document.getElementById('height').value||current.h))}persist();close();toast('Изменения сохранены')};
-document.getElementById('delete').onclick=()=>{if(!admin||!current)return;if(confirm('Удалить этот плакат?')){state[floor]=state[floor].filter(x=>x.id!==current.id);persist();close();toast('Плакат удалён')}};
-document.getElementById('add').onclick=()=>{if(!admin)return;const all=[...state[1],...state[2]],id=all.length?Math.max(...all.map(x=>x.id))+1:1;state[floor].push(makePoster(id,500,280,'small'));persist();draw();open(id)};
-document.getElementById('reset').onclick=()=>{if(confirm('Вернуть исходную карту?')){state=clone(initial);persist();draw();toast('Карта сброшена')}};
-document.getElementById('save').onclick=()=>{persist();toast('Карта сохранена')};
-document.getElementById('image').onchange=e=>{const f=e.target.files[0];if(!f||!current)return;const r=new FileReader();r.onload=()=>{current.image=r.result;document.getElementById('preview').src=r.result;document.getElementById('preview').style.display='block'};r.readAsDataURL(f)};
-setAdmin(false);
+function colorFor(t){return t==='training'?'purple':t==='open'?'green':t==='close'?'yellow':''}
+function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fillEmployees(){ $('employee').innerHTML=state.employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join('') }
+function newShift(emp,date){editing=null;$('modalTitle').textContent='Новая смена';$('employee').value=emp||state.employees[0]?.id||'';$('date').value=date||iso(cursor);$('type').value='shift';$('start').value='09:00';$('end').value='18:00';$('note').value='';$('delete').style.display='none';$('meta').textContent='Добавление в график';bg.style.display='flex'}
+function openShift(id){const s=state.shifts.find(x=>x.id===id);if(!s)return;editing=s;$('modalTitle').textContent='Смена';$('employee').value=s.employeeId;$('date').value=s.date;$('type').value=s.type;$('start').value=s.start;$('end').value=s.end;$('note').value=s.note||'';$('delete').style.display=admin?'inline-block':'none';$('meta').textContent='Изменение смены';bg.style.display='flex'}
+function close(){bg.style.display='none';editing=null}
+function setAdmin(v){admin=v;$('mode').textContent=admin?'Режим администратора':'Режим сотрудника';$('mode').classList.toggle('admin',admin);$('adminbar').classList.toggle('show',admin);$('addShift').style.display=admin?'inline-block':'none';render()}
+$('mode').onclick=()=>setAdmin(!admin);
+$('prev').onclick=()=>{cursor=addDays(cursor,-7);render()};$('next').onclick=()=>{cursor=addDays(cursor,7);render()};
+function goToday(){cursor=monday(new Date());render()}$('today').onclick=goToday;$('today2').onclick=goToday;
+$('jump').onchange=()=>{cursor=monday(localDate($('jump').value));render()};
+$('search').oninput=render;$('cancel').onclick=close;bg.onclick=e=>{if(e.target===bg)close()};empBg.onclick=e=>{if(e.target===empBg)closeEmp()};
+$('saveModal').onclick=()=>{if(!admin||!$('employee').value)return;const obj={employeeId:+$('employee').value,date:$('date').value,type:$('type').value,start:$('start').value,end:$('end').value,note:$('note').value.trim()};if(!obj.date||!obj.start||!obj.end)return toast('Заполни дату и время');if(editing)Object.assign(editing,obj);else state.shifts.push({id:Date.now(),...obj});persist();close();render();toast('График сохранён')};
+$('delete').onclick=()=>{if(!editing)return;if(confirm('Удалить смену?')){state.shifts=state.shifts.filter(s=>s.id!==editing.id);persist();close();render();toast('Смена удалена')}};
+$('addShift').onclick=()=>newShift();
+$('save').onclick=()=>{persist();toast('График сохранён')};
+$('addEmployee').onclick=()=>openEmp();
+$('importBtn').onclick=()=>admin?$('import').click():toast('Импорт доступен администратору');
+function openEmp(id){const e=id?state.employees.find(x=>x.id===id):null;$('empTitle').textContent=e?'Сотрудник':'Новый сотрудник';$('empName').value=e?.name||'';$('empRole').value=e?.role||'';$('empDelete').style.display=e?'inline-block':'none';$('empSave').dataset.id=e?.id||'';empBg.style.display='flex'}
+function closeEmp(){empBg.style.display='none'}
+$('empCancel').onclick=closeEmp;
+$('empSave').onclick=()=>{const name=$('empName').value.trim(),role=$('empRole').value.trim()||'Сотрудник';if(!name)return toast('Укажи имя');const id=+$('empSave').dataset.id;if(id){const e=state.employees.find(x=>x.id===id);e.name=name;e.role=role}else state.employees.push({id:Date.now(),name,role});persist();closeEmp();fillEmployees();render();toast('Сотрудник сохранён')};
+$('empDelete').onclick=()=>{const id=+$('empSave').dataset.id;if(!id)return;if(confirm('Удалить сотрудника и его смены?')){state.employees=state.employees.filter(e=>e.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();closeEmp();fillEmployees();render();toast('Сотрудник удалён')}};
+$('import').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importICS(r.result);r.readAsText(f);e.target.value=''};
+function parseICS(text){const lines=text.replace(/\r/g,'').split('\n');const events=[];let ev=null;for(const raw of lines){const line=raw.trim();if(line==='BEGIN:VEVENT'){ev={}}else if(line==='END:VEVENT'){if(ev)events.push(ev);ev=null}else if(ev){const p=line.indexOf(':');if(p<0)continue;const k=line.slice(0,p).split(';')[0],v=line.slice(p+1);ev[k]=v}}return events}
+function parseDT(v){if(!v)return null;const x=v.replace(/[^0-9]/g,'').slice(0,14);if(x.length<8)return null;return x.slice(0,4)+'-'+x.slice(4,6)+'-'+x.slice(6,8)}
+function parseTime(v,def){if(!v)return def;const x=v.replace(/[^0-9]/g,'');if(x.length<11)return def;return x.slice(9,11)+':'+x.slice(11,13)}
+function importICS(text){const events=parseICS(text);let added=0;events.forEach((ev,i)=>{const date=parseDT(ev.DTSTART),end=parseDT(ev.DTEND);if(!date)return;let emp=state.employees.find(e=>(ev.SUMMARY||'').toLowerCase().includes(e.name.toLowerCase().split(' ')[0]));if(!emp)emp=state.employees[0];if(!emp)return;state.shifts.push({id:Date.now()+i,employeeId:emp.id,date,type:'shift',start:parseTime(ev.DTSTART,'09:00'),end:parseTime(ev.DTEND,'18:00'),note:ev.SUMMARY||'Импортировано из календаря'});added++});persist();render();toast('Импортировано смен: '+added)}
+$('weekTab').onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('weekTab').classList.add('active')};
+$('monthTab').onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('monthTab').classList.add('active');toast('Месячный режим добавим следующим этапом')};
+fillEmployees();setAdmin(false);
 </script>
 </body>
 </html>
