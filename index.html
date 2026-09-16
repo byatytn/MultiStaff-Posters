@@ -259,7 +259,7 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function hours(s){
   // Безопасно считаем длительность смены. Ночная смена, переходящая через полночь, тоже поддерживается.
   const parseTime = value => {
-    const m = String(value || '').match(/^(\\d{1,2}):(\\d{2})$/);
+    const m = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
     if(!m) return null;
     const h=Number(m[1]), min=Number(m[2]);
     if(h>23 || min>59) return null;
@@ -389,7 +389,7 @@ function render(){
  $('shiftsLabel').textContent=isArchive?'Смен за месяц':'Смен на неделе';
  $('weekShifts').textContent=shifts.length;
  $('employeeCount').textContent=state.employees.length;
- $('todayWorkers').textContent=new Set(state.shifts.filter(s=>shiftDate(s)===today).map(s=>s.employeeId)).size;
+ $('todayWorkers').textContent=new Set(state.shifts.filter(s=>shiftDate(s)===today&&s.type!=='off'&&s.type!=='vacation'&&s.type!=='leave').map(s=>s.employeeId)).size;
  $('weekHours').textContent=shifts.reduce((a,s)=>a+hours(s),0).toFixed(1).replace('.0','');
  $('calendarStatus').textContent=state.employees.length?'':'Нет сотрудников в StaffShedules';
 
@@ -587,7 +587,7 @@ $('archiveClose').onclick=closeArchive;
 archiveBg.onclick=e=>{if(e.target===archiveBg)closeArchive()};
 
 function parseMinutes(value){
-  const m=String(value||'').match(/^(\\d{1,2}):(\\d{2})$/);
+  const m=String(value||'').match(/^(\d{1,2}):(\d{2})$/);
   if(!m)return null;
   const h=Number(m[1]),min=Number(m[2]);
   if(h>23||min>59)return null;
