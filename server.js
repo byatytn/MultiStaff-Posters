@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const crypto = require('crypto');
+const fs = require('fs');
 const admin = require('firebase-admin');
 
 const app = express();
@@ -31,11 +32,37 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+function loadFirebaseServiceAccount() {
+  // Primary option: JSON in a runtime environment variable.
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (raw && raw.trim()) {
+    return JSON.parse(raw.trim());
+  }
+
+  // Optional aliases make deployment less fragile if a platform secret
+  // was created under a different, documented name.
+  for (const key of ['FIREBASE_SERVICE_ACCOUNT', 'GOOGLE_APPLICATION_CREDENTIALS_JSON']) {
+    const value = process.env[key];
+    if (value && value.trim()) return JSON.parse(value.trim());
+  }
+
+  // Optional secret-file support for Northflank runtime secret files.
+  const filePath = process.env.FIREBASE_SERVICE_ACCOUNT_FILE;
+  if (filePath && fs.existsSync(filePath)) {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  }
+
+  const firebaseKeys = Object.keys(process.env).filter(k => /FIREBASE|GOOGLE.*CREDENTIAL/i.test(k));
+  console.error('Firebase configuration error: FIREBASE_SERVICE_ACCOUNT_JSON is not available.');
+  console.error('Firebase-related environment keys visible to the process:', firebaseKeys.join(', ') || '(none)');
+  throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is not set');
+}
+
 let credential;
 try {
-  const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  if (!raw) throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is not set');
-  credential = admin.credential.cert(JSON.parse(raw));
+  const serviceAccount = loadFirebaseServiceAccount();
+  credential = admin.credential.cert(serviceAccount);
+  console.log('Firebase service-account configuration loaded successfully.');
 } catch (e) {
   console.error('Firebase configuration error:', e.message);
   process.exit(1);
