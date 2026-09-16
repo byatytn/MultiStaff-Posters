@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MultiStaff Posters — Атмосфера</title>
+<style>
+:root{--bg:#0d0f12;--panel:#15181d;--line:#292e37;--text:#f5f5f5;--muted:#9aa1ad;--red:#ef3038;--purple:#7138f2}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#181b22,#0b0c0f 70%);color:var(--text);font:15px Arial,sans-serif}
+header{border-bottom:1px solid var(--line);background:#101216e8;backdrop-filter:blur(12px);padding:16px 20px;position:sticky;top:0;z-index:5}
+.top{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font-weight:900;font-size:25px;letter-spacing:.5px}.brand span{color:var(--red)}.sub{color:var(--muted);font-size:12px;margin-top:2px}
+.tabs{display:flex;gap:8px;margin:15px auto 0;max-width:1100px}.tab{border:1px solid var(--line);background:#15181d;color:#aeb5c0;padding:10px 22px;border-radius:10px;cursor:pointer}.tab.active{background:#211316;border-color:var(--red);color:#fff;box-shadow:0 0 18px #ef303822}
+main{max-width:1100px;margin:auto;padding:20px}.card{background:#111419;border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:0 20px 50px #0005}
+.map{position:relative;overflow:hidden;border-radius:10px;background:#0e1115}.map svg{display:block;width:100%;height:auto}
+.poster{cursor:pointer}.poster rect{transition:.12s}.poster:hover rect{filter:brightness(1.16);stroke:#fff;stroke-width:1.5}.poster text{pointer-events:none;fill:#fff;font-weight:700;text-anchor:middle;dominant-baseline:middle;font-size:10px}
+.legend{text-align:center;color:var(--muted);padding:13px 0 2px}.dot{display:inline-block;width:14px;height:9px;border-radius:2px;margin:0 5px 0 14px}.r{background:var(--red)}.p{background:var(--purple)}
+.modal-bg{display:none;position:fixed;inset:0;background:#000a;align-items:center;justify-content:center;padding:18px;z-index:10}.modal{width:min(410px,100%);background:#171a20;border:1px solid #303641;border-radius:16px;padding:20px;box-shadow:0 25px 80px #0008}.modal h2{margin:0 0 5px}.meta{color:var(--muted);font-size:13px}input{width:100%;padding:13px;margin:17px 0 12px;border:1px solid #343b47;background:#0e1115;color:#fff;border-radius:9px;font-size:16px;outline:none}input:focus{border-color:var(--red)}.actions{display:flex;justify-content:flex-end;gap:8px}.cancel{border:0;background:#292e36;color:#fff;padding:10px 15px;border-radius:9px}.save{border:0;background:var(--red);color:#fff;padding:10px 17px;border-radius:9px;font-weight:700}
+@media(max-width:650px){.top{align-items:flex-start}.brand{font-size:21px}main{padding:10px}.card{padding:7px}.tab{flex:1;padding:10px 8px}}
+</style>
+</head>
+<body>
+<header><div class="top"><div><div class="brand">MULTI<span>STAFF</span></div><div class="sub">POSTERS · Кинотеатр «Атмосфера»</div></div><strong>Киев</strong></div>
+<div class="tabs"><button class="tab active" data-floor="1">1 этаж</button><button class="tab" data-floor="2">2 этаж</button></div></header>
+<main><div class="card"><div class="map"><svg viewBox="0 0 1000 560" id="map"></svg></div><div class="legend"><span class="dot r"></span>маленький плакат <span class="dot p"></span>большой плакат</div></div></main>
+<div class="modal-bg" id="bg"><div class="modal"><h2 id="title">Плакат</h2><div class="meta" id="meta"></div><input id="movie" placeholder="Название фильма"><div class="actions"><button class="cancel" id="cancel">Отмена</button><button class="save" id="save">Сохранить</button></div></div></div>
+<script>
+const state={1:[...Array(20)].map((_,i)=>({id:i+1,type:i>=8&&i<12?'large':'small',movie:''})),2:[...Array(4)].map((_,i)=>({id:i+21,type:'small',movie:''}))};
+let floor=1,current=null;const svg=document.getElementById('map');
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function positions(f){if(f===1)return [[120,48],[185,48],[250,48],[315,48],[685,48],[750,48],[815,48],[880,48],[380,98],[445,98],[555,98],[620,98],[120,462],[185,462],[250,462],[315,462],[685,462],[750,462],[815,462],[880,462]];return [[105,65],[225,65],[775,65],[895,65]]}
+function draw(){const p=positions(floor),items=state[floor];let s='<rect x="35" y="45" width="930" height="470" rx="2" fill="#999"/>';if(floor===1)s+='<rect x="270" y="0" width="460" height="75" fill="#fff"/><rect x="270" y="485" width="460" height="75" fill="#fff"/><text x="500" y="525" text-anchor="middle" font-size="27" fill="#111">БАР</text>';else s+='<rect x="250" y="45" width="500" height="215" fill="#fff"/><text x="270" y="88" font-size="25" fill="#111">БАНК</text><text x="680" y="88" font-size="25" fill="#111">ЯБКО</text>';items.forEach((x,i)=>{let[px,py]=p[i],w=x.type==='large'?92:62,h=x.type==='large'?42:30,c=x.type==='large'?'#7138f2':'#ef3038',label=x.movie||'';s+=`<g class="poster" data-id="${x.id}" transform="translate(${px-w/2},${py-h/2})"><rect width="${w}" height="${h}" rx="3" fill="${c}"/><text x="${w/2}" y="${h/2}">${esc(label)}</text></g>`});svg.innerHTML=s;svg.querySelectorAll('.poster').forEach(el=>el.onclick=()=>open(+el.dataset.id))}
+function open(id){current=state[floor].find(x=>x.id===id);document.getElementById('title').textContent='Плакат №'+id;document.getElementById('meta').textContent=(current.type==='large'?'Большой':'Маленький')+' · Атмосфера · '+floor+' этаж';document.getElementById('movie').value=current.movie;document.getElementById('bg').style.display='flex';document.getElementById('movie').focus()}
+function close(){document.getElementById('bg').style.display='none'}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{floor=+b.dataset.floor;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');draw()});
+document.getElementById('cancel').onclick=close;document.getElementById('save').onclick=()=>{current.movie=document.getElementById('movie').value.trim();close();draw()};document.getElementById('bg').onclick=e=>{if(e.target.id==='bg')close()};draw();
+</script></body></html>
