@@ -25,30 +25,30 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 /* Табличный календарь: на ПК и телефоне одна и та же структура, без "одного дня" на мобильном. */
 #calendar{overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 #calendar.week-view{display:grid;grid-template-columns:170px repeat(7,minmax(86px,1fr));width:100%;min-width:0}
-#calendar.month-view{display:grid;grid-template-columns:190px repeat(31,minmax(58px,1fr));width:max-content;min-width:100%}
+#calendar.month-view{display:grid;grid-template-columns:120px repeat(31,minmax(0,1fr));width:100%;min-width:0}
 #calendar .cell{min-width:0}
-#calendar.month-view .cell{min-width:58px}
+#calendar.month-view .cell{min-width:0}
 #calendar .week-head.weekend{background:#17131a}
 #calendar .week-head.weekend strong{color:#c4a7ae}
 #calendar .week-head.today{box-shadow:inset 0 -3px 0 var(--red)}
 #calendar .month-day{font-size:10px;color:#737d8a;margin-top:2px}
-#calendar.month-view .employee{min-height:82px}
-#calendar.month-view .day{min-height:82px}
-#calendar.month-view .emptyday{height:69px}
-#calendar.month-view .shift{padding:6px 5px}
-#calendar.month-view .shift .time{font-size:10px}
+#calendar.month-view .employee{min-height:62px;padding:5px}
+#calendar.month-view .day{min-height:62px;padding:3px}
+#calendar.month-view .emptyday{height:50px;font-size:7px}
+#calendar.month-view .shift{padding:4px 1px;border-radius:5px;margin-bottom:2px;box-shadow:none;overflow:hidden}
+#calendar.month-view .shift .time{font-size:9px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:clip}
 #calendar.month-view .shift .type{display:none}
-#calendar.month-view .addday{font-size:9px}
+#calendar.month-view .addday{font-size:8px;width:22px;height:22px;line-height:20px}
 @media(max-width:600px){
   #calendar.week-view{grid-template-columns:86px repeat(7,minmax(0,1fr));width:100%;grid-auto-flow:row;grid-auto-rows:minmax(70px,auto)}
   #calendar.week-view .cell{min-width:0}
-  #calendar.month-view{grid-template-columns:82px repeat(31,54px);min-width:max-content}
-  #calendar.month-view .cell{min-width:54px}
-  #calendar.month-view .employee{min-height:66px;padding:5px 4px}
-  #calendar.month-view .day{min-height:66px;padding:3px}
-  #calendar.month-view .emptyday{height:57px;font-size:7px}
-  #calendar.month-view .shift{padding:5px 2px;border-radius:6px}
-  #calendar.month-view .shift .time{font-size:8px}
+  #calendar.month-view{grid-template-columns:70px repeat(31,minmax(31px,1fr));min-width:0}
+  #calendar.month-view .cell{min-width:0}
+  #calendar.month-view .employee{min-height:56px;padding:3px 2px}
+  #calendar.month-view .day{min-height:56px;padding:2px}
+  #calendar.month-view .emptyday{height:47px;font-size:6px}
+  #calendar.month-view .shift{padding:4px 0;border-radius:4px}
+  #calendar.month-view .shift .time{font-size:7px;letter-spacing:-.3px}
   #calendar.month-view .week-head{min-height:48px;padding:5px 2px}
   #calendar.month-view .week-head b{font-size:7px}
   #calendar.month-view .week-head strong{font-size:13px}
@@ -413,7 +413,8 @@ function render(){
        html+='<div class="cell day'+(weekend?' weekend':'')+'" data-date="'+date+'" data-emp="'+e.id+'">';
        if(!list.length) html+='<div class="emptyday">Нет смен</div>';
        list.forEach(s=>{
-         html+='<div class="shift '+colorFor(s.type)+(s.type==='off'?' off':'')+'" data-id="'+s.id+'"><div class="time">'+(s.type==='off'?'В':(s.type==='vacation'?'Відпустка':(s.start+' — '+s.end)))+'</div></div>';
+         const archiveLabel=isArchive?archiveShiftLabel(s):(s.type==='off'?'В':(s.type==='vacation'?'Відпустка':(s.start+' — '+s.end)));
+         html+='<div class="shift '+colorFor(s.type)+(s.type==='off'?' off':'')+'" data-id="'+s.id+'"><div class="time">'+archiveLabel+'</div></div>';
        });
        if(admin)html+='<button class="addday" title="Добавить смену" aria-label="Добавить смену" data-add="'+e.id+'" data-date="'+date+'">＋</button>';
        html+='</div>';
@@ -435,6 +436,15 @@ function render(){
      }
    });
  }
+}
+function archiveShiftLabel(s){
+  if(s.type==='off')return 'В';
+  if(s.type==='vacation'||s.type==='leave')return 'Відп';
+  const start=String(s.start||''), end=String(s.end||'');
+  if(start==='09:00'&&end==='23:00')return '1/3';
+  if(start==='11:00'&&end==='23:00')return '2/3';
+  if(start==='14:00'&&end==='23:00')return '3';
+  return start&&end?start+'-'+end:'•';
 }
 function colorFor(t){return t==='training'?'purple':t==='open'?'green':t==='close'?'yellow':(t==='off'||t==='vacation')?'yellow':''}
 function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
