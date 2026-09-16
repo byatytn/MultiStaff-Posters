@@ -338,6 +338,29 @@ let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null, needsInitial
 let adminToken=sessionStorage.getItem('multistaff_admin_token')||'';
 const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg'),passwordBg=$('passwordBg'),archiveBg=$('archiveBg'),statsBg=$('statsBg');
 function sameId(a,b){return String(a)===String(b)}
+// Порядок сотрудников на сайте: Богдан → Алина → Олександр → Каріна.
+// Сортируем только отображение, не меняя ID и данные смен на сервере.
+function orderedEmployees(list=state.employees){
+  const order=[
+    'куріненко богдан',
+    'куриненко богдан',
+    'фурманець аліна',
+    'фурманец алина',
+    'кострицький олександр',
+    'кострицкий александр',
+    'василик каріна',
+    'василик карина'
+  ];
+  const rank=name=>{
+    const n=String(name||'').trim().toLowerCase();
+    const i=order.indexOf(n);
+    return i===-1?100:i;
+  };
+  return [...list].sort((a,b)=>{
+    const ra=rank(a.name), rb=rank(b.name);
+    return ra===rb ? String(a.name||'').localeCompare(String(b.name||''),'uk') : ra-rb;
+  });
+}
 function sameState(a,b){return JSON.stringify({employees:a.employees,shifts:a.shifts})===JSON.stringify({employees:b.employees,shifts:b.shifts})}
 let saveQueue=Promise.resolve();
 function hasScheduleData(s){
@@ -460,7 +483,7 @@ function render(){
      (isArchive?'<div class="month-day">'+d.toLocaleDateString('ru-RU',{month:'short'}).replace('.','')+'</div>':'')+'</div>';
  });
 
- state.employees
+ orderedEmployees()
    .filter(e=>!q||e.name.toLowerCase().includes(q)||e.role.toLowerCase().includes(q))
    .forEach((e,ei)=>{
      const row=ei+2;
@@ -506,7 +529,7 @@ function archiveShiftLabel(s){
 }
 function colorFor(t){return t==='training'?'purple':t==='open'?'green':t==='close'?'yellow':(t==='off'||t==='vacation')?'yellow':''}
 function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function fillEmployees(){ $('employee').innerHTML=state.employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join('') }
+function fillEmployees(){ $('employee').innerHTML=orderedEmployees().map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join('') }
 function showModal(el){
   if(!el)return;
   el.style.display='flex';
@@ -623,7 +646,7 @@ $('save').onclick=async()=>{
   if(saved!==false)toast('График сохранён');
 };
 $('addEmployee').onclick=()=>openEmp();
-function renderEmployees(){const box=$('employeeList');if(!state.employees.length){box.innerHTML='<div class="empty-employees">Сотрудников пока нет</div>';return}box.innerHTML=state.employees.map(e=>'<div class="employee-row"><div class="avatar">'+initials(e.name)+'</div><div class="employee-info"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div><div class="employee-actions"><button class="iconbtn" title="Редактировать" data-edit-employee="'+e.id+'">✎</button><button class="iconbtn" title="Удалить" data-delete-employee="'+e.id+'">×</button></div></div>').join('');
+function renderEmployees(){const box=$('employeeList');if(!state.employees.length){box.innerHTML='<div class="empty-employees">Сотрудников пока нет</div>';return}box.innerHTML=orderedEmployees().map(e=>'<div class="employee-row"><div class="avatar">'+initials(e.name)+'</div><div class="employee-info"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div><div class="employee-actions"><button class="iconbtn" title="Редактировать" data-edit-employee="'+e.id+'">✎</button><button class="iconbtn" title="Удалить" data-delete-employee="'+e.id+'">×</button></div></div>').join('');
 box.querySelectorAll('[data-edit-employee]').forEach(b=>b.onclick=()=>{closeEmployees();openEmp(+b.dataset.editEmployee)});
 box.querySelectorAll('[data-delete-employee]').forEach(b=>b.onclick=()=>deleteEmployee(+b.dataset.deleteEmployee)) }
 function openEmployees(){if(!admin)return toast('Управление сотрудниками доступно администратору');renderEmployees();showModal(employeesBg)}
@@ -708,7 +731,7 @@ function nightMinutes(s){
 }
 function monthStats(key){
   const empIds=new Set(state.employees.map(e=>e.id));
-  const rows=state.employees.map(e=>{
+  const rows=orderedEmployees().map(e=>{
     const list=state.shifts.filter(s=>empIds.has(s.employeeId)&&sameId(s.employeeId,e.id)&&shiftDate(s).startsWith(key));
     const workDates=new Set(),offDates=new Set(),vacDates=new Set();
     let dayMin=0,nightMin=0;
