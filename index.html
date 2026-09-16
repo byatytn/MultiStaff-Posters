@@ -161,15 +161,41 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .emptyday{font-size:7px}
   .addday{font-size:7px}
   .tools .btn{font-size:11px}
-}</style>
+}
+/* Archive + monthly statistics */
+.archive-modal{width:min(760px,100%)}
+.archive-months{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px;max-height:55vh;overflow:auto}
+.archive-month{border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:10px;padding:12px;text-align:left}
+.archive-month:hover{border-color:#687384;background:#14191f}
+.archive-month b{display:block;font-size:14px}
+.archive-month span{display:block;color:#7f8996;font-size:11px;margin-top:4px}
+.stats-modal{width:min(1050px,100%);max-height:90vh;overflow:hidden}
+.stats-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.stats-month-tools{display:flex;align-items:center;gap:7px;margin-top:14px}
+.stats-month-tools select{flex:1;min-width:0;padding:10px;border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px}
+.stats-wrap{margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:auto;max-height:58vh}
+.stats-table{width:100%;border-collapse:collapse;min-width:760px}
+.stats-table th,.stats-table td{border-right:1px solid #252c34;border-bottom:1px solid #252c34;padding:10px 9px;text-align:center;white-space:nowrap}
+.stats-table th{background:#12171d;color:#9fa8b5;font-size:11px}
+.stats-table td{font-size:12px}
+.stats-table th:first-child,.stats-table td:first-child{text-align:left;position:sticky;left:0;background:#101419;z-index:2}
+.stats-table th:first-child{background:#12171d}
+.stats-table tr:last-child td{border-bottom:0}
+.stats-empty{padding:30px;text-align:center;color:var(--muted)}
+@media(max-width:600px){
+  .archive-months{grid-template-columns:repeat(2,1fr)}
+  .stats-modal{padding:12px}
+  .stats-table th,.stats-table td{padding:8px 6px;font-size:10px}
+}
+</style>
 </head>
 <body>
 <header>
 <div class="top"><div><div class="brand">MULTI<i>STAFF</i></div><div class="sub">SCHEDULE · Кинотеатр «Атмосфера»</div></div><div class="city">Киев</div></div>
-<div class="toolbar"><div class="tabs"><button class="tab active" id="weekTab">Неделя</button><button class="tab" id="monthTab">Месяц</button></div><button class="mode" id="mode">Режим сотрудника</button></div>
+<div class="toolbar"><div class="tabs"><button class="tab active" id="weekTab">Неделя</button><button class="tab" id="archiveBtn">Архив</button><button class="tab" id="statsBtn">Статистика</button></div><button class="mode" id="mode">Режим сотрудника</button></div>
 </header>
 <main>
-<div class="headrow"><div class="title"><h1>График сотрудников</h1><p>Выберите день и добавляйте смены сотрудникам. Календарь можно импортировать.</p></div><div class="tools"><input class="search" id="search" placeholder="Поиск сотрудника…"><button class="btn ghost" id="importBtn">⇩ Календарь</button><button class="btn primary" id="addShift">＋ Смена</button><input id="import" type="file" accept=".ics,.ical,text/calendar"></div></div>
+<div class="headrow"><div class="title"><h1>График сотрудников</h1><p>Выберите день и добавляйте смены сотрудникам. Перегляд архіву та статистики доступний усім.</p></div><div class="tools"><input class="search" id="search" placeholder="Поиск сотрудника…"><button class="btn ghost" id="importBtn">⇩ Календарь</button><button class="btn primary" id="addShift">＋ Смена</button><input id="import" type="file" accept=".ics,.ical,text/calendar"></div></div>
 <div class="adminbar" id="adminbar"><span>⚙ Администратор · редактирование графика и сотрудников</span><div class="admin-actions"><button class="btn small" id="addEmployee">＋ Сотрудник</button><button class="btn primary small" id="save">Сохранить</button></div></div>
 <div class="summary"><div class="stat"><span id="shiftsLabel">Смен на неделе</span><b id="weekShifts">0</b></div><div class="stat clickable" id="employeesCard" title="Управление сотрудниками"><span>Сотрудников</span><b id="employeeCount">0</b></div><div class="stat"><span>Рабочих сегодня</span><b id="todayWorkers">0</b></div><div class="stat"><span>Часов запланировано</span><b id="weekHours">0</b></div></div>
 <section class="card"><div class="calendar-head"><div class="month" id="period"></div><div class="calendar-actions"><div class="nav"><button class="iconbtn" id="prevPeriod" title="Предыдущая неделя">‹</button><button class="btn ghost" id="todayPeriod">Сегодня</button><button class="iconbtn" id="nextPeriod" title="Следующая неделя">›</button></div><div class="calendar-status" id="calendarStatus">График загружается…</div></div></div>
@@ -179,7 +205,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 <h2 id="modalTitle">Новая смена</h2><div class="meta" id="meta"></div>
 <div class="field"><label>Сотрудник</label><select id="employee"></select></div>
 <div class="field"><label>Дата</label><input id="date" type="date"></div>
-<div class="field"><label>Быстрая смена</label><div class="quick-shifts"><button type="button" class="quick-shift" data-type="shift" data-start="09:00" data-end="23:00"><b>1/3</b><span>09:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="shift" data-start="11:00" data-end="23:00"><b>2/3</b><span>11:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="shift" data-start="14:00" data-end="23:00"><b>3</b><span>14:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="off" data-start="00:00" data-end="00:00"><b>В</b><span>Выходной</span></button></div></div>
+<div class="field"><label>Быстрая смена</label><div class="quick-shifts"><button type="button" class="quick-shift" data-type="shift" data-start="09:00" data-end="23:00"><b>1/3</b><span>09:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="shift" data-start="11:00" data-end="23:00"><b>2/3</b><span>11:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="shift" data-start="14:00" data-end="23:00"><b>3</b><span>14:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="off" data-start="00:00" data-end="00:00"><b>В</b><span>Выходной</span></button><button type="button" class="quick-shift" data-type="vacation" data-start="00:00" data-end="00:00"><b>Відпустка</b><span>День відпустки</span></button></div></div>
 <div class="field row"><div><label>Начало</label><input id="start" type="time" value="09:00"></div><div><label>Конец</label><input id="end" type="time" value="18:00"></div></div>
 <div class="modal-actions"><button class="btn" id="cancel">Отмена</button><button class="btn danger" id="delete">Удалить</button><button class="btn primary" id="saveModal">Сохранить</button></div>
 </div></div>
@@ -197,6 +223,18 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 <h2>Режим администратора</h2><div class="meta">Введите пароль для редактирования графика и сотрудников.</div>
 <div class="field"><label>Пароль</label><input id="adminPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Пароль"></div>
 <div class="modal-actions"><button class="btn" id="passwordCancel">Отмена</button><button class="btn primary" id="passwordLogin">Войти</button></div>
+</div></div>
+
+<div class="modal-bg" id="archiveBg"><div class="modal archive-modal">
+<h2>Архів графіка</h2><div class="meta">Оберіть місяць, щоб переглянути збережений графік. Перегляд доступний усім.</div>
+<div class="archive-months" id="archiveMonths"></div>
+<div class="modal-actions"><button class="btn" id="archiveClose">Закрити</button></div>
+</div></div>
+<div class="modal-bg" id="statsBg"><div class="modal stats-modal">
+<div class="stats-head"><div><h2>Статистика</h2><div class="meta">Підсумок роботи співробітників за обраний місяць.</div></div></div>
+<div class="stats-month-tools"><button class="iconbtn" id="statsPrev" title="Попередній місяць">‹</button><select id="statsMonth"></select><button class="iconbtn" id="statsNext" title="Наступний місяць">›</button></div>
+<div class="stats-wrap" id="statsWrap"></div>
+<div class="modal-actions"><button class="btn" id="statsClose">Закрити</button></div>
 </div></div>
 <div class="toast" id="toast"></div>
 <script>
@@ -238,9 +276,10 @@ function makeState(){return{employees:defaultEmployees.map(e=>({...e})),shifts:[
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
 function isMobile(){return window.innerWidth<=600}
 let state=makeState(), cursor=monday(new Date()), viewMode='week', admin=false, editing=null, selectedShiftType='shift';
+let archiveMonth=null, statsMonth=null;
 let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null, needsInitialSync=false;
 let adminToken=sessionStorage.getItem('multistaff_admin_token')||'';
-const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg'),passwordBg=$('passwordBg');
+const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg'),passwordBg=$('passwordBg'),archiveBg=$('archiveBg'),statsBg=$('statsBg');
 function sameId(a,b){return String(a)===String(b)}
 function sameState(a,b){return JSON.stringify({employees:a.employees,shifts:a.shifts})===JSON.stringify({employees:b.employees,shifts:b.shifts})}
 let saveQueue=Promise.resolve();
@@ -332,13 +371,13 @@ function periodShifts(days){
 function render(){
  const q=$('search').value.trim().toLowerCase();
  const mobile=isMobile();
- const isMonth=viewMode==='month';
- const days=isMonth?monthDays(cursor):Array.from({length:7},(_,i)=>addDays(cursor,i));
+ const isArchive=viewMode==='archive';
+ const days=isArchive?monthDays(cursor):Array.from({length:7},(_,i)=>addDays(cursor,i));
  const shifts=periodShifts(days);
  const today=iso(new Date());
 
- if(isMonth){
-   $('period').textContent=days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+ if(isArchive){
+   $('period').textContent='Архів · '+days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
  }else{
    $('period').textContent=days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+
      (days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
@@ -347,7 +386,7 @@ function render(){
  // Do not abort render() when it is absent.
  const jump=$('jump');
  if(jump) jump.value=isMonth?iso(new Date(cursor.getFullYear(),cursor.getMonth(),1)):iso(cursor);
- $('shiftsLabel').textContent=isMonth?'Смен за месяц':'Смен на неделе';
+ $('shiftsLabel').textContent=isArchive?'Смен за месяц':'Смен на неделе';
  $('weekShifts').textContent=shifts.length;
  $('employeeCount').textContent=state.employees.length;
  $('todayWorkers').textContent=new Set(state.shifts.filter(s=>shiftDate(s)===today).map(s=>s.employeeId)).size;
@@ -361,7 +400,7 @@ function render(){
    const weekend=dow>=6;
    const dayName=DAYS[dow-1];
    html+='<div class="cell week-head'+(t?' today':'')+(weekend?' weekend':'')+'"><b>'+dayName+'</b><strong>'+d.getDate()+'</strong>'+
-     (isMonth?'<div class="month-day">'+d.toLocaleDateString('ru-RU',{month:'short'}).replace('.','')+'</div>':'')+'</div>';
+     (isArchive?'<div class="month-day">'+d.toLocaleDateString('ru-RU',{month:'short'}).replace('.','')+'</div>':'')+'</div>';
  });
 
  state.employees
@@ -374,20 +413,20 @@ function render(){
        html+='<div class="cell day'+(weekend?' weekend':'')+'" data-date="'+date+'" data-emp="'+e.id+'">';
        if(!list.length) html+='<div class="emptyday">Нет смен</div>';
        list.forEach(s=>{
-         html+='<div class="shift '+colorFor(s.type)+(s.type==='off'?' off':'')+'" data-id="'+s.id+'"><div class="time">'+(s.type==='off'?'В':(s.start+' — '+s.end))+'</div></div>';
+         html+='<div class="shift '+colorFor(s.type)+(s.type==='off'?' off':'')+'" data-id="'+s.id+'"><div class="time">'+(s.type==='off'?'В':(s.type==='vacation'?'Відпустка':(s.start+' — '+s.end)))+'</div></div>';
        });
        if(admin)html+='<button class="addday" title="Добавить смену" aria-label="Добавить смену" data-add="'+e.id+'" data-date="'+date+'">＋</button>';
        html+='</div>';
      });
    });
 
- $('calendar').className='week '+(isMonth?'month-view':'week-view');
+ $('calendar').className='week '+(isArchive?'month-view':'week-view');
  $('calendar').innerHTML=html;
  $('calendar').querySelectorAll('.shift').forEach(x=>x.onclick=()=>openShift(+x.dataset.id));
  $('calendar').querySelectorAll('.addday').forEach(x=>x.onclick=()=>newShift(+x.dataset.add,x.dataset.date));
 
- // В месячном режиме сразу показываем область вокруг сегодняшнего дня.
- if(isMonth){
+ // В архиве сразу показываем область вокруг сегодняшнего дня.
+ if(isArchive){
    requestAnimationFrame(()=>{
      const idx=days.findIndex(d=>iso(d)===today);
      if(idx>=0){
@@ -397,11 +436,11 @@ function render(){
    });
  }
 }
-function colorFor(t){return t==='training'?'purple':t==='open'?'green':t==='close'?'yellow':t==='off'?'yellow':''}
+function colorFor(t){return t==='training'?'purple':t==='open'?'green':t==='close'?'yellow':(t==='off'||t==='vacation')?'yellow':''}
 function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function fillEmployees(){ $('employee').innerHTML=state.employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join('') }
 function newShift(emp,date){if(!admin)return toast('Войдите как администратор');editing=null;selectedShiftType='shift';$('modalTitle').textContent='Новая смена';$('employee').value=emp||state.employees[0]?.id||'';$('date').value=date||iso(cursor);$('start').value='09:00';$('end').value='23:00';setQuickShift('09:00','23:00','shift');$('delete').style.display='none';$('meta').textContent='Добавление в график';bg.style.display='flex'}
-function openShift(id){const s=state.shifts.find(x=>x.id===id);if(!s)return;editing=s;selectedShiftType=s.type||'shift';$('modalTitle').textContent=s.type==='off'?'Выходной':'Смена';$('employee').value=s.employeeId;$('date').value=s.date;$('start').value=s.start||'00:00';$('end').value=s.end||'00:00';setQuickShift(s.start||'00:00',s.end||'00:00',selectedShiftType);$('delete').style.display=admin?'inline-block':'none';$('meta').textContent='Изменение смены';bg.style.display='flex'}
+function openShift(id){const s=state.shifts.find(x=>x.id===id);if(!s)return;editing=s;selectedShiftType=s.type||'shift';$('modalTitle').textContent=s.type==='off'?'Выходной':(s.type==='vacation'?'Відпустка':'Смена');$('employee').value=s.employeeId;$('date').value=s.date;$('start').value=s.start||'00:00';$('end').value=s.end||'00:00';setQuickShift(s.start||'00:00',s.end||'00:00',selectedShiftType);$('delete').style.display=admin?'inline-block':'none';$('meta').textContent='Изменение смены';bg.style.display='flex'}
 function close(){bg.style.display='none';editing=null}
 function setAdmin(v,doRender=true){admin=v;$('mode').textContent=admin?'Режим администратора':'Режим сотрудника';$('mode').classList.toggle('admin',admin);$('adminbar').classList.toggle('show',admin);$('addShift').style.display=admin?'inline-block':'none';if(doRender)render()}
 $('mode').onclick=()=>{
@@ -431,8 +470,8 @@ $('saveModal').onclick=async()=>{
   if(!admin||!$('employee').value)return;
   const obj={employeeId:+$('employee').value,date:$('date').value,type:selectedShiftType||'shift',start:$('start').value,end:$('end').value};
   if(!obj.date)return toast('Заполни дату');
-  if(obj.type!=='off'&&(!obj.start||!obj.end))return toast('Заполни дату и время');
-  if(obj.type==='off'){obj.start='00:00';obj.end='00:00';}
+  if(obj.type!=='off'&&obj.type!=='vacation'&&(!obj.start||!obj.end))return toast('Заполни дату и время');
+  if(obj.type==='off'||obj.type==='vacation'){obj.start='00:00';obj.end='00:00';}
 
   if(editing)Object.assign(editing,obj);
   else state.shifts.push({id:Date.now(),...obj});
@@ -514,10 +553,109 @@ $('weekTab').onclick=()=>{
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
  $('weekTab').classList.add('active');render();
 };
-$('monthTab').onclick=()=>{
- viewMode='month';cursor=new Date(cursor.getFullYear(),cursor.getMonth(),1);
+function monthKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+function monthLabel(key){
+  const [y,m]=key.split('-').map(Number);
+  return new Date(y,m-1,1).toLocaleDateString('uk-UA',{month:'long',year:'numeric'});
+}
+function availableMonths(){
+  const set=new Set(state.shifts.map(s=>shiftDate(s).slice(0,7)).filter(Boolean));
+  const now=new Date();
+  set.add(monthKey(now));
+  return [...set].sort().reverse();
+}
+function renderArchiveMonths(){
+  const box=$('archiveMonths');
+  const months=availableMonths();
+  if(!months.length){box.innerHTML='<div class="stats-empty">Архів поки порожній.</div>';return}
+  box.innerHTML=months.map(k=>'<button class="archive-month" data-month="'+k+'"><b>'+esc(monthLabel(k))+'</b><span>'+state.shifts.filter(s=>shiftDate(s).startsWith(k)).length+' змін</span></button>').join('');
+  box.querySelectorAll('[data-month]').forEach(b=>b.onclick=()=>{
+    const [y,m]=b.dataset.month.split('-').map(Number);
+    archiveMonth=b.dataset.month;
+    cursor=new Date(y,m-1,1);
+    viewMode='archive';
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    $('archiveBtn').classList.add('active');
+    archiveBg.style.display='none';
+    render();
+  });
+}
+function openArchive(){renderArchiveMonths();archiveBg.style.display='flex'}
+function closeArchive(){archiveBg.style.display='none'}
+$('archiveBtn').onclick=openArchive;
+$('archiveClose').onclick=closeArchive;
+archiveBg.onclick=e=>{if(e.target===archiveBg)closeArchive()};
+
+function parseMinutes(value){
+  const m=String(value||'').match(/^(\\d{1,2}):(\\d{2})$/);
+  if(!m)return null;
+  const h=Number(m[1]),min=Number(m[2]);
+  if(h>23||min>59)return null;
+  return h*60+min;
+}
+function shiftMinutes(s){
+  const a=parseMinutes(s.start),b=parseMinutes(s.end);
+  if(a===null||b===null||s.type==='off'||s.type==='vacation')return 0;
+  let n=b-a;if(n<0)n+=1440;
+  return n;
+}
+function nightMinutes(s){
+  const a=parseMinutes(s.start),b=parseMinutes(s.end);
+  if(a===null||b===null||s.type==='off'||s.type==='vacation')return 0;
+  let end=b;
+  if(end<=a)end+=1440;
+  // Нічні години в статистиці — тільки 22:00–23:00.
+  let total=0;
+  for(let base=0;base<=1440;base+=1440){
+    const ns=22*60+base, ne=23*60+base;
+    total+=Math.max(0,Math.min(end,ne)-Math.max(a,ns));
+  }
+  return total;
+}
+function monthStats(key){
+  const empIds=new Set(state.employees.map(e=>e.id));
+  const rows=state.employees.map(e=>{
+    const list=state.shifts.filter(s=>empIds.has(s.employeeId)&&sameId(s.employeeId,e.id)&&shiftDate(s).startsWith(key));
+    const workDates=new Set(),offDates=new Set(),vacDates=new Set();
+    let dayMin=0,nightMin=0;
+    list.forEach(s=>{
+      if(s.type==='off'){offDates.add(shiftDate(s));return}
+      if(s.type==='vacation'||s.type==='leave'){vacDates.add(shiftDate(s));return}
+      if(!s.start||!s.end)return;
+      workDates.add(shiftDate(s));
+      const total=shiftMinutes(s),night=nightMinutes(s);
+      nightMin+=night;dayMin+=Math.max(0,total-night);
+    });
+    return {employee:e,workDays:workDates.size,offDays:offDates.size,dayMin,nightMin,totalMin:dayMin+nightMin,vacDays:vacDates.size};
+  });
+  return rows;
+}
+function renderStats(){
+  const months=availableMonths();
+  if(!statsMonth||!months.includes(statsMonth))statsMonth=months[0]||monthKey(new Date());
+  $('statsMonth').innerHTML=months.map(k=>'<option value="'+k+'">'+esc(monthLabel(k))+'</option>').join('');
+  $('statsMonth').value=statsMonth;
+  const rows=monthStats(statsMonth);
+  if(!rows.length){$('statsWrap').innerHTML='<div class="stats-empty">Сотрудників у графіку поки немає.</div>';return}
+  const fmtH=m=>(m/60).toFixed(1).replace('.0','');
+  let html='<table class="stats-table"><thead><tr><th>Співробітник</th><th>Роб. дні</th><th>Вих. дні</th><th>Відпрацьовано годин<br>день</th><th>ніч</th><th>Всього (д+н), годин</th><th>Відпустка, дні</th></tr></thead><tbody>';
+  rows.forEach(r=>{html+='<tr><td><b>'+esc(r.employee.name)+'</b><br><span style="color:#737d8a">'+esc(r.employee.role)+'</span></td><td>'+r.workDays+'</td><td>'+r.offDays+'</td><td>'+fmtH(r.dayMin)+'</td><td>'+fmtH(r.nightMin)+'</td><td>'+fmtH(r.totalMin)+'</td><td>'+r.vacDays+'</td></tr>'});
+  html+='</tbody></table>';
+  $('statsWrap').innerHTML=html;
+}
+function openStats(){renderStats();statsBg.style.display='flex'}
+function closeStats(){statsBg.style.display='none'}
+$('statsBtn').onclick=openStats;
+$('statsClose').onclick=closeStats;
+$('statsMonth').onchange=()=>{statsMonth=$('statsMonth').value;renderStats()};
+$('statsPrev').onclick=()=>{const [y,m]=statsMonth.split('-').map(Number);const d=new Date(y,m-2,1);statsMonth=monthKey(d);renderStats()};
+$('statsNext').onclick=()=>{const [y,m]=statsMonth.split('-').map(Number);const d=new Date(y,m,1);statsMonth=monthKey(d);renderStats()};
+statsBg.onclick=e=>{if(e.target===statsBg)closeStats()};
+
+$('weekTab').onclick=()=>{
+ viewMode='week';cursor=monday(cursor);
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
- $('monthTab').classList.add('active');render();
+ $('weekTab').classList.add('active');render();
 };
 async function boot(){
   cursor=monday(new Date());
