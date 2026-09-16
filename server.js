@@ -105,25 +105,56 @@ setInterval(() => {
 // Website source of truth: Cinema/atmosfera/StaffShedules/main.
 const staffSchedulesRef = db.doc('Cinema/atmosfera/StaffShedules/main');
 // Legacy path from an earlier build. It is read only for a one-time migration.
-(async () => {
+async function refreshScheduleCache() {
   try {
     const snap = await staffSchedulesRef.get();
-    console.log('[FIREBASE] StaffShedules read: OK');
-    console.log('[FIREBASE] StaffShedules exists:', snap.exists);
-    if (snap.exists) {
-      const d = snap.data() || {};
-      const clean = cleanScheduleData(d);
-      console.log('[FIREBASE] StaffShedules fields:', Object.keys(d).join(', ') || '(empty document)');
-      console.log('[FIREBASE] StaffShedules employees (raw):', Array.isArray(d.employees) ? d.employees.length : 0);
-      console.log('[FIREBASE] StaffShedules employees (website):', clean.employees.length);
-      console.log('[FIREBASE] StaffShedules shifts (website):', clean.shifts.length);
+    if (!snap.exists) {
+      scheduleCache = { employees: [], shifts: [], updatedAt: null, loaded: true };
+      console.log('[FIREBASE] StaffShedules exists: false');
+      return;
     }
+
+    const d = snap.data() || {};
+    const clean = cleanScheduleData(d);
+    const updatedAt = d.updatedAt && typeof d.updatedAt.toDate === 'function'
+      ? d.updatedAt.toDate().toISOString()
+      : null;
+
+    scheduleCache = {
+      employees: clean.employees,
+      shifts: clean.shifts,
+      updatedAt,
+      loaded: true
+    };
+
+    console.log('[FIREBASE] StaffShedules read: OK');
+    console.log('[FIREBASE] StaffShedules exists: true');
+    console.log('[FIREBASE] StaffShedules fields:', Object.keys(d).join(', ') || '(empty document)');
+    console.log('[FIREBASE] StaffShedules employees (raw):',
+      Array.isArray(d.employees) ? d.employees.length :
+      (d.employees && typeof d.employees === 'object' ? Object.keys(d.employees).length : 0));
+    console.log('[FIREBASE] StaffShedules employees (website):', clean.employees.length);
+    console.log('[FIREBASE] StaffShedules shifts (website):', clean.shifts.length);
   } catch (err) {
     console.error('[FIREBASE] StaffShedules read failed:', err.message);
+    // Do not mark the cache as loaded on a failed read.
   }
-})();
+}
+
+refreshScheduleCache();
 
 const defaultState = { employees: [], shifts: [] };
+
+// Keep a memory snapshot for the website API.
+// The browser must not wait for a Firestore read on every /api/state request.
+// Firestore is still the source of truth; this cache is refreshed at startup
+// and after every successful website save.
+let scheduleCache = {
+  employees: [],
+  shifts: [],
+  updatedAt: null,
+  loaded: false
+};
 function scheduleSnapshotData(d) {
   // Firestore StaffShedules stores employees as a MAP:
   // employees: { "1": {id: 1, name: "...", role: "..."}, ... }
@@ -215,40 +246,26 @@ app.post('/api/admin/login', (req, res) => {
   res.json({ ok: true, token, expiresIn: SESSION_TTL });
 });
 
-app.get('/api/state', async (req, res) => {
-  try {
-    const snap = await staffSchedulesRef.get();
+app.get('/api/state', (req, res) => {
+  // IMPORTANT: never block the browser on Firestore here.
+  // The cache is populated from StaffShedules at startup and after saves.
+  // Users is never read.
+  console.log('[API] /api/state -> employees=%d shifts=%d loaded=%s',
+    scheduleCache.employees.length,
+    scheduleCache.shifts.length,
+    scheduleCache.loaded
+  );
 
-    if (!snap.exists) {
-      return res.json({
-        exists: false,
-        initialized: false,
-        data: defaultState,
-        updatedAt: null
-      });
-    }
-
-    const d = snap.data() || {};
-
-    // StaffShedules is the SINGLE source of truth.
-    // Never read employees from Users or any other collection.
-    const { employees, shifts } = cleanScheduleData(d);
-    const initialized = hasScheduleData({ employees, shifts });
-
-    const updatedAt = d.updatedAt && typeof d.updatedAt.toDate === 'function'
-      ? d.updatedAt.toDate().toISOString()
-      : null;
-
-    res.json({
-      exists: true,
-      initialized,
-      data: { employees, shifts },
-      updatedAt
-    });
-  } catch (e) {
-    console.error('[API] state read failed:', e);
-    res.status(500).json({ error: 'Не удалось получить общий график' });
-  }
+  res.json({
+    exists: scheduleCache.loaded,
+    initialized: hasScheduleData(scheduleCache),
+    loading: !scheduleCache.loaded,
+    data: {
+      employees: scheduleCache.employees,
+      shifts: scheduleCache.shifts
+    },
+    updatedAt: scheduleCache.updatedAt
+  });
 });
 
 app.put('/api/state', requireAdmin, async (req, res) => {
@@ -276,6 +293,14 @@ app.put('/api/state', requireAdmin, async (req, res) => {
 
     const snap = await staffSchedulesRef.get();
     const updatedAt = snap.data()?.updatedAt?.toDate?.().toISOString() || new Date().toISOString();
+
+    // Update the API snapshot only after Firestore has accepted the save.
+    scheduleCache = {
+      employees: clean.employees,
+      shifts: clean.shifts,
+      updatedAt,
+      loaded: true
+    };
 
     res.json({ ok: true, updatedAt });
   } catch (e) {
