@@ -99,22 +99,42 @@ setInterval(() => {
 }, 60000).unref();
 
 // IMPORTANT:
-// Staff and shifts are managed ONLY by this document.
+// Staff and shifts for this website live ONLY in StaffShedules.
 // There is deliberately NO connection to Cinema/atmosfera/Users.
-// The website creates employees and stores them together with shifts
-// in Cinema/atmosfera/StaffSchedule/main.
-const docRef = db.doc('Cinema/atmosfera/StaffSchedule/main');
+// Users is used by other MultiStaff systems and is never modified here.
+// Website source of truth: Cinema/atmosfera/StaffShedules/main.
+const staffSchedulesRef = db.doc('Cinema/atmosfera/StaffShedules/main');
+// Legacy path from an earlier build. It is read only for a one-time migration.
+const legacyStaffScheduleRefs = [
+  db.doc('Cinema/atmosfera/StaffSchedule/main'),
+  db.doc('Cinema/atmosfera/StaffSchedules/main')
+];
 
 (async () => {
   try {
-    const snap = await docRef.get();
-    console.log('[FIREBASE] StaffSchedule read: OK');
-    console.log('[FIREBASE] StaffSchedule exists:', snap.exists);
+    let snap = await staffSchedulesRef.get();
+    console.log('[FIREBASE] StaffShedules read: OK');
+    console.log('[FIREBASE] StaffShedules exists:', snap.exists);
+
+    // If the new collection is empty, recover data from the old collection(s).
+    // This never reads, deletes or writes anything in Users.
+    if (!snap.exists || !hasScheduleData(snap.data() || {})) {
+      for (const legacyRef of legacyStaffScheduleRefs) {
+        const legacy = await legacyRef.get();
+        if (legacy.exists && hasScheduleData(legacy.data() || {})) {
+          await staffSchedulesRef.set({ ...legacy.data(), migratedFrom: legacyRef.path, migratedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: false });
+          snap = await staffSchedulesRef.get();
+          console.log('[FIREBASE] Migrated existing website schedule from', legacyRef.path, 'to', staffSchedulesRef.path);
+          break;
+        }
+      }
+    }
+
     if (snap.exists) {
       const d = snap.data() || {};
-      console.log('[FIREBASE] StaffSchedule fields:', Object.keys(d).join(', ') || '(empty document)');
-      console.log('[FIREBASE] StaffSchedule employees:', Array.isArray(d.employees) ? d.employees.length : 0);
-      console.log('[FIREBASE] StaffSchedule shifts:', Array.isArray(d.shifts) ? d.shifts.length : 0);
+      console.log('[FIREBASE] StaffShedules fields:', Object.keys(d).join(', ') || '(empty document)');
+      console.log('[FIREBASE] StaffShedules employees:', Array.isArray(d.employees) ? d.employees.length : 0);
+      console.log('[FIREBASE] StaffShedules shifts:', Array.isArray(d.shifts) ? d.shifts.length : 0);
     }
   } catch (err) {
     console.error('[FIREBASE] StaffSchedule read failed:', err.message);
@@ -122,6 +142,12 @@ const docRef = db.doc('Cinema/atmosfera/StaffSchedule/main');
 })();
 
 const defaultState = { employees: [], shifts: [] };
+function scheduleSnapshotData(d) {
+  return {
+    employees: Array.isArray(d?.employees) ? d.employees : [],
+    shifts: Array.isArray(d?.shifts) ? d.shifts : []
+  };
+}
 
 function validState(s) {
   return s && Array.isArray(s.employees) && Array.isArray(s.shifts) &&
@@ -165,7 +191,7 @@ app.post('/api/admin/login', (req, res) => {
 
 app.get('/api/state', async (req, res) => {
   try {
-    const snap = await docRef.get();
+    const snap = await staffSchedulesRef.get();
 
     if (!snap.exists) {
       return res.json({
@@ -178,10 +204,9 @@ app.get('/api/state', async (req, res) => {
 
     const d = snap.data() || {};
 
-    // StaffSchedule is the SINGLE source of truth.
+    // StaffShedules is the SINGLE source of truth.
     // Never read employees from Users or any other collection.
-    const employees = Array.isArray(d.employees) ? d.employees : [];
-    const shifts = Array.isArray(d.shifts) ? d.shifts : [];
+    const { employees, shifts } = scheduleSnapshotData(d);
     const initialized = hasScheduleData({ employees, shifts });
 
     const updatedAt = d.updatedAt && typeof d.updatedAt.toDate === 'function'
@@ -213,8 +238,8 @@ app.put('/api/state', requireAdmin, async (req, res) => {
       return res.status(409).json({ error: 'Пустой график не сохраняется, чтобы не потерять сотрудников и смены' });
     }
 
-    // Employees and their shifts are saved together in StaffSchedule.
-    await docRef.set({
+    // Employees and their shifts are saved together in StaffShedules.
+    await staffSchedulesRef.set({
       employees: data.employees,
       shifts: data.shifts,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
