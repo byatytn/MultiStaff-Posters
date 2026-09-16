@@ -160,7 +160,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 <div class="headrow"><div class="title"><h1>График сотрудников</h1><p>Выберите день и добавляйте смены сотрудникам. Календарь можно импортировать.</p></div><div class="tools"><input class="search" id="search" placeholder="Поиск сотрудника…"><button class="btn ghost" id="importBtn">⇩ Календарь</button><button class="btn primary" id="addShift">＋ Смена</button><input id="import" type="file" accept=".ics,.ical,text/calendar"></div></div>
 <div class="adminbar" id="adminbar"><span>⚙ Администратор · редактирование графика и сотрудников</span><div class="admin-actions"><button class="btn small" id="addEmployee">＋ Сотрудник</button><button class="btn primary small" id="save">Сохранить</button></div></div>
 <div class="summary"><div class="stat"><span id="shiftsLabel">Смен на неделе</span><b id="weekShifts">0</b></div><div class="stat clickable" id="employeesCard" title="Управление сотрудниками"><span>Сотрудников</span><b id="employeeCount">0</b></div><div class="stat"><span>Рабочих сегодня</span><b id="todayWorkers">0</b></div><div class="stat"><span>Часов запланировано</span><b id="weekHours">0</b></div></div>
-<section class="card"><div class="calendar-head"><div class="nav"><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="today">●</button><button class="iconbtn" id="next">›</button></div><div class="month" id="period"></div><div class="date-tools"><input type="date" id="jump"><button class="btn" id="today2">Сегодня</button></div></div>
+<section class="card"><div class="calendar-head"><div class="month" id="period"></div><div class="calendar-status" id="calendarStatus">График загружается…</div></div>
 <div class="week" id="calendar"></div></section>
 </main>
 <div class="modal-bg" id="bg"><div class="modal">
@@ -206,10 +206,11 @@ function fmt(d){return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',
 function makeState(){return{employees:defaultEmployees.map(e=>({...e})),shifts:[]}}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
 function isMobile(){return window.innerWidth<=600}
-let state=makeState(), cursor=monday(new Date()), viewMode='week', admin=false, editing=null;
+let state=makeState(), cursor=new Date(new Date().getFullYear(),new Date().getMonth(),1), viewMode='month', admin=false, editing=null;
 let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null, needsInitialSync=false;
 let adminToken=sessionStorage.getItem('multistaff_admin_token')||'';
 const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg'),passwordBg=$('passwordBg');
+function sameId(a,b){return String(a)===String(b)}
 function sameState(a,b){return JSON.stringify({employees:a.employees,shifts:a.shifts})===JSON.stringify({employees:b.employees,shifts:b.shifts})}
 let saveQueue=Promise.resolve();
 function hasScheduleData(s){
@@ -315,6 +316,7 @@ function render(){
  $('employeeCount').textContent=state.employees.length;
  $('todayWorkers').textContent=new Set(state.shifts.filter(s=>s.date===today).map(s=>s.employeeId)).size;
  $('weekHours').textContent=shifts.reduce((a,s)=>a+hours(s),0).toFixed(1).replace('.0','');
+ $('calendarStatus').textContent=state.employees.length?'':'Нет сотрудников в StaffShedules';
 
  let html='<div class="cell employee-head">Сотрудник</div>';
  days.forEach(d=>{
@@ -331,7 +333,7 @@ function render(){
    .forEach(e=>{
      html+='<div class="cell employee"><div class="avatar">'+initials(e.name)+'</div><div class="ename"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div></div>';
      days.forEach(d=>{
-       const date=iso(d), list=state.shifts.filter(s=>s.employeeId===e.id&&s.date===date);
+       const date=iso(d), list=state.shifts.filter(s=>sameId(s.employeeId,e.id)&&s.date===date);
        const weekend=((d.getDay()||7)>=6);
        html+='<div class="cell day'+(weekend?' weekend':'')+'" data-date="'+date+'" data-emp="'+e.id+'">';
        if(!list.length) html+='<div class="emptyday">Нет смен</div>';
@@ -365,17 +367,13 @@ function fillEmployees(){ $('employee').innerHTML=state.employees.map(e=>'<optio
 function newShift(emp,date){if(!admin)return toast('Войдите как администратор');editing=null;$('modalTitle').textContent='Новая смена';$('employee').value=emp||state.employees[0]?.id||'';$('date').value=date||iso(cursor);$('start').value='09:00';$('end').value='23:00';setQuickShift('09:00','23:00');$('delete').style.display='none';$('meta').textContent='Добавление в график';bg.style.display='flex'}
 function openShift(id){const s=state.shifts.find(x=>x.id===id);if(!s)return;editing=s;$('modalTitle').textContent='Смена';$('employee').value=s.employeeId;$('date').value=s.date;$('start').value=s.start;$('end').value=s.end;setQuickShift(s.start,s.end);$('delete').style.display=admin?'inline-block':'none';$('meta').textContent='Изменение смены';bg.style.display='flex'}
 function close(){bg.style.display='none';editing=null}
-function setAdmin(v){admin=v;$('mode').textContent=admin?'Режим администратора':'Режим сотрудника';$('mode').classList.toggle('admin',admin);$('adminbar').classList.toggle('show',admin);$('addShift').style.display=admin?'inline-block':'none';render()}
+function setAdmin(v,doRender=true){admin=v;$('mode').textContent=admin?'Режим администратора':'Режим сотрудника';$('mode').classList.toggle('admin',admin);$('adminbar').classList.toggle('show',admin);$('addShift').style.display=admin?'inline-block':'none';if(doRender)render()}
 $('mode').onclick=()=>{
   if(admin){setAdmin(false);return}
   $('adminPassword').value='';
   passwordBg.style.display='flex';
   setTimeout(()=>$('adminPassword').focus(),50);
 };
-$('prev').onclick=()=>{cursor=viewMode==='month'?new Date(cursor.getFullYear(),cursor.getMonth()-1,1):addDays(cursor,-7);render()};
-$('next').onclick=()=>{cursor=viewMode==='month'?new Date(cursor.getFullYear(),cursor.getMonth()+1,1):addDays(cursor,7);render()};
-function goToday(){cursor=viewMode==='month'?new Date(new Date().getFullYear(),new Date().getMonth(),1):monday(new Date());render()}$('today').onclick=goToday;$('today2').onclick=goToday;
-$('jump').onchange=()=>{const d=localDate($('jump').value);cursor=viewMode==='month'?new Date(d.getFullYear(),d.getMonth(),1):monday(d);render()};
 $('calendar').addEventListener('touchstart',e=>{if(!isMobile()||e.touches.length!==1)return;window.__calTouch={x:e.touches[0].clientX,y:e.touches[0].clientY}});
 $('calendar').addEventListener('touchend',e=>{if(!isMobile()||!window.__calTouch)return;const dx=e.changedTouches[0].clientX-window.__calTouch.x,dy=e.changedTouches[0].clientY-window.__calTouch.y;window.__calTouch=null;if(Math.abs(dx)<55||Math.abs(dx)<=Math.abs(dy))return;cursor=addDays(cursor,dx<0?1:-1);render();});
 $('search').oninput=render;$('cancel').onclick=close;bg.onclick=e=>{if(e.target===bg)close()};empBg.onclick=e=>{if(e.target===empBg)closeEmp()};
@@ -444,8 +442,8 @@ $('monthTab').onclick=()=>{
  $('monthTab').classList.add('active');render();
 };
 async function boot(){
-  setAdmin(false);
-  render();
+  setAdmin(false,false);
+  $('calendar').innerHTML='<div style="grid-column:1/-1;padding:35px;text-align:center;color:#8f98a6">Загрузка графика…</div>';
   await loadShared();
   clearInterval(syncTimer);
   syncTimer=setInterval(syncShared,4000);
