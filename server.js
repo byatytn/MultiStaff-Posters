@@ -125,32 +125,54 @@ const staffSchedulesRef = db.doc('Cinema/atmosfera/StaffShedules/main');
 
 const defaultState = { employees: [], shifts: [] };
 function scheduleSnapshotData(d) {
-  return {
-    employees: Array.isArray(d?.employees) ? d.employees : [],
-    shifts: Array.isArray(d?.shifts) ? d.shifts : []
-  };
-}
+  // Firestore StaffShedules stores employees as a MAP:
+  // employees: { "1": {id: 1, name: "...", role: "..."}, ... }
+  // Shifts remain an ARRAY.
+  // The map key is the authoritative employee ID. We do not read Users.
+  let employees = [];
+  if (Array.isArray(d?.employees)) {
+    employees = d.employees;
+  } else if (d?.employees && typeof d.employees === 'object') {
+    employees = Object.entries(d.employees).map(([key, value]) => {
+      const e = value && typeof value === 'object' ? { ...value } : {};
+      const keyId = Number(key);
+      const nestedId = Number(e.id);
+      // Existing StaffShedules data uses the map key as the employee ID.
+      // This also fixes older records where nested id values were duplicated.
+      e.id = Number.isFinite(keyId) ? keyId : nestedId;
+      return e;
+    });
+  }
 
-// Older builds generated employee IDs from Firestore Users by hashing the
-// Users document ID into the 100,000,000–999,999,999 range.
-// Website-created employees use Date.now() IDs. Filter the old imported
-// Users records out of the website schedule without touching Users itself.
-function isOldUsersEmployee(e) {
-  const id = Number(e?.id);
-  return Number.isFinite(id) && id >= 100000000 && id < 1000000000;
+  const shifts = Array.isArray(d?.shifts) ? d.shifts.map(s => ({
+    ...s,
+    employeeId: Number.isFinite(Number(s?.employeeId)) ? Number(s.employeeId) : s?.employeeId,
+    id: Number.isFinite(Number(s?.id)) ? Number(s.id) : s?.id
+  })) : [];
+
+  return { employees, shifts };
 }
 
 function cleanScheduleData(d) {
-  const raw = scheduleSnapshotData(d);
-  const employees = raw.employees.filter(e => !isOldUsersEmployee(e));
-  const employeeById = new Map(employees.map(e => [String(e.id), e.id]));
-  const shifts = raw.shifts
-    .filter(s => employeeById.has(String(s.employeeId)))
-    .map(s => ({
-      ...s,
-      employeeId: employeeById.get(String(s.employeeId))
-    }));
-  return { employees, shifts };
+  // No Users filtering, no guessed ID ranges, and no deletion.
+  // StaffShedules is the only source of website employees and shifts.
+  return scheduleSnapshotData(d);
+}
+
+function firestoreScheduleData(state) {
+  // Keep the existing Firestore schema: employees are stored as a MAP,
+  // while shifts are stored as an ARRAY.
+  const employees = {};
+  for (const e of state.employees) {
+    employees[String(e.id)] = {
+      ...e,
+      id: Number(e.id)
+    };
+  }
+  return {
+    employees,
+    shifts: state.shifts
+  };
 }
 
 function validState(s) {
@@ -237,8 +259,6 @@ app.put('/api/state', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Некорректные данные графика' });
     }
 
-    // Never allow an old client/local cache containing Users employees to
-    // write those records back into the website schedule.
     const clean = cleanScheduleData(data);
 
     // A blank payload is never allowed to wipe the shared schedule.
@@ -246,10 +266,11 @@ app.put('/api/state', requireAdmin, async (req, res) => {
       return res.status(409).json({ error: 'Пустой график не сохраняется, чтобы не потерять сотрудников и смены' });
     }
 
-    // Employees and their shifts are saved together in StaffShedules.
+    // Preserve the real StaffShedules schema: employees MAP + shifts ARRAY.
+    // Users is never read or modified.
+    const firestoreData = firestoreScheduleData(clean);
     await staffSchedulesRef.set({
-      employees: clean.employees,
-      shifts: clean.shifts,
+      ...firestoreData,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: false });
 
