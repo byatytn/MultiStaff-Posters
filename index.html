@@ -585,6 +585,16 @@ function close(){hideModal(bg);editing=null}
 function setAdmin(v,doRender=true){admin=v;$('mode').textContent=admin?'Режим администратора':'Режим сотрудника';$('mode').classList.toggle('admin',admin);$('adminbar').classList.toggle('show',admin);$('addShift').style.display=admin?'inline-block':'none';if(doRender)render()}
 $('mode').onclick=()=>{
   if(admin){setAdmin(false);return}
+  // Якщо на цьому пристрої ще діє 6-годинна адмін-сесія —
+  // просто повертаємо адмінський режим без повторного пароля.
+  const saved=(()=>{
+    try{return JSON.parse(localStorage.getItem('multistaff_admin_session')||'null')}catch{return null}
+  })();
+  if(adminToken && saved?.expiresAt && Number(saved.expiresAt)>Date.now()){
+    setAdmin(true);
+    return;
+  }
+  clearAdminToken();
   $('adminPassword').value='';
   showModal(passwordBg);
   setTimeout(()=>$('adminPassword').focus(),50);
