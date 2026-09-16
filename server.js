@@ -141,6 +141,13 @@ function validState(s) {
     );
 }
 
+function hasScheduleData(s) {
+  return !!(s && (
+    (Array.isArray(s.employees) && s.employees.length > 0) ||
+    (Array.isArray(s.shifts) && s.shifts.length > 0)
+  ));
+}
+
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, pid: process.pid, uptime: Math.round(process.uptime()) });
 });
@@ -163,6 +170,7 @@ app.get('/api/state', async (req, res) => {
     if (!snap.exists) {
       return res.json({
         exists: false,
+        initialized: false,
         data: defaultState,
         updatedAt: null
       });
@@ -174,6 +182,7 @@ app.get('/api/state', async (req, res) => {
     // Never read employees from Users or any other collection.
     const employees = Array.isArray(d.employees) ? d.employees : [];
     const shifts = Array.isArray(d.shifts) ? d.shifts : [];
+    const initialized = hasScheduleData({ employees, shifts });
 
     const updatedAt = d.updatedAt && typeof d.updatedAt.toDate === 'function'
       ? d.updatedAt.toDate().toISOString()
@@ -181,6 +190,7 @@ app.get('/api/state', async (req, res) => {
 
     res.json({
       exists: true,
+      initialized,
       data: { employees, shifts },
       updatedAt
     });
@@ -196,6 +206,11 @@ app.put('/api/state', requireAdmin, async (req, res) => {
 
     if (!validState(data)) {
       return res.status(400).json({ error: 'Некорректные данные графика' });
+    }
+
+    // A blank payload is never allowed to wipe the shared schedule.
+    if (!hasScheduleData(data)) {
+      return res.status(409).json({ error: 'Пустой график не сохраняется, чтобы не потерять сотрудников и смены' });
     }
 
     // Employees and their shifts are saved together in StaffSchedule.
