@@ -97,12 +97,14 @@ async function loadShared(){
     const r=await fetch('/api/state',{cache:'no-store'});
     if(!r.ok)throw new Error('load failed');
     const remote=await r.json();
-    if(!remote.exists && !sameState(local,makeState())){
+    const serverState=remote.data||makeState();
+    const serverIsDefault=sameState(serverState,makeState());
+    if(serverIsDefault && !sameState(local,makeState())){
       state=local;
       await persist();
       toast('Ваш график перенесён в общий сервер');
     }else{
-      state=remote.data||makeState();
+      state=serverState;
       lastServerUpdatedAt=remote.updatedAt||null;
       localStorage.setItem(KEY,JSON.stringify(state));
     }
