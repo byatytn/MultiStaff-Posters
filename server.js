@@ -1,9 +1,35 @@
 const express = require('express');
 const path = require('path');
+const crypto = require('crypto');
 const admin = require('firebase-admin');
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
+
+// Admin password is configured in Northflank.
+// Default for the first setup: 2026
+const ADMIN_PASSWORD = process.env.MULTISTAFF_ADMIN_PASSWORD || '2026';
+const adminSessions = new Map();
+const SESSION_TTL = 12 * 60 * 60 * 1000;
+
+function createAdminSession() {
+  const token = crypto.randomBytes(32).toString('hex');
+  adminSessions.set(token, Date.now() + SESSION_TTL);
+  return token;
+}
+
+function requireAdmin(req, res, next) {
+  const header = req.get('authorization') || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+  const expiresAt = adminSessions.get(token);
+
+  if (!expiresAt || expiresAt < Date.now()) {
+    if (token) adminSessions.delete(token);
+    return res.status(401).json({ error: 'Требуется пароль администратора' });
+  }
+
+  next();
+}
 
 let credential;
 try {
@@ -38,6 +64,16 @@ function validState(s) {
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
+app.post('/api/admin/login', (req, res) => {
+  const password = String(req.body?.password || '');
+  if (password !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Неверный пароль' });
+  }
+
+  const token = createAdminSession();
+  res.json({ ok: true, token, expiresIn: SESSION_TTL });
+});
+
 app.get('/api/state', async (req, res) => {
   try {
     const snap = await docRef.get();
@@ -59,7 +95,7 @@ app.get('/api/state', async (req, res) => {
   }
 });
 
-app.put('/api/state', async (req, res) => {
+app.put('/api/state', requireAdmin, async (req, res) => {
   try {
     const data = req.body;
     if (!validState(data)) return res.status(400).json({ error: 'Некорректные данные графика' });
