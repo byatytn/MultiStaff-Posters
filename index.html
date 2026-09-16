@@ -40,6 +40,11 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .week-head strong{font-size:17px}
 }
 @media(max-width:600px){
+  .calendar-head{position:sticky;top:0;z-index:6;background:#101419}
+  .week{grid-template-columns:130px minmax(0,1fr)!important;width:100%!important;min-width:0!important;overflow:visible!important}
+  .week .cell{min-width:0!important}
+  .week-head{position:sticky;top:0;z-index:5}
+
   body{font-size:14px}
   .top{gap:8px}
   .brand{font-size:19px}
@@ -92,6 +97,8 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .quick-shift span{font-size:9px}
 }
 @media(max-width:380px){
+  .week{grid-template-columns:118px minmax(0,1fr)!important}
+
   .brand{font-size:17px}
   .sub{display:none}
   .tab,.mode{padding:7px 8px;font-size:11px}
@@ -152,7 +159,8 @@ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function fmt(d){return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}
 function makeState(){return{employees:defaultEmployees.map(e=>({...e})),shifts:[]}}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
-let state=makeState(), cursor=monday(new Date()), admin=false, editing=null;
+function isMobile(){return window.innerWidth<=600}
+let state=makeState(), cursor=isMobile()?new Date():monday(new Date()), admin=false, editing=null;
 let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null, needsInitialSync=false;
 let adminToken=sessionStorage.getItem('multistaff_admin_token')||'';
 const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg'),passwordBg=$('passwordBg');
@@ -225,14 +233,19 @@ function initials(n){return n.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUp
 function weekShifts(){const from=iso(cursor),to=iso(addDays(cursor,6));return state.shifts.filter(s=>s.date>=from&&s.date<=to)}
 function hours(s){const [a,b]=[s.start,s.end].map(t=>{const [h,m]=t.split(':').map(Number);return h*60+m});let mins=b-a;if(mins<0)mins+=1440;return mins/60}
 function render(){
- const q=$('search').value.trim().toLowerCase(), days=Array.from({length:7},(_,i)=>addDays(cursor,i)), shifts=weekShifts();
- $('period').textContent=days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+(days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
+ const q=$('search').value.trim().toLowerCase();
+ const mobile=isMobile();
+ const days=mobile?[new Date(cursor)]:Array.from({length:7},(_,i)=>addDays(cursor,i));
+ const shifts=mobile?state.shifts.filter(s=>s.date===iso(cursor)):weekShifts();
+ $('period').textContent=mobile
+   ? days[0].toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+   : days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+(days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
  $('jump').value=iso(new Date());
  $('weekShifts').textContent=shifts.length;$('employeeCount').textContent=state.employees.length;
  const today=iso(new Date());$('todayWorkers').textContent=new Set(state.shifts.filter(s=>s.date===today).map(s=>s.employeeId)).size;
  $('weekHours').textContent=shifts.reduce((a,s)=>a+hours(s),0).toFixed(1).replace('.0','');
  let html='<div class="cell employee-head">Сотрудник</div>';
- days.forEach((d,i)=>{const t=iso(d)===today;html+='<div class="cell week-head'+(t?' today':'')+'"><b>'+DAYS[i]+'</b><strong>'+d.getDate()+'</strong></div>'});
+ days.forEach((d,i)=>{const t=iso(d)===today;const dayName=DAYS[(d.getDay()||7)-1];html+='<div class="cell week-head'+(t?' today':'')+'"><b>'+dayName+'</b><strong>'+d.getDate()+'</strong></div>'});
  state.employees.filter(e=>!q||e.name.toLowerCase().includes(q)||e.role.toLowerCase().includes(q)).forEach(e=>{
   html+='<div class="cell employee"><div class="avatar">'+initials(e.name)+'</div><div class="ename"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div></div>';
   days.forEach(d=>{
@@ -262,9 +275,10 @@ $('mode').onclick=()=>{
   passwordBg.style.display='flex';
   setTimeout(()=>$('adminPassword').focus(),50);
 };
-$('prev').onclick=()=>{cursor=addDays(cursor,-7);render()};$('next').onclick=()=>{cursor=addDays(cursor,7);render()};
-function goToday(){cursor=monday(new Date());render()}$('today').onclick=goToday;$('today2').onclick=goToday;
-$('jump').onchange=()=>{cursor=monday(localDate($('jump').value));render()};
+$('prev').onclick=()=>{cursor=addDays(cursor,isMobile()?-1:-7);render()};
+$('next').onclick=()=>{cursor=addDays(cursor,isMobile()?1:7);render()};
+function goToday(){cursor=isMobile()?new Date():monday(new Date());render()}$('today').onclick=goToday;$('today2').onclick=goToday;
+$('jump').onchange=()=>{const d=localDate($('jump').value);cursor=isMobile()?d:monday(d);render()};
 $('search').oninput=render;$('cancel').onclick=close;bg.onclick=e=>{if(e.target===bg)close()};empBg.onclick=e=>{if(e.target===empBg)closeEmp()};
 function setQuickShift(start,end){$('start').value=start;$('end').value=end;$('calendar');document.querySelectorAll('.quick-shift').forEach(b=>b.classList.toggle('active',b.dataset.start===start&&b.dataset.end===end))}
 document.querySelectorAll('.quick-shift').forEach(b=>b.onclick=()=>setQuickShift(b.dataset.start,b.dataset.end));
