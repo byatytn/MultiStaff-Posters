@@ -21,6 +21,40 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 .modal-bg{display:none;position:fixed;inset:0;background:#000b;align-items:center;justify-content:center;padding:16px;z-index:50}.modal{width:min(480px,100%);background:#171b21;border:1px solid #333b46;border-radius:17px;padding:19px;box-shadow:0 30px 100px #000c}.modal h2{margin:0 0 4px;font-size:20px}.meta{color:var(--muted);font-size:12px}.field{margin-top:14px}.field label{display:block;color:#aab3bf;font-size:12px;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px;outline:none}.field textarea{resize:vertical;min-height:70px}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quick-shifts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.quick-shift{border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px;padding:9px 6px;text-align:center}.quick-shift:hover,.quick-shift.active{border-color:var(--red);background:#241216}.quick-shift b{display:block;font-size:13px}.quick-shift span{display:block;color:#8f98a6;font-size:10px;margin-top:3px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.file{font-size:12px;color:#aab3bf}.employees-modal{width:min(620px,100%)}.employee-list{margin-top:15px;max-height:55vh;overflow:auto;border:1px solid var(--line);border-radius:12px}.employee-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid #252c34}.employee-row:last-child{border-bottom:0}.employee-row .avatar{width:38px;height:38px}.employee-info{min-width:0;flex:1}.employee-info b{display:block;font-size:13px}.employee-info span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.employee-actions{display:flex;gap:6px}.employee-actions .iconbtn{width:36px;height:36px}.empty-employees{padding:25px;text-align:center;color:var(--muted);font-size:13px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e9edf2;color:#111;padding:10px 14px;border-radius:10px;font-size:13px;box-shadow:0 15px 45px #0008;transition:.2s;z-index:80}.toast.show{opacity:1;transform:translate(-50%,0)}
 #import{display:none}
+
+/* Табличный календарь: на ПК и телефоне одна и та же структура, без "одного дня" на мобильном. */
+#calendar{overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+#calendar.week-view{display:grid;grid-template-columns:170px repeat(7,minmax(86px,1fr));width:100%;min-width:0}
+#calendar.month-view{display:grid;grid-template-columns:190px repeat(31,minmax(58px,1fr));width:max-content;min-width:100%}
+#calendar .cell{min-width:0}
+#calendar.month-view .cell{min-width:58px}
+#calendar .week-head.weekend{background:#17131a}
+#calendar .week-head.weekend strong{color:#c4a7ae}
+#calendar .week-head.today{box-shadow:inset 0 -3px 0 var(--red)}
+#calendar .month-day{font-size:10px;color:#737d8a;margin-top:2px}
+#calendar.month-view .employee{min-height:82px}
+#calendar.month-view .day{min-height:82px}
+#calendar.month-view .emptyday{height:69px}
+#calendar.month-view .shift{padding:6px 5px}
+#calendar.month-view .shift .time{font-size:10px}
+#calendar.month-view .shift .type{display:none}
+#calendar.month-view .addday{font-size:9px}
+@media(max-width:600px){
+  #calendar.week-view{grid-template-columns:86px repeat(7,minmax(0,1fr));width:100%}
+  #calendar.week-view .cell{min-width:0}
+  #calendar.month-view{grid-template-columns:82px repeat(31,54px);min-width:max-content}
+  #calendar.month-view .cell{min-width:54px}
+  #calendar.month-view .employee{min-height:66px;padding:5px 4px}
+  #calendar.month-view .day{min-height:66px;padding:3px}
+  #calendar.month-view .emptyday{height:57px;font-size:7px}
+  #calendar.month-view .shift{padding:5px 2px;border-radius:6px}
+  #calendar.month-view .shift .time{font-size:8px}
+  #calendar.month-view .week-head{min-height:48px;padding:5px 2px}
+  #calendar.month-view .week-head b{font-size:7px}
+  #calendar.month-view .week-head strong{font-size:13px}
+  #calendar.month-view .employee-head{font-size:8px}
+}
+
 @media(max-width:1100px){
   .top,.toolbar,main{max-width:100%}
   .week{grid-template-columns:180px repeat(7,minmax(105px,1fr))}
@@ -69,12 +103,10 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .date-tools input,.date-tools .btn{padding:8px;font-size:11px}
   .iconbtn{width:34px;height:34px}
 
-  /* На телефоне вся неделя помещается в экран; пользователь может увеличить её pinch-zoom. */
+  /* Неделя на телефоне целиком помещается в экран. Месяц остаётся настоящей таблицей и листается по горизонтали; страницу можно масштабировать. */
   .week{
-    grid-template-columns:88px repeat(7,minmax(0,1fr));
     width:100%;
     min-width:0;
-    overflow:visible;
     touch-action:pan-x pan-y pinch-zoom;
   }
   .week .cell{min-width:0}
@@ -127,7 +159,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 <main>
 <div class="headrow"><div class="title"><h1>График сотрудников</h1><p>Выберите день и добавляйте смены сотрудникам. Календарь можно импортировать.</p></div><div class="tools"><input class="search" id="search" placeholder="Поиск сотрудника…"><button class="btn ghost" id="importBtn">⇩ Календарь</button><button class="btn primary" id="addShift">＋ Смена</button><input id="import" type="file" accept=".ics,.ical,text/calendar"></div></div>
 <div class="adminbar" id="adminbar"><span>⚙ Администратор · редактирование графика и сотрудников</span><div class="admin-actions"><button class="btn small" id="addEmployee">＋ Сотрудник</button><button class="btn primary small" id="save">Сохранить</button></div></div>
-<div class="summary"><div class="stat"><span>Смен на неделе</span><b id="weekShifts">0</b></div><div class="stat clickable" id="employeesCard" title="Управление сотрудниками"><span>Сотрудников</span><b id="employeeCount">0</b></div><div class="stat"><span>Рабочих сегодня</span><b id="todayWorkers">0</b></div><div class="stat"><span>Часов запланировано</span><b id="weekHours">0</b></div></div>
+<div class="summary"><div class="stat"><span id="shiftsLabel">Смен на неделе</span><b id="weekShifts">0</b></div><div class="stat clickable" id="employeesCard" title="Управление сотрудниками"><span>Сотрудников</span><b id="employeeCount">0</b></div><div class="stat"><span>Рабочих сегодня</span><b id="todayWorkers">0</b></div><div class="stat"><span>Часов запланировано</span><b id="weekHours">0</b></div></div>
 <section class="card"><div class="calendar-head"><div class="nav"><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="today">●</button><button class="iconbtn" id="next">›</button></div><div class="month" id="period"></div><div class="date-tools"><input type="date" id="jump"><button class="btn" id="today2">Сегодня</button></div></div>
 <div class="week" id="calendar"></div></section>
 </main>
@@ -170,7 +202,7 @@ function fmt(d){return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',
 function makeState(){return{employees:defaultEmployees.map(e=>({...e})),shifts:[]}}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
 function isMobile(){return window.innerWidth<=600}
-let state=makeState(), cursor=isMobile()?new Date():monday(new Date()), admin=false, editing=null;
+let state=makeState(), cursor=monday(new Date()), viewMode='week', admin=false, editing=null;
 let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null, needsInitialSync=false;
 let adminToken=sessionStorage.getItem('multistaff_admin_token')||'';
 const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg'),passwordBg=$('passwordBg');
@@ -240,37 +272,82 @@ async function syncShared(){
 }
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>e.classList.remove('show'),1500)}
 function initials(n){return n.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()}
-function weekShifts(){const from=iso(cursor),to=iso(addDays(cursor,6));return state.shifts.filter(s=>s.date>=from&&s.date<=to)}
-function hours(s){const [a,b]=[s.start,s.end].map(t=>{const [h,m]=t.split(':').map(Number);return h*60+m});let mins=b-a;if(mins<0)mins+=1440;return mins/60}
+function weekShifts(){
+ const from=iso(cursor),to=iso(addDays(cursor,6));
+ return state.shifts.filter(s=>s.date>=from&&s.date<=to);
+}
+function monthDays(d){
+ const first=new Date(d.getFullYear(),d.getMonth(),1);
+ const count=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+ return Array.from({length:count},(_,i)=>addDays(first,i));
+}
+function periodShifts(days){
+ const from=iso(days[0]),to=iso(days[days.length-1]);
+ return state.shifts.filter(s=>s.date>=from&&s.date<=to);
+}
 function render(){
  const q=$('search').value.trim().toLowerCase();
  const mobile=isMobile();
- const days=mobile?[new Date(cursor)]:Array.from({length:7},(_,i)=>addDays(cursor,i));
- const shifts=mobile?state.shifts.filter(s=>s.date===iso(cursor)):weekShifts();
- $('period').textContent=mobile
-   ? days[0].toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
-   : days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+(days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
- $('jump').value=iso(mobile?cursor:new Date());
- $('weekShifts').textContent=shifts.length;$('employeeCount').textContent=state.employees.length;
- const today=iso(new Date());$('todayWorkers').textContent=new Set(state.shifts.filter(s=>s.date===today).map(s=>s.employeeId)).size;
+ const isMonth=viewMode==='month';
+ const days=isMonth?monthDays(cursor):Array.from({length:7},(_,i)=>addDays(cursor,i));
+ const shifts=periodShifts(days);
+ const today=iso(new Date());
+
+ if(isMonth){
+   $('period').textContent=days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+ }else{
+   $('period').textContent=days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+
+     (days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
+ }
+ $('jump').value=isMonth?iso(new Date(cursor.getFullYear(),cursor.getMonth(),1)):iso(cursor);
+ $('shiftsLabel').textContent=isMonth?'Смен за месяц':'Смен на неделе';
+ $('weekShifts').textContent=shifts.length;
+ $('employeeCount').textContent=state.employees.length;
+ $('todayWorkers').textContent=new Set(state.shifts.filter(s=>s.date===today).map(s=>s.employeeId)).size;
  $('weekHours').textContent=shifts.reduce((a,s)=>a+hours(s),0).toFixed(1).replace('.0','');
+
  let html='<div class="cell employee-head">Сотрудник</div>';
- days.forEach((d,i)=>{const t=iso(d)===today;const dayName=DAYS[(d.getDay()||7)-1];html+='<div class="cell week-head'+(t?' today':'')+'"><b>'+dayName+'</b><strong>'+d.getDate()+'</strong></div>'});
- state.employees.filter(e=>!q||e.name.toLowerCase().includes(q)||e.role.toLowerCase().includes(q)).forEach(e=>{
-  html+='<div class="cell employee"><div class="avatar">'+initials(e.name)+'</div><div class="ename"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div></div>';
-  days.forEach(d=>{
-   const date=iso(d), list=state.shifts.filter(s=>s.employeeId===e.id&&s.date===date);
-   html+='<div class="cell day" data-date="'+date+'" data-emp="'+e.id+'">';
-   if(!list.length) html+='<div class="emptyday">Нет смен</div>';
-   list.forEach(s=>{html+='<div class="shift" data-id="'+s.id+'"><div class="time">'+s.start+' — '+s.end+'</div></div>'});
-   if(admin)html+='<button class="addday" data-add="'+e.id+'" data-date="'+date+'">＋ добавить</button>';
-   html+='</div>';
-  });
+ days.forEach(d=>{
+   const t=iso(d)===today;
+   const dow=d.getDay()||7;
+   const weekend=dow>=6;
+   const dayName=DAYS[dow-1];
+   html+='<div class="cell week-head'+(t?' today':'')+(weekend?' weekend':'')+'"><b>'+dayName+'</b><strong>'+d.getDate()+'</strong>'+
+     (isMonth?'<div class="month-day">'+d.toLocaleDateString('ru-RU',{month:'short'}).replace('.','')+'</div>':'')+'</div>';
  });
+
+ state.employees
+   .filter(e=>!q||e.name.toLowerCase().includes(q)||e.role.toLowerCase().includes(q))
+   .forEach(e=>{
+     html+='<div class="cell employee"><div class="avatar">'+initials(e.name)+'</div><div class="ename"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div></div>';
+     days.forEach(d=>{
+       const date=iso(d), list=state.shifts.filter(s=>s.employeeId===e.id&&s.date===date);
+       const weekend=((d.getDay()||7)>=6);
+       html+='<div class="cell day'+(weekend?' weekend':'')+'" data-date="'+date+'" data-emp="'+e.id+'">';
+       if(!list.length) html+='<div class="emptyday">Нет смен</div>';
+       list.forEach(s=>{
+         html+='<div class="shift '+colorFor(s.type)+'" data-id="'+s.id+'"><div class="time">'+s.start+' — '+s.end+'</div></div>';
+       });
+       if(admin)html+='<button class="addday" data-add="'+e.id+'" data-date="'+date+'">＋ добавить</button>';
+       html+='</div>';
+     });
+   });
+
+ $('calendar').className='week '+(isMonth?'month-view':'week-view');
  $('calendar').innerHTML=html;
  $('calendar').querySelectorAll('.shift').forEach(x=>x.onclick=()=>openShift(+x.dataset.id));
  $('calendar').querySelectorAll('.addday').forEach(x=>x.onclick=()=>newShift(+x.dataset.add,x.dataset.date));
- $('calendar').querySelectorAll('.empedit').forEach(x=>x.onclick=()=>openEmp(+x.dataset.editEmp));
+
+ // В месячном режиме сразу показываем область вокруг сегодняшнего дня.
+ if(isMonth){
+   requestAnimationFrame(()=>{
+     const idx=days.findIndex(d=>iso(d)===today);
+     if(idx>=0){
+       const firstDayCell=$('calendar').querySelectorAll('.week-head')[idx];
+       if(firstDayCell) $('calendar').scrollLeft=Math.max(0,firstDayCell.offsetLeft-110);
+     }
+   });
+ }
 }
 function colorFor(t){return t==='training'?'purple':t==='open'?'green':t==='close'?'yellow':''}
 function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -285,10 +362,10 @@ $('mode').onclick=()=>{
   passwordBg.style.display='flex';
   setTimeout(()=>$('adminPassword').focus(),50);
 };
-$('prev').onclick=()=>{cursor=addDays(cursor,isMobile()?-1:-7);render()};
-$('next').onclick=()=>{cursor=addDays(cursor,isMobile()?1:7);render()};
-function goToday(){cursor=isMobile()?new Date():monday(new Date());render()}$('today').onclick=goToday;$('today2').onclick=goToday;
-$('jump').onchange=()=>{const d=localDate($('jump').value);cursor=isMobile()?d:monday(d);render()};
+$('prev').onclick=()=>{cursor=viewMode==='month'?new Date(cursor.getFullYear(),cursor.getMonth()-1,1):addDays(cursor,-7);render()};
+$('next').onclick=()=>{cursor=viewMode==='month'?new Date(cursor.getFullYear(),cursor.getMonth()+1,1):addDays(cursor,7);render()};
+function goToday(){cursor=viewMode==='month'?new Date(new Date().getFullYear(),new Date().getMonth(),1):monday(new Date());render()}$('today').onclick=goToday;$('today2').onclick=goToday;
+$('jump').onchange=()=>{const d=localDate($('jump').value);cursor=viewMode==='month'?new Date(d.getFullYear(),d.getMonth(),1):monday(d);render()};
 $('calendar').addEventListener('touchstart',e=>{if(!isMobile()||e.touches.length!==1)return;window.__calTouch={x:e.touches[0].clientX,y:e.touches[0].clientY}});
 $('calendar').addEventListener('touchend',e=>{if(!isMobile()||!window.__calTouch)return;const dx=e.changedTouches[0].clientX-window.__calTouch.x,dy=e.changedTouches[0].clientY-window.__calTouch.y;window.__calTouch=null;if(Math.abs(dx)<55||Math.abs(dx)<=Math.abs(dy))return;cursor=addDays(cursor,dx<0?1:-1);render();});
 $('search').oninput=render;$('cancel').onclick=close;bg.onclick=e=>{if(e.target===bg)close()};empBg.onclick=e=>{if(e.target===empBg)closeEmp()};
@@ -346,8 +423,16 @@ function parseICS(text){const lines=text.replace(/\r/g,'').split('\n');const eve
 function parseDT(v){if(!v)return null;const x=v.replace(/[^0-9]/g,'').slice(0,14);if(x.length<8)return null;return x.slice(0,4)+'-'+x.slice(4,6)+'-'+x.slice(6,8)}
 function parseTime(v,def){if(!v)return def;const x=v.replace(/[^0-9]/g,'');if(x.length<11)return def;return x.slice(9,11)+':'+x.slice(11,13)}
 function importICS(text){const events=parseICS(text);let added=0;events.forEach((ev,i)=>{const date=parseDT(ev.DTSTART),end=parseDT(ev.DTEND);if(!date)return;let emp=state.employees.find(e=>(ev.SUMMARY||'').toLowerCase().includes(e.name.toLowerCase().split(' ')[0]));if(!emp)emp=state.employees[0];if(!emp)return;state.shifts.push({id:Date.now()+i,employeeId:emp.id,date,type:'shift',start:parseTime(ev.DTSTART,'09:00'),end:parseTime(ev.DTEND,'18:00')});added++});persist();render();toast('Импортировано смен: '+added)}
-$('weekTab').onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('weekTab').classList.add('active')};
-$('monthTab').onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('monthTab').classList.add('active');toast('Месячный режим добавим следующим этапом')};
+$('weekTab').onclick=()=>{
+ viewMode='week';cursor=monday(cursor);
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+ $('weekTab').classList.add('active');render();
+};
+$('monthTab').onclick=()=>{
+ viewMode='month';cursor=new Date(cursor.getFullYear(),cursor.getMonth(),1);
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+ $('monthTab').classList.add('active');render();
+};
 async function boot(){
   setAdmin(false);
   render();
