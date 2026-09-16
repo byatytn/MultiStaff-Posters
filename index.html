@@ -644,7 +644,7 @@ function importICS(text){const events=parseICS(text);let added=0;events.forEach(
 $('weekTab').onclick=()=>{
  viewMode='week';cursor=monday(cursor);
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
- $('weekTab').classList.add('active');render();animateCalendar('back');
+ $('weekTab').classList.add('active');render();animateCalendar('back');animateCalendar('back');
 };
 function monthKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
 function monthLabel(key){
@@ -671,6 +671,7 @@ function renderArchiveMonths(){
     $('archiveBtn').classList.add('active');
     hideModal(archiveBg);
     render();
+    animateCalendar('forward');
   });
 }
 function openArchive(){renderArchiveMonths();showModal(archiveBg)}
@@ -748,7 +749,7 @@ statsBg.onclick=e=>{if(e.target===statsBg)closeStats()};
 $('weekTab').onclick=()=>{
  viewMode='week';cursor=monday(cursor);
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
- $('weekTab').classList.add('active');render();
+ $('weekTab').classList.add('active');render();animateCalendar('back');
 };
 async function boot(){
   cursor=monday(new Date());
