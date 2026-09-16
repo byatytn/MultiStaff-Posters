@@ -20,6 +20,59 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.stat{padding:13px 14px;background:#101419;border:1px solid var(--line);border-radius:13px}.stat span{font-size:11px;color:var(--muted)}.stat b{display:block;font-size:22px;margin-top:3px}.stat.clickable{cursor:pointer;transition:.15s}.stat.clickable:hover{border-color:#596474;background:#14191f;transform:translateY(-1px)}.stat.clickable:active{transform:translateY(0)}
 .modal-bg{display:none;position:fixed;inset:0;background:#000b;align-items:center;justify-content:center;padding:16px;z-index:50}.modal{width:min(480px,100%);background:#171b21;border:1px solid #333b46;border-radius:17px;padding:19px;box-shadow:0 30px 100px #000c}.modal h2{margin:0 0 4px;font-size:20px}.meta{color:var(--muted);font-size:12px}.field{margin-top:14px}.field label{display:block;color:#aab3bf;font-size:12px;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px;outline:none}.field textarea{resize:vertical;min-height:70px}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quick-shifts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.quick-shift{border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px;padding:9px 6px;text-align:center}.quick-shift:hover,.quick-shift.active{border-color:var(--red);background:#241216}.quick-shift b{display:block;font-size:13px}.quick-shift span{display:block;color:#8f98a6;font-size:10px;margin-top:3px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.file{font-size:12px;color:#aab3bf}.employees-modal{width:min(620px,100%)}.employee-list{margin-top:15px;max-height:55vh;overflow:auto;border:1px solid var(--line);border-radius:12px}.employee-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid #252c34}.employee-row:last-child{border-bottom:0}.employee-row .avatar{width:38px;height:38px}.employee-info{min-width:0;flex:1}.employee-info b{display:block;font-size:13px}.employee-info span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.employee-actions{display:flex;gap:6px}.employee-actions .iconbtn{width:36px;height:36px}.empty-employees{padding:25px;text-align:center;color:var(--muted);font-size:13px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e9edf2;color:#111;padding:10px 14px;border-radius:10px;font-size:13px;box-shadow:0 15px 45px #0008;transition:.2s;z-index:80}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Smooth UI transitions */
+.tab,.mode,.btn,.iconbtn,.quick-shift,.archive-month,.stat.clickable{
+  transition:
+    background-color .16s ease,
+    border-color .16s ease,
+    color .16s ease,
+    transform .16s ease,
+    box-shadow .16s ease;
+}
+.tab:hover,.mode:hover,.btn:hover,.iconbtn:hover,.quick-shift:hover,.archive-month:hover{
+  transform:translateY(-1px);
+}
+.tab:active,.mode:active,.btn:active,.iconbtn:active,.quick-shift:active,.archive-month:active{
+  transform:translateY(0);
+}
+#calendar.calendar-slide-forward{
+  animation:calendarSlideForward .22s cubic-bezier(.22,.61,.36,1) both;
+}
+#calendar.calendar-slide-back{
+  animation:calendarSlideBack .22s cubic-bezier(.22,.61,.36,1) both;
+}
+@keyframes calendarSlideForward{
+  from{opacity:.55;transform:translateX(14px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes calendarSlideBack{
+  from{opacity:.55;transform:translateX(-14px)}
+  to{opacity:1;transform:translateX(0)}
+}
+.modal-bg{
+  display:flex;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .18s ease,visibility 0s linear .18s;
+}
+.modal-bg.is-open{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transition:opacity .18s ease;
+}
+.modal-bg .modal{
+  transform:translateY(10px) scale(.985);
+  opacity:0;
+  transition:transform .2s cubic-bezier(.22,.61,.36,1),opacity .18s ease;
+}
+.modal-bg.is-open .modal{
+  transform:translateY(0) scale(1);
+  opacity:1;
+}
+
 #import{display:none}
 
 /* Табличный календарь: на ПК и телефоне одна и та же структура, без "одного дня" на мобильном. */
@@ -454,14 +507,37 @@ function archiveShiftLabel(s){
 function colorFor(t){return t==='training'?'purple':t==='open'?'green':t==='close'?'yellow':(t==='off'||t==='vacation')?'yellow':''}
 function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function fillEmployees(){ $('employee').innerHTML=state.employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join('') }
-function newShift(emp,date){if(!admin)return toast('Войдите как администратор');editing=null;selectedShiftType='shift';$('modalTitle').textContent='Новая смена';$('employee').value=emp||state.employees[0]?.id||'';$('date').value=date||iso(cursor);$('start').value='09:00';$('end').value='23:00';setQuickShift('09:00','23:00','shift');$('delete').style.display='none';$('meta').textContent='Добавление в график';bg.style.display='flex'}
-function openShift(id){const s=state.shifts.find(x=>x.id===id);if(!s)return;editing=s;selectedShiftType=s.type||'shift';$('modalTitle').textContent=s.type==='off'?'Выходной':(s.type==='vacation'?'Відпустка':'Смена');$('employee').value=s.employeeId;$('date').value=s.date;$('start').value=s.start||'00:00';$('end').value=s.end||'00:00';setQuickShift(s.start||'00:00',s.end||'00:00',selectedShiftType);$('delete').style.display=admin?'inline-block':'none';$('meta').textContent='Изменение смены';bg.style.display='flex'}
-function close(){bg.style.display='none';editing=null}
+function showModal(el){
+  if(!el)return;
+  el.style.display='flex';
+  requestAnimationFrame(()=>el.classList.add('is-open'));
+}
+function hideModal(el){
+  if(!el)return;
+  el.classList.remove('is-open');
+  setTimeout(()=>{
+    if(!el.classList.contains('is-open')) el.style.display='none';
+  },190);
+}
+function animateCalendar(direction='forward'){
+  const el=$('calendar');
+  if(!el)return;
+  el.classList.remove('calendar-slide-forward','calendar-slide-back');
+  void el.offsetWidth;
+  el.classList.add(direction==='back'?'calendar-slide-back':'calendar-slide-forward');
+  clearTimeout(window.__calendarAnim);
+  window.__calendarAnim=setTimeout(()=>{
+    el.classList.remove('calendar-slide-forward','calendar-slide-back');
+  },240);
+}
+function newShift(emp,date){if(!admin)return toast('Войдите как администратор');editing=null;selectedShiftType='shift';$('modalTitle').textContent='Новая смена';$('employee').value=emp||state.employees[0]?.id||'';$('date').value=date||iso(cursor);$('start').value='09:00';$('end').value='23:00';setQuickShift('09:00','23:00','shift');$('delete').style.display='none';$('meta').textContent='Добавление в график';showModal(bg)}
+function openShift(id){const s=state.shifts.find(x=>x.id===id);if(!s)return;editing=s;selectedShiftType=s.type||'shift';$('modalTitle').textContent=s.type==='off'?'Выходной':(s.type==='vacation'?'Відпустка':'Смена');$('employee').value=s.employeeId;$('date').value=s.date;$('start').value=s.start||'00:00';$('end').value=s.end||'00:00';setQuickShift(s.start||'00:00',s.end||'00:00',selectedShiftType);$('delete').style.display=admin?'inline-block':'none';$('meta').textContent='Изменение смены';showModal(bg)}
+function close(){hideModal(bg);editing=null}
 function setAdmin(v,doRender=true){admin=v;$('mode').textContent=admin?'Режим администратора':'Режим сотрудника';$('mode').classList.toggle('admin',admin);$('adminbar').classList.toggle('show',admin);$('addShift').style.display=admin?'inline-block':'none';if(doRender)render()}
 $('mode').onclick=()=>{
   if(admin){setAdmin(false);return}
   $('adminPassword').value='';
-  passwordBg.style.display='flex';
+  showModal(passwordBg);
   setTimeout(()=>$('adminPassword').focus(),50);
 };
 // Переключение недель выполняется только стрелками/кнопкой «Сегодня».
@@ -469,11 +545,13 @@ function movePeriod(delta){
   if(viewMode==='week') cursor=addDays(monday(cursor),delta*7);
   else cursor=new Date(cursor.getFullYear(),cursor.getMonth()+delta,1);
   render();
+  animateCalendar(delta<0?'back':'forward');
 }
 function goToday(){
   const now=new Date();
   cursor=viewMode==='week'?monday(now):new Date(now.getFullYear(),now.getMonth(),1);
   render();
+  animateCalendar('forward');
 }
 $('prevPeriod').onclick=()=>movePeriod(-1);
 $('nextPeriod').onclick=()=>movePeriod(1);
@@ -519,7 +597,7 @@ async function loginAdmin(){
     if(!r.ok)throw new Error(data.error||'Неверный пароль');
     adminToken=data.token;
     sessionStorage.setItem('multistaff_admin_token',adminToken);
-    passwordBg.style.display='none';
+    hideModal(passwordBg);
     setAdmin(true);
     if(needsInitialSync){
       await persist();
@@ -534,9 +612,9 @@ async function loginAdmin(){
 }
 $('start').onchange=()=>setQuickShift($('start').value,$('end').value,'shift');$('end').onchange=()=>setQuickShift($('start').value,$('end').value,'shift');
 $('passwordLogin').onclick=loginAdmin;
-$('passwordCancel').onclick=()=>passwordBg.style.display='none';
+$('passwordCancel').onclick=()=>hideModal(passwordBg);
 $('adminPassword').onkeydown=e=>{if(e.key==='Enter')loginAdmin()};
-passwordBg.onclick=e=>{if(e.target===passwordBg)passwordBg.style.display='none'};
+passwordBg.onclick=e=>{if(e.target===passwordBg)hideModal(passwordBg)};
 
 $('addShift').onclick=()=>admin?newShift():toast('Войдите как администратор');
 $('save').onclick=async()=>{
@@ -548,13 +626,13 @@ $('addEmployee').onclick=()=>openEmp();
 function renderEmployees(){const box=$('employeeList');if(!state.employees.length){box.innerHTML='<div class="empty-employees">Сотрудников пока нет</div>';return}box.innerHTML=state.employees.map(e=>'<div class="employee-row"><div class="avatar">'+initials(e.name)+'</div><div class="employee-info"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div><div class="employee-actions"><button class="iconbtn" title="Редактировать" data-edit-employee="'+e.id+'">✎</button><button class="iconbtn" title="Удалить" data-delete-employee="'+e.id+'">×</button></div></div>').join('');
 box.querySelectorAll('[data-edit-employee]').forEach(b=>b.onclick=()=>{closeEmployees();openEmp(+b.dataset.editEmployee)});
 box.querySelectorAll('[data-delete-employee]').forEach(b=>b.onclick=()=>deleteEmployee(+b.dataset.deleteEmployee)) }
-function openEmployees(){if(!admin)return toast('Управление сотрудниками доступно администратору');renderEmployees();employeesBg.style.display='flex'}
-function closeEmployees(){employeesBg.style.display='none'}
+function openEmployees(){if(!admin)return toast('Управление сотрудниками доступно администратору');renderEmployees();showModal(employeesBg)}
+function closeEmployees(){hideModal(employeesBg)}
 function deleteEmployee(id){const e=state.employees.find(x=>x.id===id);if(!e)return;if(confirm('Удалить '+e.name+' и все его смены?')){state.employees=state.employees.filter(x=>x.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();fillEmployees();render();renderEmployees();toast('Сотрудник удалён')}} 
 $('employeesCard').onclick=openEmployees;$('employeesClose').onclick=closeEmployees;$('employeesAdd').onclick=()=>{closeEmployees();openEmp()};employeesBg.onclick=e=>{if(e.target===employeesBg)closeEmployees()};
 $('importBtn').onclick=()=>admin?$('import').click():toast('Импорт доступен администратору');
-function openEmp(id){if(!admin)return toast('Войдите как администратор');const e=id?state.employees.find(x=>x.id===id):null;$('empTitle').textContent=e?'Сотрудник':'Новый сотрудник';$('empName').value=e?.name||'';$('empRole').value=(e?.role==='УС'||e?.role==='МС')?e.role:'УС';$('empDelete').style.display=e?'inline-block':'none';$('empSave').dataset.id=e?.id||'';empBg.style.display='flex'}
-function closeEmp(){empBg.style.display='none'}
+function openEmp(id){if(!admin)return toast('Войдите как администратор');const e=id?state.employees.find(x=>x.id===id):null;$('empTitle').textContent=e?'Сотрудник':'Новый сотрудник';$('empName').value=e?.name||'';$('empRole').value=(e?.role==='УС'||e?.role==='МС')?e.role:'УС';$('empDelete').style.display=e?'inline-block':'none';$('empSave').dataset.id=e?.id||'';showModal(empBg)}
+function closeEmp(){hideModal(empBg)}
 $('empCancel').onclick=closeEmp;
 $('empSave').onclick=()=>{if(!admin)return toast('Войдите как администратор');const name=$('empName').value.trim(),role=$('empRole').value.trim()||'Сотрудник';if(!name)return toast('Укажи имя');const id=+$('empSave').dataset.id;if(id){const e=state.employees.find(x=>x.id===id);e.name=name;e.role=role}else state.employees.push({id:Date.now(),name,role});persist();closeEmp();fillEmployees();render();toast('Сотрудник сохранён')};
 $('empDelete').onclick=()=>{if(!admin)return toast('Войдите как администратор');const id=+$('empSave').dataset.id;if(!id)return;if(confirm('Удалить сотрудника и его смены?')){state.employees=state.employees.filter(e=>e.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();closeEmp();fillEmployees();render();toast('Сотрудник удалён')}};
@@ -566,7 +644,7 @@ function importICS(text){const events=parseICS(text);let added=0;events.forEach(
 $('weekTab').onclick=()=>{
  viewMode='week';cursor=monday(cursor);
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
- $('weekTab').classList.add('active');render();
+ $('weekTab').classList.add('active');render();animateCalendar('back');
 };
 function monthKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
 function monthLabel(key){
@@ -591,12 +669,12 @@ function renderArchiveMonths(){
     viewMode='archive';
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     $('archiveBtn').classList.add('active');
-    archiveBg.style.display='none';
+    hideModal(archiveBg);
     render();
   });
 }
-function openArchive(){renderArchiveMonths();archiveBg.style.display='flex'}
-function closeArchive(){archiveBg.style.display='none'}
+function openArchive(){renderArchiveMonths();showModal(archiveBg)}
+function closeArchive(){hideModal(archiveBg)}
 $('archiveBtn').onclick=openArchive;
 $('archiveClose').onclick=closeArchive;
 archiveBg.onclick=e=>{if(e.target===archiveBg)closeArchive()};
@@ -658,8 +736,8 @@ function renderStats(){
   html+='</tbody></table>';
   $('statsWrap').innerHTML=html;
 }
-function openStats(){renderStats();statsBg.style.display='flex'}
-function closeStats(){statsBg.style.display='none'}
+function openStats(){renderStats();showModal(statsBg)}
+function closeStats(){hideModal(statsBg)}
 $('statsBtn').onclick=openStats;
 $('statsClose').onclick=closeStats;
 $('statsMonth').onchange=()=>{statsMonth=$('statsMonth').value;renderStats()};
