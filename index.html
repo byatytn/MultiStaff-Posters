@@ -215,13 +215,13 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 <div class="modal-actions"><button class="btn" id="empCancel">Скасувати</button><button class="btn danger" id="empDelete">Видалити</button><button class="btn primary" id="empSave">Зберегти</button></div>
 </div></div>
 <div class="modal-bg" id="employeesBg"><div class="modal employees-modal">
-<h2>Сотрудники</h2><div class="meta">Повне керування співробітниками графіка</div>
+<h2>Співробітники</h2><div class="meta">Повне керування співробітниками графіка</div>
 <div class="employee-list" id="employeeList"></div>
 <div class="modal-actions"><button class="btn" id="employeesClose">Закрити</button><button class="btn primary" id="employeesAdd">＋ Співробітник</button></div>
 </div></div>
 <div class="modal-bg" id="passwordBg"><div class="modal">
 <h2>Режим адміністратора</h2><div class="meta">Введіть пароль для редагування графіка та співробітників.</div>
-<div class="field"><label>Пароль</label><input id="adminPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Пароль"></div>
+<div class="field"><label>Пароль</label><input id="adminPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Введіть пароль"></div>
 <div class="modal-actions"><button class="btn" id="passwordCancel">Скасувати</button><button class="btn primary" id="passwordLogin">Увійти</button></div>
 </div></div>
 
@@ -350,7 +350,7 @@ async function syncShared(){
     lastServerUpdatedAt=remote.updatedAt;
     localStorage.setItem(KEY,JSON.stringify(state));
     fillEmployees();render();
-    toast('График обновлён с сервера');
+    toast('Графік оновлено з сервера');
   }catch(e){console.warn('Sync failed:',e)}
 }
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>e.classList.remove('show'),1500)}
@@ -411,7 +411,7 @@ function render(){
        const date=iso(d), list=state.shifts.filter(s=>sameId(s.employeeId,e.id)&&shiftDate(s)===date);
        const weekend=((d.getDay()||7)>=6);
        html+='<div class="cell day'+(weekend?' weekend':'')+'" data-date="'+date+'" data-emp="'+e.id+'">';
-       if(!list.length) html+='<div class="emptyday">Нет смен</div>';
+       if(!list.length) html+='<div class="emptyday">Немає змін</div>';
        list.forEach(s=>{
          html+='<div class="shift '+colorFor(s.type)+(s.type==='off'?' off':'')+'" data-id="'+s.id+'"><div class="time">'+(s.type==='off'?'В':(s.type==='vacation'?'Відпустка':(s.start+' — '+s.end)))+'</div></div>';
        });
@@ -530,7 +530,7 @@ $('save').onclick=async()=>{
   if(saved!==false)toast('Графік збережено');
 };
 $('addEmployee').onclick=()=>openEmp();
-function renderEmployees(){const box=$('employeeList');if(!state.employees.length){box.innerHTML='<div class="empty-employees">Сотрудников пока нет</div>';return}box.innerHTML=state.employees.map(e=>'<div class="employee-row"><div class="avatar">'+initials(e.name)+'</div><div class="employee-info"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div><div class="employee-actions"><button class="iconbtn" title="Редагувати" data-edit-employee="'+e.id+'">✎</button><button class="iconbtn" title="Видалити" data-delete-employee="'+e.id+'">×</button></div></div>').join('');
+function renderEmployees(){const box=$('employeeList');if(!state.employees.length){box.innerHTML='<div class="empty-employees">Співробітників поки немає</div>';return}box.innerHTML=state.employees.map(e=>'<div class="employee-row"><div class="avatar">'+initials(e.name)+'</div><div class="employee-info"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div><div class="employee-actions"><button class="iconbtn" title="Редагувати" data-edit-employee="'+e.id+'">✎</button><button class="iconbtn" title="Видалити" data-delete-employee="'+e.id+'">×</button></div></div>').join('');
 box.querySelectorAll('[data-edit-employee]').forEach(b=>b.onclick=()=>{closeEmployees();openEmp(+b.dataset.editEmployee)});
 box.querySelectorAll('[data-delete-employee]').forEach(b=>b.onclick=()=>deleteEmployee(+b.dataset.deleteEmployee)) }
 function openEmployees(){if(!admin)return toast('Керування співробітниками доступно администратору');renderEmployees();employeesBg.style.display='flex'}
