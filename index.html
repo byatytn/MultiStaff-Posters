@@ -68,11 +68,65 @@ function localDate(s){const [y,m,day]=s.split('-').map(Number);return new Date(y
 function monday(d){const x=new Date(d);x.setHours(0,0,0,0);const n=x.getDay()||7;x.setDate(x.getDate()-n+1);return x}
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function fmt(d){return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}
-function makeState(){return{employees:defaultEmployees,shifts:[]}}
+function makeState(){return{employees:defaultEmployees.map(e=>({...e})),shifts:[]}}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
-let state=load(), cursor=monday(new Date()), admin=false, editing=null;
+let state=makeState(), cursor=monday(new Date()), admin=false, editing=null;
+let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null;
 const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg');
-function persist(){localStorage.setItem(KEY,JSON.stringify(state))}
+function sameState(a,b){return JSON.stringify({employees:a.employees,shifts:a.shifts})===JSON.stringify({employees:b.employees,shifts:b.shifts})}
+let saveQueue=Promise.resolve();
+function persist(){
+  localStorage.setItem(KEY,JSON.stringify(state));
+  saveQueue=saveQueue.then(async()=>{
+    savingToServer=true;
+    try{
+      const r=await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({employees:state.employees,shifts:state.shifts})});
+      if(!r.ok)throw new Error('save failed');
+      const data=await r.json();
+      lastServerUpdatedAt=data.updatedAt||new Date().toISOString();
+    }catch(e){
+      console.warn('Shared storage unavailable:',e);
+      toast('Локально сохранено · сервер недоступен');
+    }finally{savingToServer=false}
+  });
+  return saveQueue;
+}
+async function loadShared(){
+  const local=load();
+  try{
+    const r=await fetch('/api/state',{cache:'no-store'});
+    if(!r.ok)throw new Error('load failed');
+    const remote=await r.json();
+    if(!remote.exists && !sameState(local,makeState())){
+      state=local;
+      await persist();
+      toast('Ваш график перенесён в общий сервер');
+    }else{
+      state=remote.data||makeState();
+      lastServerUpdatedAt=remote.updatedAt||null;
+      localStorage.setItem(KEY,JSON.stringify(state));
+    }
+  }catch(e){
+    console.warn('Shared storage unavailable:',e);
+    state=local;
+    toast('Работа в локальном режиме');
+  }
+  fillEmployees();render();
+}
+async function syncShared(){
+  if(savingToServer)return;
+  try{
+    const r=await fetch('/api/state',{cache:'no-store'});
+    if(!r.ok)return;
+    const remote=await r.json();
+    if(!remote.exists||!remote.updatedAt||remote.updatedAt===lastServerUpdatedAt)return;
+    state=remote.data||makeState();
+    lastServerUpdatedAt=remote.updatedAt;
+    localStorage.setItem(KEY,JSON.stringify(state));
+    fillEmployees();render();
+    toast('График обновлён с сервера');
+  }catch(e){console.warn('Sync failed:',e)}
+}
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>e.classList.remove('show'),1500)}
 function initials(n){return n.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()}
 function weekShifts(){const from=iso(cursor),to=iso(addDays(cursor,6));return state.shifts.filter(s=>s.date>=from&&s.date<=to)}
@@ -139,7 +193,14 @@ function parseTime(v,def){if(!v)return def;const x=v.replace(/[^0-9]/g,'');if(x.
 function importICS(text){const events=parseICS(text);let added=0;events.forEach((ev,i)=>{const date=parseDT(ev.DTSTART),end=parseDT(ev.DTEND);if(!date)return;let emp=state.employees.find(e=>(ev.SUMMARY||'').toLowerCase().includes(e.name.toLowerCase().split(' ')[0]));if(!emp)emp=state.employees[0];if(!emp)return;state.shifts.push({id:Date.now()+i,employeeId:emp.id,date,type:'shift',start:parseTime(ev.DTSTART,'09:00'),end:parseTime(ev.DTEND,'18:00'),note:ev.SUMMARY||'Импортировано из календаря'});added++});persist();render();toast('Импортировано смен: '+added)}
 $('weekTab').onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('weekTab').classList.add('active')};
 $('monthTab').onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('monthTab').classList.add('active');toast('Месячный режим добавим следующим этапом')};
-fillEmployees();setAdmin(false);
+async function boot(){
+  setAdmin(false);
+  render();
+  await loadShared();
+  clearInterval(syncTimer);
+  syncTimer=setInterval(syncShared,4000);
+}
+boot();
 </script>
 </body>
 </html>
