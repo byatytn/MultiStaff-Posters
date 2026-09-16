@@ -245,7 +245,7 @@ app.put('/api/state', requireAdmin, async (req, res) => {
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: false });
 
-    const snap = await docRef.get();
+    const snap = await staffSchedulesRef.get();
     const updatedAt = snap.data()?.updatedAt?.toDate?.().toISOString() || new Date().toISOString();
 
     res.json({ ok: true, updatedAt });
