@@ -310,7 +310,10 @@ function render(){
    $('period').textContent=days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+
      (days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
  }
- $('jump').value=isMonth?iso(new Date(cursor.getFullYear(),cursor.getMonth(),1)):iso(cursor);
+ // The old date-picker (#jump) was removed from the HTML.
+ // Do not abort render() when it is absent.
+ const jump=$('jump');
+ if(jump) jump.value=isMonth?iso(new Date(cursor.getFullYear(),cursor.getMonth(),1)):iso(cursor);
  $('shiftsLabel').textContent=isMonth?'Смен за месяц':'Смен на неделе';
  $('weekShifts').textContent=shifts.length;
  $('employeeCount').textContent=state.employees.length;
