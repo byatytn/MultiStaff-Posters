@@ -40,7 +40,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 #calendar.month-view .shift .type{display:none}
 #calendar.month-view .addday{font-size:9px}
 @media(max-width:600px){
-  #calendar.week-view{grid-template-columns:86px repeat(7,minmax(0,1fr));width:100%}
+  #calendar.week-view{grid-template-columns:86px repeat(7,minmax(0,1fr));width:100%;grid-auto-flow:row;grid-auto-rows:minmax(70px,auto)}
   #calendar.week-view .cell{min-width:0}
   #calendar.month-view{grid-template-columns:82px repeat(31,54px);min-width:max-content}
   #calendar.month-view .cell{min-width:54px}
@@ -192,7 +192,13 @@ const KEY='multistaff_schedule_v1';
 const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const TYPES={shift:'Смена',open:'Открытие',close:'Закрытие',training:'Обучение',other:'Другое'};
 const defaultEmployees=[];
-function iso(d){return d.toISOString().slice(0,10)}
+function iso(d){
+  // Calendar dates are local dates. Using toISOString() shifts Kyiv midnight to the previous UTC day.
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
 function localDate(s){const [y,m,day]=s.split('-').map(Number);return new Date(y,m-1,day)}
 function monday(d){const x=new Date(d);x.setHours(0,0,0,0);const n=x.getDay()||7;x.setDate(x.getDate()-n+1);return x}
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
