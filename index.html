@@ -41,8 +41,6 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 }
 @media(max-width:600px){
   .calendar-head{position:sticky;top:0;z-index:6;background:#101419}
-  .week{grid-template-columns:130px minmax(0,1fr)!important;width:100%!important;min-width:0!important;overflow:visible!important}
-  .week .cell{min-width:0!important}
   .week-head{position:sticky;top:0;z-index:5}
 
   body{font-size:14px}
@@ -70,21 +68,29 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .date-tools{order:1}
   .date-tools input,.date-tools .btn{padding:8px;font-size:11px}
   .iconbtn{width:34px;height:34px}
-  .week{grid-template-columns:130px repeat(7,92px);width:max-content;min-width:100%;overflow-x:auto}
-  .cell{min-width:0}
-  .employee-head{font-size:10px;padding:8px}
-  .employee{padding:8px;gap:6px;min-height:78px}
-  .avatar{width:29px;height:29px;border-radius:8px;font-size:10px}
-  .ename b{font-size:11px}
-  .ename span{font-size:9px}
-  .week-head{min-height:54px;padding:7px 3px}
-  .week-head b{font-size:9px}
-  .week-head strong{font-size:16px}
-  .day{min-height:78px;padding:4px}
-  .shift{padding:7px 5px;border-radius:7px;margin-bottom:4px}
-  .shift .time{font-size:10px}
-  .emptyday{height:68px;font-size:9px}
-  .addday{padding:5px 2px;font-size:9px}
+
+  /* На телефоне вся неделя помещается в экран; пользователь может увеличить её pinch-zoom. */
+  .week{
+    grid-template-columns:88px repeat(7,minmax(0,1fr));
+    width:100%;
+    min-width:0;
+    overflow:visible;
+    touch-action:pan-x pan-y pinch-zoom;
+  }
+  .week .cell{min-width:0}
+  .employee-head{font-size:9px;padding:7px 4px}
+  .employee{padding:6px 4px;gap:4px;min-height:70px}
+  .avatar{width:24px;height:24px;border-radius:7px;font-size:9px}
+  .ename b{font-size:9px}
+  .ename span{font-size:8px}
+  .week-head{min-height:50px;padding:6px 2px}
+  .week-head b{font-size:8px}
+  .week-head strong{font-size:14px}
+  .day{min-height:70px;padding:3px}
+  .shift{padding:5px 2px;border-radius:6px;margin-bottom:3px}
+  .shift .time{font-size:8px;white-space:nowrap}
+  .emptyday{height:61px;font-size:8px;white-space:nowrap;overflow:hidden}
+  .addday{padding:4px 1px;font-size:8px;white-space:nowrap;overflow:hidden}
   .adminbar{align-items:stretch;flex-direction:column}
   .admin-actions{width:100%}
   .admin-actions .btn{flex:1}
@@ -97,15 +103,19 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .quick-shift span{font-size:9px}
 }
 @media(max-width:380px){
-  .week{grid-template-columns:118px minmax(0,1fr)!important}
-
   .brand{font-size:17px}
   .sub{display:none}
   .tab,.mode{padding:7px 8px;font-size:11px}
-  .week{grid-template-columns:118px repeat(7,88px)}
-  .employee{padding:6px}
-  .avatar{width:27px;height:27px}
-  .ename b{font-size:10px}
+  .week{grid-template-columns:78px repeat(7,minmax(0,1fr))}
+  .employee{padding:5px 3px}
+  .avatar{width:22px;height:22px}
+  .ename b{font-size:8px}
+  .ename span{font-size:7px}
+  .week-head b{font-size:7px}
+  .week-head strong{font-size:13px}
+  .shift .time{font-size:7px}
+  .emptyday{font-size:7px}
+  .addday{font-size:7px}
   .tools .btn{font-size:11px}
 }</style>
 </head>
