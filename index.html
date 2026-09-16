@@ -335,7 +335,33 @@ function isMobile(){return window.innerWidth<=600}
 let state=makeState(), cursor=monday(new Date()), viewMode='week', admin=false, editing=null, selectedShiftType='shift';
 let archiveMonth=null, statsMonth=null;
 let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null, needsInitialSync=false;
-let adminToken=sessionStorage.getItem('multistaff_admin_token')||'';
+const ADMIN_DEVICE_TTL=6*60*60*1000;
+function loadAdminToken(){
+  try{
+    const raw=localStorage.getItem('multistaff_admin_session');
+    if(!raw)return '';
+    const saved=JSON.parse(raw);
+    if(!saved?.token || !saved?.expiresAt || Number(saved.expiresAt)<=Date.now()){
+      localStorage.removeItem('multistaff_admin_session');
+      return '';
+    }
+    return String(saved.token);
+  }catch{
+    localStorage.removeItem('multistaff_admin_session');
+    return '';
+  }
+}
+function saveAdminToken(token){
+  localStorage.setItem('multistaff_admin_session',JSON.stringify({
+    token,
+    expiresAt:Date.now()+ADMIN_DEVICE_TTL
+  }));
+}
+function clearAdminToken(){
+  adminToken='';
+  localStorage.removeItem('multistaff_admin_session');
+}
+let adminToken=loadAdminToken();
 const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg'),passwordBg=$('passwordBg'),archiveBg=$('archiveBg'),statsBg=$('statsBg');
 function sameId(a,b){return String(a)===String(b)}
 // Порядок сотрудников на сайте: Богдан → Алина → Олександр → Каріна.
@@ -379,7 +405,7 @@ function persist(){
     savingToServer=true;
     try{
       const r=await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+adminToken},body:JSON.stringify({employees:state.employees,shifts:state.shifts})});
-      if(r.status===401){adminToken='';sessionStorage.removeItem('multistaff_admin_token');setAdmin(false);toast('Сессия администратора истекла');return;}
+      if(r.status===401){clearAdminToken();setAdmin(false);toast('Сесія адміністратора завершилась');return;}
       if(!r.ok)throw new Error('save failed');
       const data=await r.json();
       lastServerUpdatedAt=data.updatedAt||new Date().toISOString();
@@ -619,7 +645,7 @@ async function loginAdmin(){
     const data=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(data.error||'Неверный пароль');
     adminToken=data.token;
-    sessionStorage.setItem('multistaff_admin_token',adminToken);
+    saveAdminToken(adminToken);
     hideModal(passwordBg);
     setAdmin(true);
     if(needsInitialSync){
@@ -779,7 +805,7 @@ async function boot(){
   viewMode='week';
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   $('weekTab').classList.add('active');
-  setAdmin(false,false);
+  setAdmin(!!adminToken,false);
   $('calendar').innerHTML='<div style="grid-column:1/-1;padding:35px;text-align:center;color:#8f98a6">Загрузка графика…</div>';
   await loadShared();
   clearInterval(syncTimer);
