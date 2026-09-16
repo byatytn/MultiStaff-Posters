@@ -7,6 +7,11 @@ const admin = require('firebase-admin');
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 
+console.log('[BOOT] MultiStaff starting...');
+console.log('[BOOT] Node:', process.version);
+console.log('[BOOT] PID:', process.pid);
+console.log('[BOOT] PORT:', process.env.PORT || 3000);
+
 // Admin password is configured in Northflank.
 // Default for the first setup: 2026
 const ADMIN_PASSWORD = process.env.MULTISTAFF_ADMIN_PASSWORD || '2026';
@@ -70,6 +75,46 @@ try {
 
 admin.initializeApp({ credential });
 const db = admin.firestore();
+
+db.settings({ ignoreUndefinedProperties: true });
+
+process.on('SIGTERM', () => {
+  console.warn('[SHUTDOWN] SIGTERM received from the platform.');
+  console.warn('[SHUTDOWN] PID:', process.pid);
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.warn('[SHUTDOWN] SIGINT received.');
+  process.exit(0);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('[FATAL] uncaughtException:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[FATAL] unhandledRejection:', reason);
+});
+
+setInterval(() => {
+  const m = process.memoryUsage();
+  console.log('[HEARTBEAT] pid=%s rss=%sMB heap=%sMB uptime=%ss',
+    process.pid,
+    Math.round(m.rss / 1024 / 1024),
+    Math.round(m.heapUsed / 1024 / 1024),
+    Math.round(process.uptime())
+  );
+}, 60000).unref();
+
+(async () => {
+  try {
+    await db.doc('__system__/health').get();
+    console.log('[FIREBASE] Firestore read test: OK');
+  } catch (err) {
+    console.error('[FIREBASE] Firestore read test failed:', err.message);
+  }
+})();
 const docRef = db.doc('Cinema/atmosfera/StaffSchedule/main');
 
 const defaultState = {
@@ -89,7 +134,7 @@ function validState(s) {
       typeof x.date === 'string' && typeof x.start === 'string' && typeof x.end === 'string');
 }
 
-app.get('/api/health', (req, res) => res.json({ ok: true }));
+app.get('/api/health', (req, res) => res.json({ ok: true, pid: process.pid, uptime: Math.round(process.uptime()) }));
 
 app.post('/api/admin/login', (req, res) => {
   const password = String(req.body?.password || '');
@@ -147,4 +192,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get(/.*/, (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`MultiStaff server listening on ${port}`));
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log('[READY] MultiStaff server listening on', port);
+});
+
+server.on('error', (err) => {
+  console.error('[SERVER ERROR]', err);
+});
