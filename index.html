@@ -191,9 +191,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 const KEY='multistaff_schedule_v1';
 const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const TYPES={shift:'Смена',open:'Открытие',close:'Закрытие',training:'Обучение',other:'Другое'};
-const defaultEmployees=[
-{id:1,name:'Александр',role:'УС'},{id:2,name:'Анна',role:'УС'},{id:3,name:'Максим',role:'МС'},{id:4,name:'Ольга',role:'УС'}
-];
+const defaultEmployees=[];
 function iso(d){return d.toISOString().slice(0,10)}
 function localDate(s){const [y,m,day]=s.split('-').map(Number);return new Date(y,m-1,day)}
 function monday(d){const x=new Date(d);x.setHours(0,0,0,0);const n=x.getDay()||7;x.setDate(x.getDate()-n+1);return x}
