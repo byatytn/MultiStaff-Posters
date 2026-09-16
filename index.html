@@ -227,7 +227,7 @@ function hours(s){const [a,b]=[s.start,s.end].map(t=>{const [h,m]=t.split(':').m
 function render(){
  const q=$('search').value.trim().toLowerCase(), days=Array.from({length:7},(_,i)=>addDays(cursor,i)), shifts=weekShifts();
  $('period').textContent=days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+(days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
- $('jump').value=iso(cursor);
+ $('jump').value=iso(new Date());
  $('weekShifts').textContent=shifts.length;$('employeeCount').textContent=state.employees.length;
  const today=iso(new Date());$('todayWorkers').textContent=new Set(state.shifts.filter(s=>s.date===today).map(s=>s.employeeId)).size;
  $('weekHours').textContent=shifts.reduce((a,s)=>a+hours(s),0).toFixed(1).replace('.0','');
