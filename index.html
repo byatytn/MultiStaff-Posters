@@ -3,34 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
+<meta name="description" content="MultiStaff Posters — управление рекламными плакатами кинотеатра «Атмосфера» в Киеве.">
 <title>MultiStaff Posters — Атмосфера</title>
 <style>
-:root{--bg:#0d0f12;--panel:#15181d;--line:#292e37;--text:#f5f5f5;--muted:#9aa1ad;--red:#ef3038;--purple:#7138f2}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#181b22,#0b0c0f 70%);color:var(--text);font:15px Arial,sans-serif}
-header{border-bottom:1px solid var(--line);background:#101216e8;backdrop-filter:blur(12px);padding:16px 20px;position:sticky;top:0;z-index:5}
-.top{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font-weight:900;font-size:25px;letter-spacing:.5px}.brand span{color:var(--red)}.sub{color:var(--muted);font-size:12px;margin-top:2px}
-.tabs{display:flex;gap:8px;margin:15px auto 0;max-width:1100px}.tab{border:1px solid var(--line);background:#15181d;color:#aeb5c0;padding:10px 22px;border-radius:10px;cursor:pointer}.tab.active{background:#211316;border-color:var(--red);color:#fff;box-shadow:0 0 18px #ef303822}
-main{max-width:1100px;margin:auto;padding:20px}.card{background:#111419;border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:0 20px 50px #0005}
-.map{position:relative;overflow:hidden;border-radius:10px;background:#0e1115}.map svg{display:block;width:100%;height:auto}
-.poster{cursor:pointer}.poster rect{transition:.12s}.poster:hover rect{filter:brightness(1.16);stroke:#fff;stroke-width:1.5}.poster text{pointer-events:none;fill:#fff;font-weight:700;text-anchor:middle;dominant-baseline:middle;font-size:10px}
-.legend{text-align:center;color:var(--muted);padding:13px 0 2px}.dot{display:inline-block;width:14px;height:9px;border-radius:2px;margin:0 5px 0 14px}.r{background:var(--red)}.p{background:var(--purple)}
-.modal-bg{display:none;position:fixed;inset:0;background:#000a;align-items:center;justify-content:center;padding:18px;z-index:10}.modal{width:min(410px,100%);background:#171a20;border:1px solid #303641;border-radius:16px;padding:20px;box-shadow:0 25px 80px #0008}.modal h2{margin:0 0 5px}.meta{color:var(--muted);font-size:13px}input{width:100%;padding:13px;margin:17px 0 12px;border:1px solid #343b47;background:#0e1115;color:#fff;border-radius:9px;font-size:16px;outline:none}input:focus{border-color:var(--red)}.actions{display:flex;justify-content:flex-end;gap:8px}.cancel{border:0;background:#292e36;color:#fff;padding:10px 15px;border-radius:9px}.save{border:0;background:var(--red);color:#fff;padding:10px 17px;border-radius:9px;font-weight:700}
-@media(max-width:650px){.top{align-items:flex-start}.brand{font-size:21px}main{padding:10px}.card{padding:7px}.tab{flex:1;padding:10px 8px}}
+:root{--bg:#090b0e;--panel:#11151a;--panel2:#171c22;--line:#29303a;--text:#f5f7fa;--muted:#8f98a6;--red:#ef3038;--purple:#7846ff;--green:#36d68b;--shadow:0 24px 70px #0008}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button,input{font:inherit}button{cursor:pointer}body{background:radial-gradient(900px 500px at 50% -120px,#202631 0,#0d1014 48%,#090b0e 100%)}
+header{position:sticky;top:0;z-index:20;border-bottom:1px solid #252b34;background:#0d1014e8;backdrop-filter:blur(18px)}
+.top{max-width:1180px;margin:auto;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{font-weight:900;letter-spacing:.8px;font-size:24px}.brand i{font-style:normal;color:var(--red)}.sub{font-size:12px;color:var(--muted);margin-top:2px}.city{font-size:13px;color:#cbd2dc;border:1px solid var(--line);padding:8px 11px;border-radius:9px}
+.toolbar{max-width:1180px;margin:auto;padding:0 20px 14px;display:flex;gap:9px;align-items:center}.tabs{display:flex;gap:7px}.tab,.mode{border:1px solid var(--line);background:#13171c;color:#aeb6c2;border-radius:10px;padding:10px 17px}.tab.active{color:#fff;border-color:#9b242b;background:#241216;box-shadow:0 0 20px #ef303815}.mode{margin-left:auto}.mode.admin{border-color:#6e48e8;background:#1d1630;color:#fff}
+main{max-width:1180px;margin:auto;padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:13px}.title h1{margin:0;font-size:22px}.title p{margin:4px 0 0;color:var(--muted);font-size:13px}.tools{display:flex;gap:8px}.search{width:210px;border:1px solid var(--line);background:#11151a;color:#fff;border-radius:10px;padding:10px 12px;outline:none}.search:focus{border-color:#687384}.btn{border:1px solid var(--line);background:#171c22;color:#fff;padding:10px 13px;border-radius:10px}.btn.primary{background:var(--red);border-color:var(--red);font-weight:700}.btn.danger{background:#2a1417;border-color:#663036;color:#ffb9bd}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px}.card{background:#101419;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}.mapwrap{padding:10px}.map{position:relative;overflow:hidden;border-radius:11px;background:#0b0e12;touch-action:none}.map svg{display:block;width:100%;height:auto}.poster{cursor:pointer}.poster rect{transition:.12s}.poster:hover rect{filter:brightness(1.16);stroke:#fff;stroke-width:1.5}.poster.selected rect{stroke:#fff;stroke-width:3;filter:brightness(1.2)}.poster text{pointer-events:none;fill:#fff;font-weight:800;text-anchor:middle;dominant-baseline:middle;font-size:9px}.poster image{pointer-events:none}.hint{text-align:center;color:var(--muted);font-size:12px;padding:10px 4px 3px}.legend{display:flex;justify-content:center;gap:18px;color:var(--muted);font-size:12px;padding:0 0 5px}.dot{width:13px;height:8px;border-radius:2px;display:inline-block;margin-right:5px}.dot.red{background:var(--red)}.dot.purple{background:var(--purple)}
+.side{padding:16px}.side h2{font-size:16px;margin:0 0 4px}.side .muted{font-size:12px;color:var(--muted);margin-bottom:15px}.stat{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #20262e;font-size:13px}.stat b{color:#fff}.list{margin-top:14px;display:grid;gap:7px;max-height:380px;overflow:auto}.item{display:flex;align-items:center;gap:9px;padding:9px;border:1px solid #252c35;border-radius:9px;background:#14191f}.item .mini{width:10px;height:26px;border-radius:2px}.item span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.empty{color:var(--muted);font-size:12px;padding:12px 0}
+.adminbar{display:none;border:1px solid #3b2c63;background:#171226;border-radius:12px;padding:11px 12px;margin-bottom:13px;align-items:center;justify-content:space-between;gap:10px}.adminbar.show{display:flex}.adminbar span{font-size:12px;color:#c7b8f4}.admin-actions{display:flex;gap:7px}.small{padding:8px 10px;font-size:12px}
+.modal-bg{display:none;position:fixed;inset:0;background:#000b;align-items:center;justify-content:center;padding:16px;z-index:50}.modal{width:min(440px,100%);background:#171b21;border:1px solid #333b46;border-radius:17px;padding:19px;box-shadow:0 30px 100px #000c}.modal h2{margin:0 0 4px;font-size:20px}.meta{color:var(--muted);font-size:12px}.field{margin-top:14px}.field label{display:block;color:#aab3bf;font-size:12px;margin-bottom:6px}.field input{width:100%;padding:12px;border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px;outline:none}.field input:focus{border-color:var(--red)}.select{width:100%;padding:12px;border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px}.file{font-size:12px;color:#aab3bf}.preview{display:none;width:100%;height:90px;object-fit:contain;background:#0c0f13;border-radius:8px;margin-top:7px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e9edf2;color:#111;padding:10px 14px;border-radius:10px;font-size:13px;box-shadow:0 15px 45px #0008;transition:.2s;z-index:80}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.side{display:none}.headrow{align-items:stretch;flex-direction:column}.tools{width:100%}.search{flex:1;width:auto}.toolbar{padding-left:10px;padding-right:10px}.top{padding-left:14px;padding-right:14px}main{padding:12px 10px 30px}}
+@media(max-width:500px){.brand{font-size:20px}.city{display:none}.tab,.mode{padding:9px 11px}.toolbar{overflow:auto}.tabs{flex:none}.mode{margin-left:auto;white-space:nowrap}.admin-actions .small{padding:7px}.adminbar{align-items:flex-start;flex-direction:column}.admin-actions{width:100%}.admin-actions button{flex:1}.mapwrap{padding:6px}}
 </style>
 </head>
 <body>
-<header><div class="top"><div><div class="brand">MULTI<span>STAFF</span></div><div class="sub">POSTERS · Кинотеатр «Атмосфера»</div></div><strong>Киев</strong></div>
-<div class="tabs"><button class="tab active" data-floor="1">1 этаж</button><button class="tab" data-floor="2">2 этаж</button></div></header>
-<main><div class="card"><div class="map"><svg viewBox="0 0 1000 560" id="map"></svg></div><div class="legend"><span class="dot r"></span>маленький плакат <span class="dot p"></span>большой плакат</div></div></main>
-<div class="modal-bg" id="bg"><div class="modal"><h2 id="title">Плакат</h2><div class="meta" id="meta"></div><input id="movie" placeholder="Название фильма"><div class="actions"><button class="cancel" id="cancel">Отмена</button><button class="save" id="save">Сохранить</button></div></div></div>
+<header>
+  <div class="top">
+    <div><div class="brand">MULTI<i>STAFF</i></div><div class="sub">POSTERS · Кинотеатр «Атмосфера»</div></div>
+    <div class="city">Киев</div>
+  </div>
+  <div class="toolbar">
+    <div class="tabs"><button class="tab active" data-floor="1">1 этаж</button><button class="tab" data-floor="2">2 этаж</button></div>
+    <button class="mode" id="mode">Режим сотрудника</button>
+  </div>
+</header>
+<main>
+  <div class="headrow">
+    <div class="title"><h1 id="floorTitle">1 этаж</h1><p>Нажмите на плакат, чтобы посмотреть или изменить фильм.</p></div>
+    <div class="tools"><input class="search" id="search" placeholder="Поиск фильма…"><button class="btn primary" id="add">＋ Плакат</button></div>
+  </div>
+  <div class="adminbar" id="adminbar">
+    <span>⚙ Режим администратора · можно менять карту и расположение плакатов</span>
+    <div class="admin-actions"><button class="btn small" id="reset">Сбросить карту</button><button class="btn primary small" id="save">Сохранить</button></div>
+  </div>
+  <div class="layout">
+    <section class="card">
+      <div class="mapwrap"><div class="map"><svg viewBox="0 0 1000 560" id="map"></svg></div></div>
+      <div class="legend"><span><i class="dot red"></i>маленький</span><span><i class="dot purple"></i>большой</span></div>
+      <div class="hint" id="hint">Сотрудник: можно менять только название фильма · Администратор: редактирование карты</div>
+    </section>
+    <aside class="card side">
+      <h2>Плакаты</h2><div class="muted">Быстрый список текущего этажа</div>
+      <div class="stat"><span>Всего</span><b id="count">0</b></div>
+      <div class="stat"><span>Маленьких</span><b id="smallCount">0</b></div>
+      <div class="stat"><span>Больших</span><b id="largeCount">0</b></div>
+      <div class="list" id="list"></div>
+    </aside>
+  </div>
+</main>
+
+<div class="modal-bg" id="bg"><div class="modal">
+  <h2 id="modalTitle">Плакат</h2><div class="meta" id="meta"></div>
+  <div class="field"><label>Название фильма</label><input id="movie" placeholder="Например: Аватар 3"></div>
+  <div class="adminOnly" id="adminFields">
+    <div class="field"><label>Тип плаката</label><select class="select" id="type"><option value="small">Маленький</option><option value="large">Большой</option></select></div>
+    <div class="field"><label>Изображение (локально для браузера)</label><input class="file" id="image" type="file" accept="image/*"><img class="preview" id="preview"></div>
+  </div>
+  <div class="modal-actions"><button class="btn" id="cancel">Отмена</button><button class="btn danger" id="delete">Удалить</button><button class="btn primary" id="saveModal">Сохранить</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
 <script>
-const state={1:[...Array(20)].map((_,i)=>({id:i+1,type:i>=8&&i<12?'large':'small',movie:''})),2:[...Array(4)].map((_,i)=>({id:i+21,type:'small',movie:''}))};
-let floor=1,current=null;const svg=document.getElementById('map');
-function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function positions(f){if(f===1)return [[120,48],[185,48],[250,48],[315,48],[685,48],[750,48],[815,48],[880,48],[380,98],[445,98],[555,98],[620,98],[120,462],[185,462],[250,462],[315,462],[685,462],[750,462],[815,462],[880,462]];return [[105,65],[225,65],[775,65],[895,65]]}
-function draw(){const p=positions(floor),items=state[floor];let s='<rect x="35" y="45" width="930" height="470" rx="2" fill="#999"/>';if(floor===1)s+='<rect x="270" y="0" width="460" height="75" fill="#fff"/><rect x="270" y="485" width="460" height="75" fill="#fff"/><text x="500" y="525" text-anchor="middle" font-size="27" fill="#111">БАР</text>';else s+='<rect x="250" y="45" width="500" height="215" fill="#fff"/><text x="270" y="88" font-size="25" fill="#111">БАНК</text><text x="680" y="88" font-size="25" fill="#111">ЯБКО</text>';items.forEach((x,i)=>{let[px,py]=p[i],w=x.type==='large'?92:62,h=x.type==='large'?42:30,c=x.type==='large'?'#7138f2':'#ef3038',label=x.movie||'';s+=`<g class="poster" data-id="${x.id}" transform="translate(${px-w/2},${py-h/2})"><rect width="${w}" height="${h}" rx="3" fill="${c}"/><text x="${w/2}" y="${h/2}">${esc(label)}</text></g>`});svg.innerHTML=s;svg.querySelectorAll('.poster').forEach(el=>el.onclick=()=>open(+el.dataset.id))}
-function open(id){current=state[floor].find(x=>x.id===id);document.getElementById('title').textContent='Плакат №'+id;document.getElementById('meta').textContent=(current.type==='large'?'Большой':'Маленький')+' · Атмосфера · '+floor+' этаж';document.getElementById('movie').value=current.movie;document.getElementById('bg').style.display='flex';document.getElementById('movie').focus()}
-function close(){document.getElementById('bg').style.display='none'}
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{floor=+b.dataset.floor;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');draw()});
-document.getElementById('cancel').onclick=close;document.getElementById('save').onclick=()=>{current.movie=document.getElementById('movie').value.trim();close();draw()};document.getElementById('bg').onclick=e=>{if(e.target.id==='bg')close()};draw();
-</script></body></html>
+const KEY='multistaff_posters_v2';
+const initial={
+  1:[
+    [120,48,'small'],[185,48,'small'],[250,48,'small'],[315,48,'small'],[685,48,'small'],[750,48,'small'],[815,48,'small'],[880,48,'small'],
+    [380,98,'large'],[445,98,'large'],[555,98,'large'],[620,98,'large'],
+    [120,462,'small'],[185,462,'small'],[250,462,'small'],[315,462,'small'],[685,462,'small'],[750,462,'small'],[815,462,'small'],[880,462,'small']
+  ].map((p,i)=>({id:i+1,x:p[0],y:p[1],type:p[2],movie:''})),
+  2:[[105,65,'small'],[225,65,'small'],[775,65,'small'],[895,65,'small']].map((p,i)=>({id:i+21,x:p[0],y:p[1],type:p[2],movie:''}))
+};
+let state=load(),floor=1,current=null,admin=false;
+const svg=document.getElementById('map'), bg=document.getElementById('bg');
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&x[1]&&x[2]?x:structuredClone(initial)}catch{return structuredClone(initial)}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(state))}
+function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function draw(){
+  const items=state[floor], q=document.getElementById('search').value.trim().toLowerCase();
+  let s='<rect x="35" y="45" width="930" height="470" rx="2" fill="#929292"/>';
+  if(floor===1)s+='<rect x="270" y="0" width="460" height="75" fill="#fff"/><rect x="270" y="485" width="460" height="75" fill="#fff"/><text x="500" y="525" text-anchor="middle" font-size="27" fill="#111">БАР</text>';
+  else s+='<rect x="250" y="45" width="500" height="215" fill="#fff"/><text x="270" y="88" font-size="25" fill="#111">БАНК</text><text x="680" y="88" font-size="25" fill="#111">ЯБКО</text>';
+  items.filter(x=>!q||x.movie.toLowerCase().includes(q)).forEach(x=>{
+    const w=x.type==='large'?92:62,h=x.type==='large'?42:30,c=x.type==='large'?'#7846ff':'#ef3038',sel=current&&current.id===x.id?' selected':'';
+    const label=x.movie||('№'+x.id);
+    const img=x.image?'<image href="'+x.image+'" x="3" y="3" width="'+(w-6)+'" height="'+(h-6)+'" preserveAspectRatio="xMidYMid slice"/>':'';
+    s+='<g class="poster'+sel+'" data-id="'+x.id+'" transform="translate('+(x.x-w/2)+','+(x.y-h/2)+')"><rect width="'+w+'" height="'+h+'" rx="3" fill="'+c+'"/>'+img+'<text x="'+w/2+'" y="'+h/2+'">'+esc(label)+'</text></g>';
+  });
+  svg.innerHTML=s;
+  svg.querySelectorAll('.poster').forEach(el=>{
+    el.onclick=()=>open(+el.dataset.id);
+    if(admin){
+      let start=null;
+      el.addEventListener('pointerdown',e=>{e.preventDefault();start={x:e.clientX,y:e.clientY};el.setPointerCapture(e.pointerId)});
+      el.addEventListener('pointerup',e=>{
+        if(!start)return; const dx=e.clientX-start.x,dy=e.clientY-start.y;
+        if(Math.abs(dx)+Math.abs(dy)>6){
+          const rect=svg.getBoundingClientRect(),sx=1000/rect.width,sy=560/rect.height;
+          const item=state[floor].find(a=>a.id===+el.dataset.id);item.x=Math.max(40,Math.min(960,item.x+dx*sx));item.y=Math.max(35,Math.min(525,item.y+dy*sy));persist();draw();
+        }
+        start=null;
+      });
+    }
+  });
+  updateSide();
+}
+function updateSide(){
+  const items=state[floor],list=document.getElementById('list');
+  document.getElementById('count').textContent=items.length;
+  document.getElementById('smallCount').textContent=items.filter(x=>x.type==='small').length;
+  document.getElementById('largeCount').textContent=items.filter(x=>x.type==='large').length;
+  list.innerHTML=items.map(x=>'<div class="item" data-id="'+x.id+'"><i class="mini" style="background:'+(x.type==='large'?'#7846ff':'#ef3038')+'"></i><span>'+(x.movie||('Плакат №'+x.id))+'</span></div>').join('')||'<div class="empty">На этом этаже пока нет плакатов.</div>';
+  list.querySelectorAll('.item').forEach(x=>x.onclick=()=>open(+x.dataset.id));
+}
+function open(id){
+  current=state[floor].find(x=>x.id===id);if(!current)return;
+  document.getElementById('modalTitle').textContent='Плакат №'+current.id;
+  document.getElementById('meta').textContent=(current.type==='large'?'Большой':'Маленький')+' · «Атмосфера» · '+floor+' этаж';
+  document.getElementById('movie').value=current.movie;
+  document.getElementById('type').value=current.type;
+  document.getElementById('preview').style.display=current.image?'block':'none';
+  document.getElementById('preview').src=current.image||'';
+  document.getElementById('delete').style.display=admin?'inline-block':'none';
+  document.getElementById('adminFields').style.display=admin?'block':'none';
+  document.getElementById('bg').style.display='flex';
+  document.getElementById('movie').focus();
+}
+function close(){bg.style.display='none';current=null;draw()}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1800)}
+function setAdmin(v){admin=v;document.getElementById('mode').textContent=admin?'Режим администратора':'Режим сотрудника';document.getElementById('mode').classList.toggle('admin',admin);document.getElementById('adminbar').classList.toggle('show',admin);document.getElementById('add').style.display=admin?'inline-block':'none';document.getElementById('hint').textContent=admin?'Администратор: перетаскивайте плакаты мышью/пальцем, меняйте тип, добавляйте и удаляйте.':'Сотрудник: можно менять только название фильма';draw()}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{floor=+b.dataset.floor;current=null;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('floorTitle').textContent=floor+' этаж';draw()});
+document.getElementById('mode').onclick=()=>setAdmin(!admin);
+document.getElementById('search').oninput=draw;
+document.getElementById('cancel').onclick=close;
+bg.onclick=e=>{if(e.target===bg)close()};
+document.getElementById('saveModal').onclick=()=>{
+  if(!current)return;
+  current.movie=document.getElementById('movie').value.trim();
+  if(admin)current.type=document.getElementById('type').value;
+  persist();close();toast('Изменения сохранены');
+};
+document.getElementById('delete').onclick=()=>{
+  if(!admin||!current)return;
+  if(confirm('Удалить этот плакат?')){state[floor]=state[floor].filter(x=>x.id!==current.id);persist();close();toast('Плакат удалён')}
+};
+document.getElementById('add').onclick=()=>{
+  if(!admin)return;
+  const all=[...state[1],...state[2]],id=all.length?Math.max(...all.map(x=>x.id))+1:1;
+  state[floor].push({id,x:500,y:280,type:'small',movie:''});persist();draw();open(id);
+};
+document.getElementById('reset').onclick=()=>{if(confirm('Вернуть исходную карту?')){state=structuredClone(initial);persist();draw();toast('Карта сброшена')}};
+document.getElementById('save').onclick=()=>{persist();toast('Карта сохранена в браузере')};
+document.getElementById('image').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{current.image=r.result;document.getElementById('preview').src=r.result;document.getElementById('preview').style.display='block'};r.readAsDataURL(f)
+};
+setAdmin(false);
+</script>
+</body>
+</html>
