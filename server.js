@@ -14,7 +14,7 @@ console.log('[BOOT] PORT:', process.env.PORT || 3000);
 
 const ADMIN_PASSWORD = process.env.MULTISTAFF_ADMIN_PASSWORD || '2026';
 const adminSessions = new Map();
-const SESSION_TTL = 12 * 60 * 60 * 1000;
+const SESSION_TTL = 6 * 60 * 60 * 1000;
 
 function createAdminSession() {
   const token = crypto.randomBytes(32).toString('hex');
