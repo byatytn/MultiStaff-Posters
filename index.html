@@ -25,33 +25,37 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 /* Табличный календарь: на ПК и телефоне одна и та же структура, без "одного дня" на мобильном. */
 #calendar{overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 #calendar.week-view{display:grid;grid-template-columns:170px repeat(7,minmax(86px,1fr));width:100%;min-width:0}
-#calendar.month-view{display:grid;grid-template-columns:120px repeat(31,minmax(0,1fr));width:100%;min-width:0}
+#calendar.month-view{display:grid;grid-template-columns:180px repeat(31,minmax(46px,1fr));width:max-content;min-width:100%}
 #calendar .cell{min-width:0}
 #calendar.month-view .cell{min-width:0}
+#calendar.month-view .employee{grid-column:1;position:sticky;left:0;z-index:3}
+#calendar.month-view .employee-head{grid-column:1;position:sticky;left:0;z-index:5}
+#calendar.month-view .week-head{min-width:46px}
+#calendar.month-view .day{min-width:46px}
 #calendar .week-head.weekend{background:#17131a}
 #calendar .week-head.weekend strong{color:#c4a7ae}
 #calendar .week-head.today{box-shadow:inset 0 -3px 0 var(--red)}
 #calendar .month-day{font-size:10px;color:#737d8a;margin-top:2px}
-#calendar.month-view .employee{min-height:62px;padding:5px}
-#calendar.month-view .day{min-height:62px;padding:3px}
-#calendar.month-view .emptyday{height:50px;font-size:7px}
-#calendar.month-view .shift{padding:4px 1px;border-radius:5px;margin-bottom:2px;box-shadow:none;overflow:hidden}
-#calendar.month-view .shift .time{font-size:9px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:clip}
+#calendar.month-view .employee{min-height:66px;padding:7px}
+#calendar.month-view .day{min-height:66px;padding:4px}
+#calendar.month-view .emptyday{height:52px;font-size:7px}
+#calendar.month-view .shift{padding:5px 2px;border-radius:5px;margin-bottom:2px;box-shadow:none;overflow:hidden}
+#calendar.month-view .shift .time{font-size:10px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:clip}
 #calendar.month-view .shift .type{display:none}
-#calendar.month-view .addday{font-size:8px;width:22px;height:22px;line-height:20px}
+#calendar.month-view .addday{font-size:9px;width:22px;height:22px;line-height:20px}
 @media(max-width:600px){
   #calendar.week-view{grid-template-columns:86px repeat(7,minmax(0,1fr));width:100%;grid-auto-flow:row;grid-auto-rows:minmax(70px,auto)}
   #calendar.week-view .cell{min-width:0}
-  #calendar.month-view{grid-template-columns:70px repeat(31,minmax(31px,1fr));min-width:0}
+  #calendar.month-view{grid-template-columns:118px repeat(31,48px);min-width:max-content}
   #calendar.month-view .cell{min-width:0}
-  #calendar.month-view .employee{min-height:56px;padding:3px 2px}
-  #calendar.month-view .day{min-height:56px;padding:2px}
-  #calendar.month-view .emptyday{height:47px;font-size:6px}
-  #calendar.month-view .shift{padding:4px 0;border-radius:4px}
-  #calendar.month-view .shift .time{font-size:7px;letter-spacing:-.3px}
-  #calendar.month-view .week-head{min-height:48px;padding:5px 2px}
+  #calendar.month-view .employee{min-height:60px;padding:4px 5px}
+  #calendar.month-view .day{min-height:60px;padding:3px}
+  #calendar.month-view .emptyday{height:49px;font-size:7px}
+  #calendar.month-view .shift{padding:4px 1px;border-radius:4px}
+  #calendar.month-view .shift .time{font-size:9px;letter-spacing:-.2px}
+  #calendar.month-view .week-head{min-height:50px;padding:5px 2px}
   #calendar.month-view .week-head b{font-size:7px}
-  #calendar.month-view .week-head strong{font-size:13px}
+  #calendar.month-view .week-head strong{font-size:14px}
   #calendar.month-view .employee-head{font-size:8px}
 }
 
@@ -393,24 +397,25 @@ function render(){
  $('weekHours').textContent=shifts.reduce((a,s)=>a+hours(s),0).toFixed(1).replace('.0','');
  $('calendarStatus').textContent=state.employees.length?'':'Нет сотрудников в StaffShedules';
 
- let html='<div class="cell employee-head">Сотрудник</div>';
- days.forEach(d=>{
+ let html='<div class="cell employee-head" style="grid-column:1;grid-row:1">Сотрудник</div>';
+ days.forEach((d,di)=>{
    const t=iso(d)===today;
    const dow=d.getDay()||7;
    const weekend=dow>=6;
    const dayName=DAYS[dow-1];
-   html+='<div class="cell week-head'+(t?' today':'')+(weekend?' weekend':'')+'"><b>'+dayName+'</b><strong>'+d.getDate()+'</strong>'+
+   html+='<div class="cell week-head'+(t?' today':'')+(weekend?' weekend':'')+'" style="grid-column:'+(di+2)+';grid-row:1"><b>'+dayName+'</b><strong>'+d.getDate()+'</strong>'+
      (isArchive?'<div class="month-day">'+d.toLocaleDateString('ru-RU',{month:'short'}).replace('.','')+'</div>':'')+'</div>';
  });
 
  state.employees
    .filter(e=>!q||e.name.toLowerCase().includes(q)||e.role.toLowerCase().includes(q))
-   .forEach(e=>{
-     html+='<div class="cell employee"><div class="avatar">'+initials(e.name)+'</div><div class="ename"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div></div>';
-     days.forEach(d=>{
+   .forEach((e,ei)=>{
+     const row=ei+2;
+     html+='<div class="cell employee" style="grid-column:1;grid-row:'+row+'"><div class="avatar">'+initials(e.name)+'</div><div class="ename"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div></div>';
+     days.forEach((d,di)=>{
        const date=iso(d), list=state.shifts.filter(s=>sameId(s.employeeId,e.id)&&shiftDate(s)===date);
        const weekend=((d.getDay()||7)>=6);
-       html+='<div class="cell day'+(weekend?' weekend':'')+'" data-date="'+date+'" data-emp="'+e.id+'">';
+       html+='<div class="cell day'+(weekend?' weekend':'')+'" style="grid-column:'+(di+2)+';grid-row:'+row+'" data-date="'+date+'" data-emp="'+e.id+'">';
        if(!list.length) html+='<div class="emptyday">Нет смен</div>';
        list.forEach(s=>{
          const archiveLabel=isArchive?archiveShiftLabel(s):(s.type==='off'?'В':(s.type==='vacation'?'Відпустка':(s.start+' — '+s.end)));
