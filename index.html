@@ -206,13 +206,22 @@ let adminToken=sessionStorage.getItem('multistaff_admin_token')||'';
 const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg'),passwordBg=$('passwordBg');
 function sameState(a,b){return JSON.stringify({employees:a.employees,shifts:a.shifts})===JSON.stringify({employees:b.employees,shifts:b.shifts})}
 let saveQueue=Promise.resolve();
+function hasScheduleData(s){
+  return !!(s && ((Array.isArray(s.employees) && s.employees.length) || (Array.isArray(s.shifts) && s.shifts.length)));
+}
 function persist(){
   localStorage.setItem(KEY,JSON.stringify(state));
   if(!adminToken){ toast('Войдите как администратор для общего сохранения'); return Promise.resolve(); }
+  // Никогда не затираем общий график пустым состоянием из-за загрузки/перезапуска.
+  // Пустой график можно сохранить только после явного действия администратора.
+  if(!hasScheduleData(state)){
+    console.warn('Refusing to overwrite StaffSchedule with an empty state.');
+    return Promise.resolve();
+  }
   saveQueue=saveQueue.then(async()=>{
     savingToServer=true;
     try{
-      const r=await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json',...(adminToken?{Authorization:'Bearer '+adminToken}:{})},body:JSON.stringify({employees:state.employees,shifts:state.shifts})});
+      const r=await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+adminToken},body:JSON.stringify({employees:state.employees,shifts:state.shifts})});
       if(r.status===401){adminToken='';sessionStorage.removeItem('multistaff_admin_token');setAdmin(false);toast('Сессия администратора истекла');return;}
       if(!r.ok)throw new Error('save failed');
       const data=await r.json();
@@ -231,17 +240,21 @@ async function loadShared(){
     if(!r.ok)throw new Error('load failed');
     const remote=await r.json();
     const serverState=remote.data||makeState();
-    const serverIsDefault=sameState(serverState,makeState());
-    if(!remote.exists && !sameState(local,makeState())){
+    const serverHasData=hasScheduleData(serverState);
+    const localHasData=hasScheduleData(local);
+
+    if(serverHasData){
+      // StaffSchedule — единственный источник истины, если в нём реально есть график.
+      state=serverState;
+      lastServerUpdatedAt=remote.updatedAt||null;
+      localStorage.setItem(KEY,JSON.stringify(state));
+    }else if(localHasData){
+      // Защита от старой/пустой StaffSchedule: не удаляем локальный график.
+      // После входа администратора он будет записан в StaffSchedule.
       state=local;
       needsInitialSync=true;
-      if(adminToken){
-        await persist();
-        needsInitialSync=false;
-        toast('Ваш график перенесён в общий сервер');
-      }else{
-        toast('Локальный график готов к переносу после входа администратора');
-      }
+      lastServerUpdatedAt=remote.updatedAt||null;
+      toast('Найден локальный график — он не будет удалён');
     }else{
       state=serverState;
       lastServerUpdatedAt=remote.updatedAt||null;
@@ -260,8 +273,11 @@ async function syncShared(){
     const r=await fetch('/api/state',{cache:'no-store'});
     if(!r.ok)return;
     const remote=await r.json();
-    if(!remote.exists||!remote.updatedAt||remote.updatedAt===lastServerUpdatedAt)return;
-    state=remote.data||makeState();
+    const incoming=remote.data||makeState();
+    if(!remote.updatedAt||remote.updatedAt===lastServerUpdatedAt)return;
+    // Пустой StaffSchedule не должен очищать уже существующий график на устройстве.
+    if(!hasScheduleData(incoming) && hasScheduleData(state))return;
+    state=incoming;
     lastServerUpdatedAt=remote.updatedAt;
     localStorage.setItem(KEY,JSON.stringify(state));
     fillEmployees();render();
