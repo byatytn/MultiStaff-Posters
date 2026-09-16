@@ -103,13 +103,25 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .date-tools input,.date-tools .btn{padding:8px;font-size:11px}
   .iconbtn{width:34px;height:34px}
 
-  /* Неделя на телефоне целиком помещается в экран. Месяц остаётся настоящей таблицей и листается по горизонтали; страницу можно масштабировать. */
-  .week{
+  /* Неделя не перелистывается свайпом: свайп внутри таблицы только прокручивает её по горизонтали.
+     Это позволяет увидеть всю смену и правую часть календаря, не двигая всю страницу. */
+  body{overflow-x:hidden}
+  #calendar.week-view{
     width:100%;
     min-width:0;
-    touch-action:pan-x pan-y pinch-zoom;
+    overflow-x:auto;
+    overflow-y:hidden;
+    touch-action:pan-x;
+    grid-template-columns:100px repeat(7,80px);
   }
-  .week .cell{min-width:0}
+  #calendar.week-view .cell{min-width:0}
+  #calendar.week-view .shift{box-sizing:border-box;width:100%;max-width:100%;overflow:hidden}
+  #calendar.week-view .shift .time{
+    font-size:8px;
+    white-space:nowrap;
+    letter-spacing:-.25px;
+    overflow:visible;
+  }
   .employee-head{font-size:9px;padding:7px 4px}
   .employee{padding:6px 4px;gap:4px;min-height:70px}
   .avatar{width:24px;height:24px;border-radius:7px;font-size:9px}
@@ -138,14 +150,14 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .brand{font-size:17px}
   .sub{display:none}
   .tab,.mode{padding:7px 8px;font-size:11px}
-  .week{grid-template-columns:78px repeat(7,minmax(0,1fr))}
+  #calendar.week-view{grid-template-columns:94px repeat(7,76px)}
   .employee{padding:5px 3px}
   .avatar{width:22px;height:22px}
   .ename b{font-size:8px}
   .ename span{font-size:7px}
   .week-head b{font-size:7px}
   .week-head strong{font-size:13px}
-  .shift .time{font-size:7px}
+  #calendar.week-view .shift .time{font-size:8px}
   .emptyday{font-size:7px}
   .addday{font-size:7px}
   .tools .btn{font-size:11px}
