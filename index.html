@@ -240,7 +240,7 @@ function render(){
  $('period').textContent=mobile
    ? days[0].toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})
    : days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+(days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
- $('jump').value=iso(new Date());
+ $('jump').value=iso(mobile?cursor:new Date());
  $('weekShifts').textContent=shifts.length;$('employeeCount').textContent=state.employees.length;
  const today=iso(new Date());$('todayWorkers').textContent=new Set(state.shifts.filter(s=>s.date===today).map(s=>s.employeeId)).size;
  $('weekHours').textContent=shifts.reduce((a,s)=>a+hours(s),0).toFixed(1).replace('.0','');
@@ -279,6 +279,8 @@ $('prev').onclick=()=>{cursor=addDays(cursor,isMobile()?-1:-7);render()};
 $('next').onclick=()=>{cursor=addDays(cursor,isMobile()?1:7);render()};
 function goToday(){cursor=isMobile()?new Date():monday(new Date());render()}$('today').onclick=goToday;$('today2').onclick=goToday;
 $('jump').onchange=()=>{const d=localDate($('jump').value);cursor=isMobile()?d:monday(d);render()};
+$('calendar').addEventListener('touchstart',e=>{if(!isMobile()||e.touches.length!==1)return;window.__calTouch={x:e.touches[0].clientX,y:e.touches[0].clientY}});
+$('calendar').addEventListener('touchend',e=>{if(!isMobile()||!window.__calTouch)return;const dx=e.changedTouches[0].clientX-window.__calTouch.x,dy=e.changedTouches[0].clientY-window.__calTouch.y;window.__calTouch=null;if(Math.abs(dx)<55||Math.abs(dx)<=Math.abs(dy))return;cursor=addDays(cursor,dx<0?1:-1);render();});
 $('search').oninput=render;$('cancel').onclick=close;bg.onclick=e=>{if(e.target===bg)close()};empBg.onclick=e=>{if(e.target===empBg)closeEmp()};
 function setQuickShift(start,end){$('start').value=start;$('end').value=end;$('calendar');document.querySelectorAll('.quick-shift').forEach(b=>b.classList.toggle('active',b.dataset.start===start&&b.dataset.end===end))}
 document.querySelectorAll('.quick-shift').forEach(b=>b.onclick=()=>setQuickShift(b.dataset.start,b.dataset.end));
