@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="uk">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090b0e">
-<meta name="description" content="MultiStaff — графік співробітників кінотеатру «Атмосфера».">
-<title>MultiStaff — Графік</title>
+<meta name="description" content="MultiStaff — график сотрудников кинотеатра «Атмосфера».">
+<title>MultiStaff — График</title>
 <style>
 :root{--bg:#090b0e;--panel:#101419;--panel2:#14191f;--line:#29303a;--text:#f5f7fa;--muted:#8f98a6;--red:#ef3038;--purple:#7846ff;--green:#32d583;--yellow:#f5b94c;--shadow:0 24px 70px #0008}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
@@ -191,38 +191,38 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 </head>
 <body>
 <header>
-<div class="top"><div><div class="brand">MULTI<i>STAFF</i></div><div class="sub">SCHEDULE · Кінотеатр «Атмосфера»</div></div><div class="city">Київ</div></div>
-<div class="toolbar"><div class="tabs"><button class="tab active" id="weekTab">Тиждень</button><button class="tab" id="archiveBtn">Архив</button><button class="tab" id="statsBtn">Статистика</button></div><button class="mode" id="mode">Режим співробітника</button></div>
+<div class="top"><div><div class="brand">MULTI<i>STAFF</i></div><div class="sub">SCHEDULE · Кинотеатр «Атмосфера»</div></div><div class="city">Киев</div></div>
+<div class="toolbar"><div class="tabs"><button class="tab active" id="weekTab">Неделя</button><button class="tab" id="archiveBtn">Архив</button><button class="tab" id="statsBtn">Статистика</button></div><button class="mode" id="mode">Режим сотрудника</button></div>
 </header>
 <main>
-<div class="headrow"><div class="title"><h1>Графік співробітників</h1><p>Оберіть день і додавайте зміни співробітникам. Перегляд архіву та статистики доступний усім.</p></div><div class="tools"><input class="search" id="search" placeholder="Пошук співробітника…"><button class="btn ghost" id="importBtn">⇩ Календар</button><button class="btn primary" id="addShift">＋ Зміна</button><input id="import" type="file" accept=".ics,.ical,text/calendar"></div></div>
-<div class="adminbar" id="adminbar"><span>⚙ Адміністратор · редагування графіка та співробітників</span><div class="admin-actions"><button class="btn small" id="addEmployee">＋ Співробітник</button><button class="btn primary small" id="save">Зберегти</button></div></div>
-<div class="summary"><div class="stat"><span id="shiftsLabel">Змін за тиждень</span><b id="weekShifts">0</b></div><div class="stat clickable" id="employeesCard" title="Керування співробітниками"><span>Співробітників</span><b id="employeeCount">0</b></div><div class="stat"><span>Працюють сьогодні</span><b id="todayWorkers">0</b></div><div class="stat"><span>Заплановано годин</span><b id="weekHours">0</b></div></div>
-<section class="card"><div class="calendar-head"><div class="month" id="period"></div><div class="calendar-actions"><div class="nav"><button class="iconbtn" id="prevPeriod" title="Попередній тиждень">‹</button><button class="btn ghost" id="todayPeriod">Сьогодні</button><button class="iconbtn" id="nextPeriod" title="Наступний тиждень">›</button></div><div class="calendar-status" id="calendarStatus">Графік завантажується…</div></div></div>
+<div class="headrow"><div class="title"><h1>График сотрудников</h1><p>Выберите день и добавляйте смены сотрудникам. Перегляд архіву та статистики доступний усім.</p></div><div class="tools"><input class="search" id="search" placeholder="Поиск сотрудника…"><button class="btn ghost" id="importBtn">⇩ Календарь</button><button class="btn primary" id="addShift">＋ Смена</button><input id="import" type="file" accept=".ics,.ical,text/calendar"></div></div>
+<div class="adminbar" id="adminbar"><span>⚙ Администратор · редактирование графика и сотрудников</span><div class="admin-actions"><button class="btn small" id="addEmployee">＋ Сотрудник</button><button class="btn primary small" id="save">Сохранить</button></div></div>
+<div class="summary"><div class="stat"><span id="shiftsLabel">Смен на неделе</span><b id="weekShifts">0</b></div><div class="stat clickable" id="employeesCard" title="Управление сотрудниками"><span>Сотрудников</span><b id="employeeCount">0</b></div><div class="stat"><span>Рабочих сегодня</span><b id="todayWorkers">0</b></div><div class="stat"><span>Часов запланировано</span><b id="weekHours">0</b></div></div>
+<section class="card"><div class="calendar-head"><div class="month" id="period"></div><div class="calendar-actions"><div class="nav"><button class="iconbtn" id="prevPeriod" title="Предыдущая неделя">‹</button><button class="btn ghost" id="todayPeriod">Сегодня</button><button class="iconbtn" id="nextPeriod" title="Следующая неделя">›</button></div><div class="calendar-status" id="calendarStatus">График загружается…</div></div></div>
 <div class="week" id="calendar"></div></section>
 </main>
 <div class="modal-bg" id="bg"><div class="modal">
-<h2 id="modalTitle">Нова зміна</h2><div class="meta" id="meta"></div>
-<div class="field"><label>Співробітник</label><select id="employee"></select></div>
+<h2 id="modalTitle">Новая смена</h2><div class="meta" id="meta"></div>
+<div class="field"><label>Сотрудник</label><select id="employee"></select></div>
 <div class="field"><label>Дата</label><input id="date" type="date"></div>
-<div class="field"><label>Швидка зміна</label><div class="quick-shifts"><button type="button" class="quick-shift" data-type="shift" data-start="09:00" data-end="23:00"><b>1/3</b><span>09:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="shift" data-start="11:00" data-end="23:00"><b>2/3</b><span>11:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="shift" data-start="14:00" data-end="23:00"><b>3</b><span>14:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="off" data-start="00:00" data-end="00:00"><b>В</b><span>Вихідний</span></button><button type="button" class="quick-shift" data-type="vacation" data-start="00:00" data-end="00:00"><b>Відпустка</b><span>День відпустки</span></button></div></div>
-<div class="field row"><div><label>Початок</label><input id="start" type="time" value="09:00"></div><div><label>Кінець</label><input id="end" type="time" value="18:00"></div></div>
-<div class="modal-actions"><button class="btn" id="cancel">Скасувати</button><button class="btn danger" id="delete">Видалити</button><button class="btn primary" id="saveModal">Зберегти</button></div>
+<div class="field"><label>Быстрая смена</label><div class="quick-shifts"><button type="button" class="quick-shift" data-type="shift" data-start="09:00" data-end="23:00"><b>1/3</b><span>09:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="shift" data-start="11:00" data-end="23:00"><b>2/3</b><span>11:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="shift" data-start="14:00" data-end="23:00"><b>3</b><span>14:00 — 23:00</span></button><button type="button" class="quick-shift" data-type="off" data-start="00:00" data-end="00:00"><b>В</b><span>Выходной</span></button><button type="button" class="quick-shift" data-type="vacation" data-start="00:00" data-end="00:00"><b>Відпустка</b><span>День відпустки</span></button></div></div>
+<div class="field row"><div><label>Начало</label><input id="start" type="time" value="09:00"></div><div><label>Конец</label><input id="end" type="time" value="18:00"></div></div>
+<div class="modal-actions"><button class="btn" id="cancel">Отмена</button><button class="btn danger" id="delete">Удалить</button><button class="btn primary" id="saveModal">Сохранить</button></div>
 </div></div>
 <div class="modal-bg" id="empBg"><div class="modal">
-<h2 id="empTitle">Новий співробітник</h2><div class="field"><label>Ім’я та прізвище</label><input id="empName" placeholder="Наприклад: Іван Петренко"></div>
-<div class="field"><label>Посада</label><select id="empRole"><option value="УС">УС</option><option value="МС">МС</option></select></div>
-<div class="modal-actions"><button class="btn" id="empCancel">Скасувати</button><button class="btn danger" id="empDelete">Видалити</button><button class="btn primary" id="empSave">Зберегти</button></div>
+<h2 id="empTitle">Новый сотрудник</h2><div class="field"><label>Имя и фамилия</label><input id="empName" placeholder="Например: Иван Петренко"></div>
+<div class="field"><label>Должность</label><select id="empRole"><option value="УС">УС</option><option value="МС">МС</option></select></div>
+<div class="modal-actions"><button class="btn" id="empCancel">Отмена</button><button class="btn danger" id="empDelete">Удалить</button><button class="btn primary" id="empSave">Сохранить</button></div>
 </div></div>
 <div class="modal-bg" id="employeesBg"><div class="modal employees-modal">
-<h2>Співробітники</h2><div class="meta">Повне керування співробітниками графіка</div>
+<h2>Сотрудники</h2><div class="meta">Полное управление сотрудниками графика</div>
 <div class="employee-list" id="employeeList"></div>
-<div class="modal-actions"><button class="btn" id="employeesClose">Закрити</button><button class="btn primary" id="employeesAdd">＋ Співробітник</button></div>
+<div class="modal-actions"><button class="btn" id="employeesClose">Закрыть</button><button class="btn primary" id="employeesAdd">＋ Сотрудник</button></div>
 </div></div>
 <div class="modal-bg" id="passwordBg"><div class="modal">
-<h2>Режим адміністратора</h2><div class="meta">Введіть пароль для редагування графіка та співробітників.</div>
-<div class="field"><label>Пароль</label><input id="adminPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Введіть пароль"></div>
-<div class="modal-actions"><button class="btn" id="passwordCancel">Скасувати</button><button class="btn primary" id="passwordLogin">Увійти</button></div>
+<h2>Режим администратора</h2><div class="meta">Введите пароль для редактирования графика и сотрудников.</div>
+<div class="field"><label>Пароль</label><input id="adminPassword" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Пароль"></div>
+<div class="modal-actions"><button class="btn" id="passwordCancel">Отмена</button><button class="btn primary" id="passwordLogin">Войти</button></div>
 </div></div>
 
 <div class="modal-bg" id="archiveBg"><div class="modal archive-modal">
@@ -239,8 +239,8 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 <div class="toast" id="toast"></div>
 <script>
 const KEY='multistaff_schedule_v1';
-const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
-const TYPES={shift:'Зміна',open:'Відкриття',close:'Закриття',training:'Навчання',off:'Вихідний',other:'Інше'};
+const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const TYPES={shift:'Смена',open:'Открытие',close:'Закрытие',training:'Обучение',off:'Выходной',other:'Другое'};
 const defaultEmployees=[];
 function iso(d){
   // Calendar dates are local dates. Using toISOString() shifts Kyiv midnight to the previous UTC day.
@@ -271,7 +271,7 @@ function hours(s){
   if(minutes<0) minutes+=24*60;
   return minutes/60;
 }
-function fmt(d){return d.toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'})}
+function fmt(d){return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}
 function makeState(){return{employees:defaultEmployees.map(e=>({...e})),shifts:[]}}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
 function isMobile(){return window.innerWidth<=600}
@@ -288,7 +288,7 @@ function hasScheduleData(s){
 }
 function persist(){
   localStorage.setItem(KEY,JSON.stringify(state));
-  if(!adminToken){ toast('Увійдіть як адміністратор для спільного збереження'); return Promise.resolve(); }
+  if(!adminToken){ toast('Войдите как администратор для общего сохранения'); return Promise.resolve(); }
   // Никогда не затираем общий график пустым состоянием из-за загрузки/перезапуска.
   // Пустой график можно сохранить только после явного действия администратора.
   if(!hasScheduleData(state)){
@@ -299,14 +299,14 @@ function persist(){
     savingToServer=true;
     try{
       const r=await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+adminToken},body:JSON.stringify({employees:state.employees,shifts:state.shifts})});
-      if(r.status===401){adminToken='';sessionStorage.removeItem('multistaff_admin_token');setAdmin(false);toast('Сесія адміністратора завершилася');return;}
+      if(r.status===401){adminToken='';sessionStorage.removeItem('multistaff_admin_token');setAdmin(false);toast('Сессия администратора истекла');return;}
       if(!r.ok)throw new Error('save failed');
       const data=await r.json();
       lastServerUpdatedAt=data.updatedAt||new Date().toISOString();
       return true;
     }catch(e){
       console.warn('Shared storage unavailable:',e);
-      toast('Збережено локально · сервер недоступний');
+      toast('Локально сохранено · сервер недоступен');
       return false;
     }finally{savingToServer=false}
   });
@@ -332,7 +332,7 @@ async function loadShared(){
     // Offline fallback only. It is never uploaded automatically and is not
     // treated as the source of truth while StaffShedules is reachable.
     state=local;
-    toast('Сервер недоступний · локальний перегляд');
+    toast('Сервер недоступен · локальный просмотр');
   }
   fillEmployees();render();
 }
@@ -350,7 +350,7 @@ async function syncShared(){
     lastServerUpdatedAt=remote.updatedAt;
     localStorage.setItem(KEY,JSON.stringify(state));
     fillEmployees();render();
-    toast('Графік оновлено з сервера');
+    toast('График обновлён с сервера');
   }catch(e){console.warn('Sync failed:',e)}
 }
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>e.classList.remove('show'),1500)}
@@ -377,30 +377,30 @@ function render(){
  const today=iso(new Date());
 
  if(isArchive){
-   $('period').textContent='Архів · '+days[0].toLocaleDateString('uk-UA',{month:'long',year:'numeric'});
+   $('period').textContent='Архів · '+days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
  }else{
-   $('period').textContent=days[0].toLocaleDateString('uk-UA',{month:'long',year:'numeric'})+
-     (days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('uk-UA',{month:'long',year:'numeric'}):'');
+   $('period').textContent=days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+
+     (days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
  }
  // The old date-picker (#jump) was removed from the HTML.
  // Do not abort render() when it is absent.
  const jump=$('jump');
  if(jump) jump.value=isMonth?iso(new Date(cursor.getFullYear(),cursor.getMonth(),1)):iso(cursor);
- $('shiftsLabel').textContent=isArchive?'Змін за місяць':'Змін за тиждень';
+ $('shiftsLabel').textContent=isArchive?'Смен за месяц':'Смен на неделе';
  $('weekShifts').textContent=shifts.length;
  $('employeeCount').textContent=state.employees.length;
  $('todayWorkers').textContent=new Set(state.shifts.filter(s=>shiftDate(s)===today&&s.type!=='off'&&s.type!=='vacation'&&s.type!=='leave').map(s=>s.employeeId)).size;
  $('weekHours').textContent=shifts.reduce((a,s)=>a+hours(s),0).toFixed(1).replace('.0','');
- $('calendarStatus').textContent=state.employees.length?'':'Немає співробітників у StaffShedules';
+ $('calendarStatus').textContent=state.employees.length?'':'Нет сотрудников в StaffShedules';
 
- let html='<div class="cell employee-head">Співробітник</div>';
+ let html='<div class="cell employee-head">Сотрудник</div>';
  days.forEach(d=>{
    const t=iso(d)===today;
    const dow=d.getDay()||7;
    const weekend=dow>=6;
    const dayName=DAYS[dow-1];
    html+='<div class="cell week-head'+(t?' today':'')+(weekend?' weekend':'')+'"><b>'+dayName+'</b><strong>'+d.getDate()+'</strong>'+
-     (isArchive?'<div class="month-day">'+d.toLocaleDateString('uk-UA',{month:'short'}).replace('.','')+'</div>':'')+'</div>';
+     (isArchive?'<div class="month-day">'+d.toLocaleDateString('ru-RU',{month:'short'}).replace('.','')+'</div>':'')+'</div>';
  });
 
  state.employees
@@ -411,11 +411,11 @@ function render(){
        const date=iso(d), list=state.shifts.filter(s=>sameId(s.employeeId,e.id)&&shiftDate(s)===date);
        const weekend=((d.getDay()||7)>=6);
        html+='<div class="cell day'+(weekend?' weekend':'')+'" data-date="'+date+'" data-emp="'+e.id+'">';
-       if(!list.length) html+='<div class="emptyday">Немає змін</div>';
+       if(!list.length) html+='<div class="emptyday">Нет смен</div>';
        list.forEach(s=>{
          html+='<div class="shift '+colorFor(s.type)+(s.type==='off'?' off':'')+'" data-id="'+s.id+'"><div class="time">'+(s.type==='off'?'В':(s.type==='vacation'?'Відпустка':(s.start+' — '+s.end)))+'</div></div>';
        });
-       if(admin)html+='<button class="addday" title="Додати зміну" aria-label="Додати зміну" data-add="'+e.id+'" data-date="'+date+'">＋</button>';
+       if(admin)html+='<button class="addday" title="Добавить смену" aria-label="Добавить смену" data-add="'+e.id+'" data-date="'+date+'">＋</button>';
        html+='</div>';
      });
    });
@@ -439,10 +439,10 @@ function render(){
 function colorFor(t){return t==='training'?'purple':t==='open'?'green':t==='close'?'yellow':(t==='off'||t==='vacation')?'yellow':''}
 function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function fillEmployees(){ $('employee').innerHTML=state.employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.role)+'</option>').join('') }
-function newShift(emp,date){if(!admin)return toast('Увійдіть як адміністратор');editing=null;selectedShiftType='shift';$('modalTitle').textContent='Нова зміна';$('employee').value=emp||state.employees[0]?.id||'';$('date').value=date||iso(cursor);$('start').value='09:00';$('end').value='23:00';setQuickShift('09:00','23:00','shift');$('delete').style.display='none';$('meta').textContent='Додавання до графіка';bg.style.display='flex'}
-function openShift(id){const s=state.shifts.find(x=>x.id===id);if(!s)return;editing=s;selectedShiftType=s.type||'shift';$('modalTitle').textContent=s.type==='off'?'Вихідний':(s.type==='vacation'?'Відпустка':'Зміна');$('employee').value=s.employeeId;$('date').value=s.date;$('start').value=s.start||'00:00';$('end').value=s.end||'00:00';setQuickShift(s.start||'00:00',s.end||'00:00',selectedShiftType);$('delete').style.display=admin?'inline-block':'none';$('meta').textContent='Редагування зміни';bg.style.display='flex'}
+function newShift(emp,date){if(!admin)return toast('Войдите как администратор');editing=null;selectedShiftType='shift';$('modalTitle').textContent='Новая смена';$('employee').value=emp||state.employees[0]?.id||'';$('date').value=date||iso(cursor);$('start').value='09:00';$('end').value='23:00';setQuickShift('09:00','23:00','shift');$('delete').style.display='none';$('meta').textContent='Добавление в график';bg.style.display='flex'}
+function openShift(id){const s=state.shifts.find(x=>x.id===id);if(!s)return;editing=s;selectedShiftType=s.type||'shift';$('modalTitle').textContent=s.type==='off'?'Выходной':(s.type==='vacation'?'Відпустка':'Смена');$('employee').value=s.employeeId;$('date').value=s.date;$('start').value=s.start||'00:00';$('end').value=s.end||'00:00';setQuickShift(s.start||'00:00',s.end||'00:00',selectedShiftType);$('delete').style.display=admin?'inline-block':'none';$('meta').textContent='Изменение смены';bg.style.display='flex'}
 function close(){bg.style.display='none';editing=null}
-function setAdmin(v,doRender=true){admin=v;$('mode').textContent=admin?'Режим адміністратора':'Режим співробітника';$('mode').classList.toggle('admin',admin);$('adminbar').classList.toggle('show',admin);$('addShift').style.display=admin?'inline-block':'none';if(doRender)render()}
+function setAdmin(v,doRender=true){admin=v;$('mode').textContent=admin?'Режим администратора':'Режим сотрудника';$('mode').classList.toggle('admin',admin);$('adminbar').classList.toggle('show',admin);$('addShift').style.display=admin?'inline-block':'none';if(doRender)render()}
 $('mode').onclick=()=>{
   if(admin){setAdmin(false);return}
   $('adminPassword').value='';
@@ -469,8 +469,8 @@ document.querySelectorAll('.quick-shift').forEach(b=>b.onclick=()=>setQuickShift
 $('saveModal').onclick=async()=>{
   if(!admin||!$('employee').value)return;
   const obj={employeeId:+$('employee').value,date:$('date').value,type:selectedShiftType||'shift',start:$('start').value,end:$('end').value};
-  if(!obj.date)return toast('Заповніть дату');
-  if(obj.type!=='off'&&obj.type!=='vacation'&&(!obj.start||!obj.end))return toast('Заповніть дату й час');
+  if(!obj.date)return toast('Заполни дату');
+  if(obj.type!=='off'&&obj.type!=='vacation'&&(!obj.start||!obj.end))return toast('Заполни дату и время');
   if(obj.type==='off'||obj.type==='vacation'){obj.start='00:00';obj.end='00:00';}
 
   if(editing)Object.assign(editing,obj);
@@ -488,20 +488,20 @@ $('saveModal').onclick=async()=>{
   const saved=await persist();
   if(saved!==false){
     render();
-    toast('Зміну збережено');
+    toast('Смена сохранена');
   }else{
-    toast('Зміну збережено локально, але сервер не підтвердив запис');
+    toast('Смена сохранена локально, но сервер не подтвердил запись');
   }
 };
-$('delete').onclick=()=>{if(!editing)return;if(confirm('Видалити зміну?')){state.shifts=state.shifts.filter(s=>s.id!==editing.id);persist();close();render();toast('Зміну видалено')}};
+$('delete').onclick=()=>{if(!editing)return;if(confirm('Удалить смену?')){state.shifts=state.shifts.filter(s=>s.id!==editing.id);persist();close();render();toast('Смена удалена')}};
 async function loginAdmin(){
   const password=$('adminPassword').value;
-  if(!password)return toast('Введіть пароль');
+  if(!password)return toast('Введите пароль');
   $('passwordLogin').disabled=true;
   try{
     const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});
     const data=await r.json().catch(()=>({}));
-    if(!r.ok)throw new Error(data.error||'Неправильний пароль');
+    if(!r.ok)throw new Error(data.error||'Неверный пароль');
     adminToken=data.token;
     sessionStorage.setItem('multistaff_admin_token',adminToken);
     passwordBg.style.display='none';
@@ -509,11 +509,11 @@ async function loginAdmin(){
     if(needsInitialSync){
       await persist();
       needsInitialSync=false;
-      toast('Графік перенесено на спільний сервер');
+      toast('График перенесён в общий сервер');
     }
-    toast('Режим адміністратора включён');
+    toast('Режим администратора включён');
   }catch(e){
-    toast(e.message||'Помилка входу');
+    toast(e.message||'Ошибка входа');
     $('adminPassword').select();
   }finally{$('passwordLogin').disabled=false}
 }
@@ -523,31 +523,31 @@ $('passwordCancel').onclick=()=>passwordBg.style.display='none';
 $('adminPassword').onkeydown=e=>{if(e.key==='Enter')loginAdmin()};
 passwordBg.onclick=e=>{if(e.target===passwordBg)passwordBg.style.display='none'};
 
-$('addShift').onclick=()=>admin?newShift():toast('Увійдіть як адміністратор');
+$('addShift').onclick=()=>admin?newShift():toast('Войдите как администратор');
 $('save').onclick=async()=>{
-  if(!admin)return toast('Увійдіть як адміністратор');
+  if(!admin)return toast('Войдите как администратор');
   const saved=await persist();
-  if(saved!==false)toast('Графік збережено');
+  if(saved!==false)toast('График сохранён');
 };
 $('addEmployee').onclick=()=>openEmp();
-function renderEmployees(){const box=$('employeeList');if(!state.employees.length){box.innerHTML='<div class="empty-employees">Співробітників поки немає</div>';return}box.innerHTML=state.employees.map(e=>'<div class="employee-row"><div class="avatar">'+initials(e.name)+'</div><div class="employee-info"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div><div class="employee-actions"><button class="iconbtn" title="Редагувати" data-edit-employee="'+e.id+'">✎</button><button class="iconbtn" title="Видалити" data-delete-employee="'+e.id+'">×</button></div></div>').join('');
+function renderEmployees(){const box=$('employeeList');if(!state.employees.length){box.innerHTML='<div class="empty-employees">Сотрудников пока нет</div>';return}box.innerHTML=state.employees.map(e=>'<div class="employee-row"><div class="avatar">'+initials(e.name)+'</div><div class="employee-info"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div><div class="employee-actions"><button class="iconbtn" title="Редактировать" data-edit-employee="'+e.id+'">✎</button><button class="iconbtn" title="Удалить" data-delete-employee="'+e.id+'">×</button></div></div>').join('');
 box.querySelectorAll('[data-edit-employee]').forEach(b=>b.onclick=()=>{closeEmployees();openEmp(+b.dataset.editEmployee)});
 box.querySelectorAll('[data-delete-employee]').forEach(b=>b.onclick=()=>deleteEmployee(+b.dataset.deleteEmployee)) }
-function openEmployees(){if(!admin)return toast('Керування співробітниками доступно администратору');renderEmployees();employeesBg.style.display='flex'}
+function openEmployees(){if(!admin)return toast('Управление сотрудниками доступно администратору');renderEmployees();employeesBg.style.display='flex'}
 function closeEmployees(){employeesBg.style.display='none'}
-function deleteEmployee(id){const e=state.employees.find(x=>x.id===id);if(!e)return;if(confirm('Видалити +e.name+' і всі його зміни?)){state.employees=state.employees.filter(x=>x.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();fillEmployees();render();renderEmployees();toast('Співробітника видалено')}} 
+function deleteEmployee(id){const e=state.employees.find(x=>x.id===id);if(!e)return;if(confirm('Удалить '+e.name+' и все его смены?')){state.employees=state.employees.filter(x=>x.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();fillEmployees();render();renderEmployees();toast('Сотрудник удалён')}} 
 $('employeesCard').onclick=openEmployees;$('employeesClose').onclick=closeEmployees;$('employeesAdd').onclick=()=>{closeEmployees();openEmp()};employeesBg.onclick=e=>{if(e.target===employeesBg)closeEmployees()};
-$('importBtn').onclick=()=>admin?$('import').click():toast('Імпорт доступний адміністратору');
-function openEmp(id){if(!admin)return toast('Увійдіть як адміністратор');const e=id?state.employees.find(x=>x.id===id):null;$('empTitle').textContent=e?'Співробітник':'Новий співробітник';$('empName').value=e?.name||'';$('empRole').value=(e?.role==='УС'||e?.role==='МС')?e.role:'УС';$('empDelete').style.display=e?'inline-block':'none';$('empSave').dataset.id=e?.id||'';empBg.style.display='flex'}
+$('importBtn').onclick=()=>admin?$('import').click():toast('Импорт доступен администратору');
+function openEmp(id){if(!admin)return toast('Войдите как администратор');const e=id?state.employees.find(x=>x.id===id):null;$('empTitle').textContent=e?'Сотрудник':'Новый сотрудник';$('empName').value=e?.name||'';$('empRole').value=(e?.role==='УС'||e?.role==='МС')?e.role:'УС';$('empDelete').style.display=e?'inline-block':'none';$('empSave').dataset.id=e?.id||'';empBg.style.display='flex'}
 function closeEmp(){empBg.style.display='none'}
 $('empCancel').onclick=closeEmp;
-$('empSave').onclick=()=>{if(!admin)return toast('Увійдіть як адміністратор');const name=$('empName').value.trim(),role=$('empRole').value.trim()||'Співробітник';if(!name)return toast('Вкажіть ім’я');const id=+$('empSave').dataset.id;if(id){const e=state.employees.find(x=>x.id===id);e.name=name;e.role=role}else state.employees.push({id:Date.now(),name,role});persist();closeEmp();fillEmployees();render();toast('Співробітника збережено')};
-$('empDelete').onclick=()=>{if(!admin)return toast('Увійдіть як адміністратор');const id=+$('empSave').dataset.id;if(!id)return;if(confirm('Видалити співробітника та його зміни?')){state.employees=state.employees.filter(e=>e.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();closeEmp();fillEmployees();render();toast('Співробітника видалено')}};
+$('empSave').onclick=()=>{if(!admin)return toast('Войдите как администратор');const name=$('empName').value.trim(),role=$('empRole').value.trim()||'Сотрудник';if(!name)return toast('Укажи имя');const id=+$('empSave').dataset.id;if(id){const e=state.employees.find(x=>x.id===id);e.name=name;e.role=role}else state.employees.push({id:Date.now(),name,role});persist();closeEmp();fillEmployees();render();toast('Сотрудник сохранён')};
+$('empDelete').onclick=()=>{if(!admin)return toast('Войдите как администратор');const id=+$('empSave').dataset.id;if(!id)return;if(confirm('Удалить сотрудника и его смены?')){state.employees=state.employees.filter(e=>e.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();closeEmp();fillEmployees();render();toast('Сотрудник удалён')}};
 $('import').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importICS(r.result);r.readAsText(f);e.target.value=''};
 function parseICS(text){const lines=text.replace(/\r/g,'').split('\n');const events=[];let ev=null;for(const raw of lines){const line=raw.trim();if(line==='BEGIN:VEVENT'){ev={}}else if(line==='END:VEVENT'){if(ev)events.push(ev);ev=null}else if(ev){const p=line.indexOf(':');if(p<0)continue;const k=line.slice(0,p).split(';')[0],v=line.slice(p+1);ev[k]=v}}return events}
 function parseDT(v){if(!v)return null;const x=v.replace(/[^0-9]/g,'').slice(0,14);if(x.length<8)return null;return x.slice(0,4)+'-'+x.slice(4,6)+'-'+x.slice(6,8)}
 function parseTime(v,def){if(!v)return def;const x=v.replace(/[^0-9]/g,'');if(x.length<11)return def;return x.slice(9,11)+':'+x.slice(11,13)}
-function importICS(text){const events=parseICS(text);let added=0;events.forEach((ev,i)=>{const date=parseDT(ev.DTSTART),end=parseDT(ev.DTEND);if(!date)return;let emp=state.employees.find(e=>(ev.SUMMARY||'').toLowerCase().includes(e.name.toLowerCase().split(' ')[0]));if(!emp)emp=state.employees[0];if(!emp)return;state.shifts.push({id:Date.now()+i,employeeId:emp.id,date,type:'shift',start:parseTime(ev.DTSTART,'09:00'),end:parseTime(ev.DTEND,'18:00')});added++});persist();render();toast('Імпортовано змін: '+added)}
+function importICS(text){const events=parseICS(text);let added=0;events.forEach((ev,i)=>{const date=parseDT(ev.DTSTART),end=parseDT(ev.DTEND);if(!date)return;let emp=state.employees.find(e=>(ev.SUMMARY||'').toLowerCase().includes(e.name.toLowerCase().split(' ')[0]));if(!emp)emp=state.employees[0];if(!emp)return;state.shifts.push({id:Date.now()+i,employeeId:emp.id,date,type:'shift',start:parseTime(ev.DTSTART,'09:00'),end:parseTime(ev.DTEND,'18:00')});added++});persist();render();toast('Импортировано смен: '+added)}
 $('weekTab').onclick=()=>{
  viewMode='week';cursor=monday(cursor);
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -568,7 +568,7 @@ function renderArchiveMonths(){
   const box=$('archiveMonths');
   const months=availableMonths();
   if(!months.length){box.innerHTML='<div class="stats-empty">Архів поки порожній.</div>';return}
-  box.innerHTML=months.map(k=>'<button class="archive-month" data-month="'+k+'"><b>'+esc(monthLabel(k))+'</b><span>'+state.shifts.filter(s=>shiftDate(s).startsWith(k)).length+' змін</span></button>).join('');
+  box.innerHTML=months.map(k=>'<button class="archive-month" data-month="'+k+'"><b>'+esc(monthLabel(k))+'</b><span>'+state.shifts.filter(s=>shiftDate(s).startsWith(k)).length+' змін</span></button>').join('');
   box.querySelectorAll('[data-month]').forEach(b=>b.onclick=()=>{
     const [y,m]=b.dataset.month.split('-').map(Number);
     archiveMonth=b.dataset.month;
@@ -663,7 +663,7 @@ async function boot(){
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   $('weekTab').classList.add('active');
   setAdmin(false,false);
-  $('calendar').innerHTML='<div style="grid-column:1/-1;padding:35px;text-align:center;color:#8f98a6">Завантаження графіка…</div>';
+  $('calendar').innerHTML='<div style="grid-column:1/-1;padding:35px;text-align:center;color:#8f98a6">Загрузка графика…</div>';
   await loadShared();
   clearInterval(syncTimer);
   syncTimer=setInterval(syncShared,4000);
