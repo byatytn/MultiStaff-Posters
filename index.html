@@ -76,7 +76,7 @@ function fmt(d){return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',
 function makeState(){return{employees:defaultEmployees.map(e=>({...e})),shifts:[]}}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
 let state=makeState(), cursor=monday(new Date()), admin=false, editing=null;
-let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null;
+let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null, needsInitialSync=false;
 let adminToken=sessionStorage.getItem('multistaff_admin_token')||'';
 const $=id=>document.getElementById(id),bg=$('bg'),empBg=$('empBg'),employeesBg=$('employeesBg'),passwordBg=$('passwordBg');
 function sameState(a,b){return JSON.stringify({employees:a.employees,shifts:a.shifts})===JSON.stringify({employees:b.employees,shifts:b.shifts})}
@@ -107,10 +107,16 @@ async function loadShared(){
     const remote=await r.json();
     const serverState=remote.data||makeState();
     const serverIsDefault=sameState(serverState,makeState());
-    if(serverIsDefault && !sameState(local,makeState())){
+    if(!remote.exists && !sameState(local,makeState())){
       state=local;
-      await persist();
-      toast('Ваш график перенесён в общий сервер');
+      needsInitialSync=true;
+      if(adminToken){
+        await persist();
+        needsInitialSync=false;
+        toast('Ваш график перенесён в общий сервер');
+      }else{
+        toast('Локальный график готов к переносу после входа администратора');
+      }
     }else{
       state=serverState;
       lastServerUpdatedAt=remote.updatedAt||null;
@@ -197,6 +203,11 @@ async function loginAdmin(){
     sessionStorage.setItem('multistaff_admin_token',adminToken);
     passwordBg.style.display='none';
     setAdmin(true);
+    if(needsInitialSync){
+      await persist();
+      needsInitialSync=false;
+      toast('График перенесён в общий сервер');
+    }
     toast('Режим администратора включён');
   }catch(e){
     toast(e.message||'Ошибка входа');
