@@ -246,30 +246,20 @@ async function loadShared(){
     if(!r.ok)throw new Error('load failed');
     const remote=await r.json();
     const serverState=remote.data||makeState();
-    const serverHasData=hasScheduleData(serverState);
-    const localHasData=hasScheduleData(local);
 
-    if(serverHasData){
-      // StaffSchedule — единственный источник истины, если в нём реально есть график.
-      state=serverState;
-      lastServerUpdatedAt=remote.updatedAt||null;
-      localStorage.setItem(KEY,JSON.stringify(state));
-    }else if(localHasData){
-      // Защита от старой/пустой StaffSchedule: не удаляем локальный график.
-      // После входа администратора он будет записан в StaffSchedule.
-      state=local;
-      needsInitialSync=true;
-      lastServerUpdatedAt=remote.updatedAt||null;
-      toast('Найден локальный график — он не будет удалён');
-    }else{
-      state=serverState;
-      lastServerUpdatedAt=remote.updatedAt||null;
-      localStorage.setItem(KEY,JSON.stringify(state));
-    }
+    // StaffShedules is the ONLY source of truth for this website.
+    // Never restore employees from an old browser cache when the API works:
+    // that cache may contain the employees that an older build imported from Users.
+    state=serverState;
+    lastServerUpdatedAt=remote.updatedAt||null;
+    needsInitialSync=false;
+    localStorage.setItem(KEY,JSON.stringify(state));
   }catch(e){
     console.warn('Shared storage unavailable:',e);
+    // Offline fallback only. It is never uploaded automatically and is not
+    // treated as the source of truth while StaffShedules is reachable.
     state=local;
-    toast('Работа в локальном режиме');
+    toast('Сервер недоступен · локальный просмотр');
   }
   fillEmployees();render();
 }
