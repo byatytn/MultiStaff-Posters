@@ -333,6 +333,15 @@ function makeState(){return{employees:defaultEmployees.map(e=>({...e})),shifts:[
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
 function isMobile(){return window.innerWidth<=600}
 let state=makeState(), cursor=monday(new Date()), viewMode='week', admin=false, editing=null, selectedShiftType='shift';
+const MODE_KEY='multistaff_active_mode';
+function loadActiveMode(){
+  try{
+    return localStorage.getItem(MODE_KEY)==='admin' && !!adminToken ? 'admin' : 'staff';
+  }catch{return 'staff'}
+}
+function saveActiveMode(mode){
+  try{localStorage.setItem(MODE_KEY,mode==='admin'?'admin':'staff')}catch{}
+}
 let archiveMonth=null, statsMonth=null;
 let lastServerUpdatedAt=null, savingToServer=false, syncTimer=null, needsInitialSync=false;
 const ADMIN_DEVICE_TTL=6*60*60*1000;
@@ -582,7 +591,15 @@ function animateCalendar(direction='forward'){
 function newShift(emp,date){if(!admin)return toast('Войдите как администратор');editing=null;selectedShiftType='shift';$('modalTitle').textContent='Новая смена';$('employee').value=emp||state.employees[0]?.id||'';$('date').value=date||iso(cursor);$('start').value='09:00';$('end').value='23:00';setQuickShift('09:00','23:00','shift');$('delete').style.display='none';$('meta').textContent='Добавление в график';showModal(bg)}
 function openShift(id){const s=state.shifts.find(x=>x.id===id);if(!s)return;editing=s;selectedShiftType=s.type||'shift';$('modalTitle').textContent=s.type==='off'?'Выходной':(s.type==='vacation'?'Відпустка':'Смена');$('employee').value=s.employeeId;$('date').value=s.date;$('start').value=s.start||'00:00';$('end').value=s.end||'00:00';setQuickShift(s.start||'00:00',s.end||'00:00',selectedShiftType);$('delete').style.display=admin?'inline-block':'none';$('meta').textContent='Изменение смены';showModal(bg)}
 function close(){hideModal(bg);editing=null}
-function setAdmin(v,doRender=true){admin=v;$('mode').textContent=admin?'Режим администратора':'Режим сотрудника';$('mode').classList.toggle('admin',admin);$('adminbar').classList.toggle('show',admin);$('addShift').style.display=admin?'inline-block':'none';if(doRender)render()}
+function setAdmin(v,doRender=true){
+  admin=!!v;
+  saveActiveMode(admin?'admin':'staff');
+  $('mode').textContent=admin?'Режим администратора':'Режим сотрудника';
+  $('mode').classList.toggle('admin',admin);
+  $('adminbar').classList.toggle('show',admin);
+  $('addShift').style.display=admin?'inline-block':'none';
+  if(doRender)render()
+}
 $('mode').onclick=()=>{
   if(admin){setAdmin(false);return}
   // Якщо на цьому пристрої ще діє 6-годинна адмін-сесія —
@@ -815,7 +832,7 @@ async function boot(){
   viewMode='week';
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   $('weekTab').classList.add('active');
-  setAdmin(!!adminToken,false);
+  setAdmin(loadActiveMode()==='admin',false);
   $('calendar').innerHTML='<div style="grid-column:1/-1;padding:35px;text-align:center;color:#8f98a6">Загрузка графика…</div>';
   await loadShared();
   clearInterval(syncTimer);
