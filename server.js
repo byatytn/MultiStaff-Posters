@@ -134,11 +134,14 @@ function stableEmployeeId(docId, index) {
 
 function mapUser(doc, index) {
   const d = doc.data() || {};
+  const first = String(d.firstName ?? d.first_name ?? '').trim();
+  const last = String(d.lastName ?? d.last_name ?? d.surname ?? '').trim();
   const name = String(
-    d.name ?? d.fullName ?? d.displayName ?? d.fio ?? d.full_name ?? ''
+    d.name ?? d.fullName ?? d.displayName ?? d.fio ?? d.full_name ??
+    d.full_name_ru ?? [first, last].filter(Boolean).join(' ') ?? d.username ?? ''
   ).trim();
   if (!name) return null;
-  const role = String(d.role ?? d.position ?? d.jobTitle ?? '').trim() || 'Сотрудник';
+  const role = String(d.role ?? d.position ?? d.jobTitle ?? d.job ?? d.status ?? '').trim() || 'Сотрудник';
   return { id: stableEmployeeId(doc.id, index), name, role };
 }
 
@@ -185,11 +188,29 @@ app.get('/api/state', async (req, res) => {
     }
 
     const storedEmployees = Array.isArray(d.employees) ? d.employees : [];
-    const employees = storedEmployees.length ? storedEmployees : await getEmployeesFromUsers();
-    const data = {
-      employees,
-      shifts: Array.isArray(d.shifts) ? d.shifts : []
-    };
+    const storedShifts = Array.isArray(d.shifts) ? d.shifts : [];
+    const usersEmployees = await getEmployeesFromUsers();
+
+    let employees = storedEmployees;
+    let shifts = storedShifts;
+
+    // Real employees in Firestore Users are authoritative. Older schedule
+    // data may contain demo employees, so replace that list and remap shifts
+    // by employee name to preserve existing shifts.
+    if (usersEmployees.length) {
+      const byName = new Map(usersEmployees.map(e => [e.name.trim().toLowerCase(), e]));
+      const oldById = new Map(storedEmployees.map(e => [Number(e.id), e]));
+      employees = usersEmployees;
+      shifts = storedShifts.map(shift => {
+        const oldEmployee = oldById.get(Number(shift.employeeId));
+        const currentEmployee = oldEmployee
+          ? byName.get(String(oldEmployee.name).trim().toLowerCase())
+          : null;
+        return currentEmployee ? { ...shift, employeeId: currentEmployee.id } : shift;
+      }).filter(shift => usersEmployees.some(e => Number(e.id) === Number(shift.employeeId)));
+    }
+
+    const data = { employees, shifts };
     const updatedAt = d.updatedAt && typeof d.updatedAt.toDate === 'function'
       ? d.updatedAt.toDate().toISOString()
       : null;
