@@ -199,7 +199,11 @@ function iso(d){
   const day=String(d.getDate()).padStart(2,'0');
   return y+'-'+m+'-'+day;
 }
-function localDate(s){const [y,m,day]=s.split('-').map(Number);return new Date(y,m-1,day)}
+function shiftDate(s){
+  const value=s?.date;
+  return typeof value==='string'?value.slice(0,10):'';
+}
+function localDate(s){const [y,m,day]=String(s).slice(0,10).split('-').map(Number);return new Date(y,m-1,day)}
 function monday(d){const x=new Date(d);x.setHours(0,0,0,0);const n=x.getDay()||7;x.setDate(x.getDate()-n+1);return x}
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function fmt(d){return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}
@@ -287,7 +291,7 @@ function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');cle
 function initials(n){return n.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()}
 function weekShifts(){
  const from=iso(cursor),to=iso(addDays(cursor,6));
- return state.shifts.filter(s=>s.date>=from&&s.date<=to);
+ return state.shifts.filter(s=>shiftDate(s)>=from&&shiftDate(s)<=to);
 }
 function monthDays(d){
  const first=new Date(d.getFullYear(),d.getMonth(),1);
@@ -296,7 +300,7 @@ function monthDays(d){
 }
 function periodShifts(days){
  const from=iso(days[0]),to=iso(days[days.length-1]);
- return state.shifts.filter(s=>s.date>=from&&s.date<=to);
+ return state.shifts.filter(s=>shiftDate(s)>=from&&shiftDate(s)<=to);
 }
 function render(){
  const q=$('search').value.trim().toLowerCase();
@@ -319,7 +323,7 @@ function render(){
  $('shiftsLabel').textContent=isMonth?'Смен за месяц':'Смен на неделе';
  $('weekShifts').textContent=shifts.length;
  $('employeeCount').textContent=state.employees.length;
- $('todayWorkers').textContent=new Set(state.shifts.filter(s=>s.date===today).map(s=>s.employeeId)).size;
+ $('todayWorkers').textContent=new Set(state.shifts.filter(s=>shiftDate(s)===today).map(s=>s.employeeId)).size;
  $('weekHours').textContent=shifts.reduce((a,s)=>a+hours(s),0).toFixed(1).replace('.0','');
  $('calendarStatus').textContent=state.employees.length?'':'Нет сотрудников в StaffShedules';
 
