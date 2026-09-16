@@ -123,15 +123,29 @@ const docRef = db.doc('Cinema/atmosfera/StaffSchedule/main');
   }
 })();
 
-const defaultState = {
-  employees: [
-    { id: 1, name: 'Александр', role: 'УС' },
-    { id: 2, name: 'Анна', role: 'УС' },
-    { id: 3, name: 'Максим', role: 'МС' },
-    { id: 4, name: 'Ольга', role: 'УС' }
-  ],
-  shifts: []
-};
+const defaultState = { employees: [], shifts: [] };
+const usersRef = db.collection('Cinema').doc('atmosfera').collection('Users');
+
+function stableEmployeeId(docId, index) {
+  const hex = crypto.createHash('sha1').update(String(docId)).digest('hex').slice(0, 8);
+  const n = parseInt(hex, 16);
+  return (n % 900000000) + 100000000 + index;
+}
+
+function mapUser(doc, index) {
+  const d = doc.data() || {};
+  const name = String(
+    d.name ?? d.fullName ?? d.displayName ?? d.fio ?? d.full_name ?? ''
+  ).trim();
+  if (!name) return null;
+  const role = String(d.role ?? d.position ?? d.jobTitle ?? '').trim() || 'Сотрудник';
+  return { id: stableEmployeeId(doc.id, index), name, role };
+}
+
+async function getEmployeesFromUsers() {
+  const snap = await usersRef.get();
+  return snap.docs.map((doc, i) => mapUser(doc, i)).filter(Boolean);
+}
 
 function validState(s) {
   return s && Array.isArray(s.employees) && Array.isArray(s.shifts) &&
@@ -158,16 +172,22 @@ app.get('/api/state', async (req, res) => {
     // An empty Firestore document is treated as uninitialized.
     // This matters for the first deployment: the administrator's existing
     // local schedule must be allowed to migrate into the shared document.
-    if (!snap.exists) return res.json({ exists: false, data: defaultState, updatedAt: null });
+    if (!snap.exists) {
+      const employees = await getEmployeesFromUsers();
+      return res.json({ exists: true, data: { employees, shifts: [] }, updatedAt: null });
+    }
 
     const d = snap.data() || {};
     const initialized = Array.isArray(d.employees) || Array.isArray(d.shifts);
     if (!initialized) {
-      return res.json({ exists: false, data: defaultState, updatedAt: null });
+      const employees = await getEmployeesFromUsers();
+      return res.json({ exists: true, data: { employees, shifts: [] }, updatedAt: null });
     }
 
+    const storedEmployees = Array.isArray(d.employees) ? d.employees : [];
+    const employees = storedEmployees.length ? storedEmployees : await getEmployeesFromUsers();
     const data = {
-      employees: Array.isArray(d.employees) ? d.employees : [],
+      employees,
       shifts: Array.isArray(d.shifts) ? d.shifts : []
     };
     const updatedAt = d.updatedAt && typeof d.updatedAt.toDate === 'function'
