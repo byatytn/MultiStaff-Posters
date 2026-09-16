@@ -13,22 +13,49 @@ console.log('[BOOT] PID:', process.pid);
 console.log('[BOOT] PORT:', process.env.PORT || 3000);
 
 const ADMIN_PASSWORD = process.env.MULTISTAFF_ADMIN_PASSWORD || '2026';
-const adminSessions = new Map();
 const SESSION_TTL = 6 * 60 * 60 * 1000;
 
+// Адмін-сесія має переживати перезапуск Node/хостингу.
+// Токен містить час завершення та захищений HMAC-підписом.
+// Якщо MULTISTAFF_SESSION_SECRET заданий у середовищі — використовуємо його;
+// інакше стабільно виводимо секрет із поточного адмін-пароля.
+const SESSION_SECRET = process.env.MULTISTAFF_SESSION_SECRET ||
+  crypto.createHash('sha256').update('multistaff-session:'+ADMIN_PASSWORD).digest('hex');
+
 function createAdminSession() {
-  const token = crypto.randomBytes(32).toString('hex');
-  adminSessions.set(token, Date.now() + SESSION_TTL);
-  return token;
+  const expiresAt = Date.now() + SESSION_TTL;
+  const payload = Buffer.from(JSON.stringify({ exp: expiresAt })).toString('base64url');
+  const signature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
+  return payload + '.' + signature;
+}
+
+function verifyAdminSession(token) {
+  if (!token || typeof token !== 'string') return false;
+  const dot = token.indexOf('.');
+  if (dot <= 0) return false;
+
+  const payload = token.slice(0, dot);
+  const signature = token.slice(dot + 1);
+  const expected = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
+
+  if (signature.length !== expected.length ||
+      !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+    return false;
+  }
+
+  try {
+    const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+    return Number.isFinite(data.exp) && data.exp > Date.now();
+  } catch {
+    return false;
+  }
 }
 
 function requireAdmin(req, res, next) {
   const header = req.get('authorization') || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
-  const expiresAt = adminSessions.get(token);
 
-  if (!expiresAt || expiresAt < Date.now()) {
-    if (token) adminSessions.delete(token);
+  if (!verifyAdminSession(token)) {
     return res.status(401).json({ error: 'Требуется пароль администратора' });
   }
 
