@@ -12,8 +12,6 @@ console.log('[BOOT] Node:', process.version);
 console.log('[BOOT] PID:', process.pid);
 console.log('[BOOT] PORT:', process.env.PORT || 3000);
 
-// Admin password is configured in Northflank.
-// Default for the first setup: 2026
 const ADMIN_PASSWORD = process.env.MULTISTAFF_ADMIN_PASSWORD || '2026';
 const adminSessions = new Map();
 const SESSION_TTL = 12 * 60 * 60 * 1000;
@@ -38,20 +36,14 @@ function requireAdmin(req, res, next) {
 }
 
 function loadFirebaseServiceAccount() {
-  // Primary option: JSON in a runtime environment variable.
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  if (raw && raw.trim()) {
-    return JSON.parse(raw.trim());
-  }
+  if (raw && raw.trim()) return JSON.parse(raw.trim());
 
-  // Optional aliases make deployment less fragile if a platform secret
-  // was created under a different, documented name.
   for (const key of ['FIREBASE_SERVICE_ACCOUNT', 'GOOGLE_APPLICATION_CREDENTIALS_JSON']) {
     const value = process.env[key];
     if (value && value.trim()) return JSON.parse(value.trim());
   }
 
-  // Optional secret-file support for Northflank runtime secret files.
   const filePath = process.env.FIREBASE_SERVICE_ACCOUNT_FILE;
   if (filePath && fs.existsSync(filePath)) {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -75,7 +67,6 @@ try {
 
 admin.initializeApp({ credential });
 const db = admin.firestore();
-
 db.settings({ ignoreUndefinedProperties: true });
 
 process.on('SIGTERM', () => {
@@ -107,6 +98,11 @@ setInterval(() => {
   );
 }, 60000).unref();
 
+// IMPORTANT:
+// Staff and shifts are managed ONLY by this document.
+// There is deliberately NO connection to Cinema/atmosfera/Users.
+// The website creates employees and stores them together with shifts
+// in Cinema/atmosfera/StaffSchedule/main.
 const docRef = db.doc('Cinema/atmosfera/StaffSchedule/main');
 
 (async () => {
@@ -117,6 +113,8 @@ const docRef = db.doc('Cinema/atmosfera/StaffSchedule/main');
     if (snap.exists) {
       const d = snap.data() || {};
       console.log('[FIREBASE] StaffSchedule fields:', Object.keys(d).join(', ') || '(empty document)');
+      console.log('[FIREBASE] StaffSchedule employees:', Array.isArray(d.employees) ? d.employees.length : 0);
+      console.log('[FIREBASE] StaffSchedule shifts:', Array.isArray(d.shifts) ? d.shifts.length : 0);
     }
   } catch (err) {
     console.error('[FIREBASE] StaffSchedule read failed:', err.message);
@@ -124,43 +122,32 @@ const docRef = db.doc('Cinema/atmosfera/StaffSchedule/main');
 })();
 
 const defaultState = { employees: [], shifts: [] };
-const usersRef = db.collection('Cinema').doc('atmosfera').collection('Users');
-
-function stableEmployeeId(docId, index) {
-  const hex = crypto.createHash('sha1').update(String(docId)).digest('hex').slice(0, 8);
-  const n = parseInt(hex, 16);
-  return (n % 900000000) + 100000000 + index;
-}
-
-function mapUser(doc, index) {
-  const d = doc.data() || {};
-  const first = String(d.firstName ?? d.first_name ?? '').trim();
-  const last = String(d.lastName ?? d.last_name ?? d.surname ?? '').trim();
-  const name = String(
-    d.name ?? d.fullName ?? d.displayName ?? d.fio ?? d.full_name ??
-    d.full_name_ru ?? [first, last].filter(Boolean).join(' ') ?? d.username ?? ''
-  ).trim();
-  if (!name) return null;
-  const role = String(d.role ?? d.position ?? d.jobTitle ?? d.job ?? d.status ?? '').trim() || 'Сотрудник';
-  return { id: stableEmployeeId(doc.id, index), name, role };
-}
-
-async function getEmployeesFromUsers() {
-  const snap = await usersRef.get();
-  return snap.docs.map((doc, i) => mapUser(doc, i)).filter(Boolean);
-}
 
 function validState(s) {
   return s && Array.isArray(s.employees) && Array.isArray(s.shifts) &&
-    s.employees.every(e => e && Number.isFinite(Number(e.id)) && typeof e.name === 'string' && typeof e.role === 'string') &&
-    s.shifts.every(x => x && Number.isFinite(Number(x.id)) && Number.isFinite(Number(x.employeeId)) &&
-      typeof x.date === 'string' && typeof x.start === 'string' && typeof x.end === 'string');
+    s.employees.every(e =>
+      e &&
+      Number.isFinite(Number(e.id)) &&
+      typeof e.name === 'string' &&
+      typeof e.role === 'string'
+    ) &&
+    s.shifts.every(x =>
+      x &&
+      Number.isFinite(Number(x.id)) &&
+      Number.isFinite(Number(x.employeeId)) &&
+      typeof x.date === 'string' &&
+      typeof x.start === 'string' &&
+      typeof x.end === 'string'
+    );
 }
 
-app.get('/api/health', (req, res) => res.json({ ok: true, pid: process.pid, uptime: Math.round(process.uptime()) }));
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, pid: process.pid, uptime: Math.round(process.uptime()) });
+});
 
 app.post('/api/admin/login', (req, res) => {
   const password = String(req.body?.password || '');
+
   if (password !== ADMIN_PASSWORD) {
     return res.status(401).json({ error: 'Неверный пароль' });
   }
@@ -172,52 +159,33 @@ app.post('/api/admin/login', (req, res) => {
 app.get('/api/state', async (req, res) => {
   try {
     const snap = await docRef.get();
-    // An empty Firestore document is treated as uninitialized.
-    // This matters for the first deployment: the administrator's existing
-    // local schedule must be allowed to migrate into the shared document.
+
     if (!snap.exists) {
-      const employees = await getEmployeesFromUsers();
-      return res.json({ exists: true, data: { employees, shifts: [] }, updatedAt: null });
+      return res.json({
+        exists: false,
+        data: defaultState,
+        updatedAt: null
+      });
     }
 
     const d = snap.data() || {};
-    const initialized = Array.isArray(d.employees) || Array.isArray(d.shifts);
-    if (!initialized) {
-      const employees = await getEmployeesFromUsers();
-      return res.json({ exists: true, data: { employees, shifts: [] }, updatedAt: null });
-    }
 
-    const storedEmployees = Array.isArray(d.employees) ? d.employees : [];
-    const storedShifts = Array.isArray(d.shifts) ? d.shifts : [];
-    const usersEmployees = await getEmployeesFromUsers();
+    // StaffSchedule is the SINGLE source of truth.
+    // Never read employees from Users or any other collection.
+    const employees = Array.isArray(d.employees) ? d.employees : [];
+    const shifts = Array.isArray(d.shifts) ? d.shifts : [];
 
-    let employees = storedEmployees;
-    let shifts = storedShifts;
-
-    // Real employees in Firestore Users are authoritative. Older schedule
-    // data may contain demo employees, so replace that list and remap shifts
-    // by employee name to preserve existing shifts.
-    if (usersEmployees.length) {
-      const byName = new Map(usersEmployees.map(e => [e.name.trim().toLowerCase(), e]));
-      const oldById = new Map(storedEmployees.map(e => [Number(e.id), e]));
-      employees = usersEmployees;
-      shifts = storedShifts.map(shift => {
-        const oldEmployee = oldById.get(Number(shift.employeeId));
-        const currentEmployee = oldEmployee
-          ? byName.get(String(oldEmployee.name).trim().toLowerCase())
-          : null;
-        return currentEmployee ? { ...shift, employeeId: currentEmployee.id } : shift;
-      }).filter(shift => usersEmployees.some(e => Number(e.id) === Number(shift.employeeId)));
-    }
-
-    const data = { employees, shifts };
     const updatedAt = d.updatedAt && typeof d.updatedAt.toDate === 'function'
       ? d.updatedAt.toDate().toISOString()
       : null;
 
-    res.json({ exists: true, data, updatedAt });
+    res.json({
+      exists: true,
+      data: { employees, shifts },
+      updatedAt
+    });
   } catch (e) {
-    console.error(e);
+    console.error('[API] state read failed:', e);
     res.status(500).json({ error: 'Не удалось получить общий график' });
   }
 });
@@ -225,8 +193,12 @@ app.get('/api/state', async (req, res) => {
 app.put('/api/state', requireAdmin, async (req, res) => {
   try {
     const data = req.body;
-    if (!validState(data)) return res.status(400).json({ error: 'Некорректные данные графика' });
 
+    if (!validState(data)) {
+      return res.status(400).json({ error: 'Некорректные данные графика' });
+    }
+
+    // Employees and their shifts are saved together in StaffSchedule.
     await docRef.set({
       employees: data.employees,
       shifts: data.shifts,
@@ -238,7 +210,7 @@ app.put('/api/state', requireAdmin, async (req, res) => {
 
     res.json({ ok: true, updatedAt });
   } catch (e) {
-    console.error(e);
+    console.error('[API] state save failed:', e);
     res.status(500).json({ error: 'Не удалось сохранить общий график' });
   }
 });
