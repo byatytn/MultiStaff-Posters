@@ -142,13 +142,15 @@ function isOldUsersEmployee(e) {
 
 function cleanScheduleData(d) {
   const raw = scheduleSnapshotData(d);
-  const removed = new Set(
-    raw.employees.filter(isOldUsersEmployee).map(e => Number(e.id))
-  );
-  return {
-    employees: raw.employees.filter(e => !isOldUsersEmployee(e)),
-    shifts: raw.shifts.filter(s => !removed.has(Number(s.employeeId)))
-  };
+  const employees = raw.employees.filter(e => !isOldUsersEmployee(e));
+  const employeeById = new Map(employees.map(e => [String(e.id), e.id]));
+  const shifts = raw.shifts
+    .filter(s => employeeById.has(String(s.employeeId)))
+    .map(s => ({
+      ...s,
+      employeeId: employeeById.get(String(s.employeeId))
+    }));
+  return { employees, shifts };
 }
 
 function validState(s) {
