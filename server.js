@@ -107,15 +107,21 @@ setInterval(() => {
   );
 }, 60000).unref();
 
+const docRef = db.doc('Cinema/atmosfera/StaffSchedule/main');
+
 (async () => {
   try {
-    await db.doc('__system__/health').get();
-    console.log('[FIREBASE] Firestore read test: OK');
+    const snap = await docRef.get();
+    console.log('[FIREBASE] StaffSchedule read: OK');
+    console.log('[FIREBASE] StaffSchedule exists:', snap.exists);
+    if (snap.exists) {
+      const d = snap.data() || {};
+      console.log('[FIREBASE] StaffSchedule fields:', Object.keys(d).join(', ') || '(empty document)');
+    }
   } catch (err) {
-    console.error('[FIREBASE] Firestore read test failed:', err.message);
+    console.error('[FIREBASE] StaffSchedule read failed:', err.message);
   }
 })();
-const docRef = db.doc('Cinema/atmosfera/StaffSchedule/main');
 
 const defaultState = {
   employees: [
@@ -149,9 +155,17 @@ app.post('/api/admin/login', (req, res) => {
 app.get('/api/state', async (req, res) => {
   try {
     const snap = await docRef.get();
+    // An empty Firestore document is treated as uninitialized.
+    // This matters for the first deployment: the administrator's existing
+    // local schedule must be allowed to migrate into the shared document.
     if (!snap.exists) return res.json({ exists: false, data: defaultState, updatedAt: null });
 
     const d = snap.data() || {};
+    const initialized = Array.isArray(d.employees) || Array.isArray(d.shifts);
+    if (!initialized) {
+      return res.json({ exists: false, data: defaultState, updatedAt: null });
+    }
+
     const data = {
       employees: Array.isArray(d.employees) ? d.employees : [],
       shifts: Array.isArray(d.shifts) ? d.shifts : []
