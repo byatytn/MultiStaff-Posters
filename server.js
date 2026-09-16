@@ -105,39 +105,21 @@ setInterval(() => {
 // Website source of truth: Cinema/atmosfera/StaffShedules/main.
 const staffSchedulesRef = db.doc('Cinema/atmosfera/StaffShedules/main');
 // Legacy path from an earlier build. It is read only for a one-time migration.
-const legacyStaffScheduleRefs = [
-  db.doc('Cinema/atmosfera/StaffSchedule/main'),
-  db.doc('Cinema/atmosfera/StaffSchedules/main')
-];
-
 (async () => {
   try {
-    let snap = await staffSchedulesRef.get();
+    const snap = await staffSchedulesRef.get();
     console.log('[FIREBASE] StaffShedules read: OK');
     console.log('[FIREBASE] StaffShedules exists:', snap.exists);
-
-    // If the new collection is empty, recover data from the old collection(s).
-    // This never reads, deletes or writes anything in Users.
-    if (!snap.exists || !hasScheduleData(snap.data() || {})) {
-      for (const legacyRef of legacyStaffScheduleRefs) {
-        const legacy = await legacyRef.get();
-        if (legacy.exists && hasScheduleData(legacy.data() || {})) {
-          await staffSchedulesRef.set({ ...legacy.data(), migratedFrom: legacyRef.path, migratedAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: false });
-          snap = await staffSchedulesRef.get();
-          console.log('[FIREBASE] Migrated existing website schedule from', legacyRef.path, 'to', staffSchedulesRef.path);
-          break;
-        }
-      }
-    }
-
     if (snap.exists) {
       const d = snap.data() || {};
+      const clean = cleanScheduleData(d);
       console.log('[FIREBASE] StaffShedules fields:', Object.keys(d).join(', ') || '(empty document)');
-      console.log('[FIREBASE] StaffShedules employees:', Array.isArray(d.employees) ? d.employees.length : 0);
-      console.log('[FIREBASE] StaffShedules shifts:', Array.isArray(d.shifts) ? d.shifts.length : 0);
+      console.log('[FIREBASE] StaffShedules employees (raw):', Array.isArray(d.employees) ? d.employees.length : 0);
+      console.log('[FIREBASE] StaffShedules employees (website):', clean.employees.length);
+      console.log('[FIREBASE] StaffShedules shifts (website):', clean.shifts.length);
     }
   } catch (err) {
-    console.error('[FIREBASE] StaffSchedule read failed:', err.message);
+    console.error('[FIREBASE] StaffShedules read failed:', err.message);
   }
 })();
 
@@ -146,6 +128,26 @@ function scheduleSnapshotData(d) {
   return {
     employees: Array.isArray(d?.employees) ? d.employees : [],
     shifts: Array.isArray(d?.shifts) ? d.shifts : []
+  };
+}
+
+// Older builds generated employee IDs from Firestore Users by hashing the
+// Users document ID into the 100,000,000–999,999,999 range.
+// Website-created employees use Date.now() IDs. Filter the old imported
+// Users records out of the website schedule without touching Users itself.
+function isOldUsersEmployee(e) {
+  const id = Number(e?.id);
+  return Number.isFinite(id) && id >= 100000000 && id < 1000000000;
+}
+
+function cleanScheduleData(d) {
+  const raw = scheduleSnapshotData(d);
+  const removed = new Set(
+    raw.employees.filter(isOldUsersEmployee).map(e => Number(e.id))
+  );
+  return {
+    employees: raw.employees.filter(e => !isOldUsersEmployee(e)),
+    shifts: raw.shifts.filter(s => !removed.has(Number(s.employeeId)))
   };
 }
 
@@ -206,7 +208,7 @@ app.get('/api/state', async (req, res) => {
 
     // StaffShedules is the SINGLE source of truth.
     // Never read employees from Users or any other collection.
-    const { employees, shifts } = scheduleSnapshotData(d);
+    const { employees, shifts } = cleanScheduleData(d);
     const initialized = hasScheduleData({ employees, shifts });
 
     const updatedAt = d.updatedAt && typeof d.updatedAt.toDate === 'function'
@@ -233,15 +235,19 @@ app.put('/api/state', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'Некорректные данные графика' });
     }
 
+    // Never allow an old client/local cache containing Users employees to
+    // write those records back into the website schedule.
+    const clean = cleanScheduleData(data);
+
     // A blank payload is never allowed to wipe the shared schedule.
-    if (!hasScheduleData(data)) {
+    if (!hasScheduleData(clean)) {
       return res.status(409).json({ error: 'Пустой график не сохраняется, чтобы не потерять сотрудников и смены' });
     }
 
     // Employees and their shifts are saved together in StaffShedules.
     await staffSchedulesRef.set({
-      employees: data.employees,
-      shifts: data.shifts,
+      employees: clean.employees,
+      shifts: clean.shifts,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: false });
 
