@@ -342,7 +342,7 @@ function render(){
    .forEach(e=>{
      html+='<div class="cell employee"><div class="avatar">'+initials(e.name)+'</div><div class="ename"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div></div>';
      days.forEach(d=>{
-       const date=iso(d), list=state.shifts.filter(s=>sameId(s.employeeId,e.id)&&s.date===date);
+       const date=iso(d), list=state.shifts.filter(s=>sameId(s.employeeId,e.id)&&shiftDate(s)===date);
        const weekend=((d.getDay()||7)>=6);
        html+='<div class="cell day'+(weekend?' weekend':'')+'" data-date="'+date+'" data-emp="'+e.id+'">';
        if(!list.length) html+='<div class="emptyday">Нет смен</div>';
