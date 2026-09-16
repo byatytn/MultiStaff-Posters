@@ -328,7 +328,7 @@ function hours(s){
   if(minutes<0) minutes+=24*60;
   return minutes/60;
 }
-function fmt(d){return d.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}
+function fmt(d){return d.toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'})}
 function makeState(){return{employees:defaultEmployees.map(e=>({...e})),shifts:[]}}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x&&Array.isArray(x.employees)&&Array.isArray(x.shifts)?x:makeState()}catch{return makeState()}}
 function isMobile(){return window.innerWidth<=600}
@@ -492,10 +492,10 @@ function render(){
  const today=iso(new Date());
 
  if(isArchive){
-   $('period').textContent='Архів · '+days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+   $('period').textContent='Архів · '+days[0].toLocaleDateString('uk-UA',{month:'long',year:'numeric'});
  }else{
-   $('period').textContent=days[0].toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+
-     (days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('ru-RU',{month:'long',year:'numeric'}):'');
+   $('period').textContent=days[0].toLocaleDateString('uk-UA',{month:'long',year:'numeric'})+
+     (days[0].getMonth()!==days[6].getMonth()?' — '+days[6].toLocaleDateString('uk-UA',{month:'long',year:'numeric'}):'');
  }
  // The old date-picker (#jump) was removed from the HTML.
  // Do not abort render() when it is absent.
@@ -515,7 +515,7 @@ function render(){
    const weekend=dow>=6;
    const dayName=DAYS[dow-1];
    html+='<div class="cell week-head'+(t?' today':'')+(weekend?' weekend':'')+'" style="grid-column:'+(di+2)+';grid-row:1"><b>'+dayName+'</b><strong>'+d.getDate()+'</strong>'+
-     (isArchive?'<div class="month-day">'+d.toLocaleDateString('ru-RU',{month:'short'}).replace('.','')+'</div>':'')+'</div>';
+     (isArchive?'<div class="month-day">'+d.toLocaleDateString('uk-UA',{month:'short'}).replace('.','')+'</div>':'')+'</div>';
  });
 
  orderedEmployees()
@@ -808,7 +808,7 @@ function renderStats(){
   const rows=monthStats(statsMonth);
   if(!rows.length){$('statsWrap').innerHTML='<div class="stats-empty">Співробітників у графіку поки немає.</div>';return}
   const fmtH=m=>(m/60).toFixed(1).replace('.0','');
-  let html='<table class="stats-table"><thead><tr><th>Співробітник</th><th>Роб. дні</th><th>Вих. дні</th><th>Відпрацьовано годин<br>день</th><th>ніч</th><th>Ндього (д+н), годин</th><th>Відпустка, дні</th></tr></thead><tbody>';
+  let html='<table class="stats-table"><thead><tr><th>Співробітник</th><th>Роб. дні</th><th>Вих. дні</th><th>Відпрацьовано годин<br>день</th><th>ніч</th><th>Всього (д+н), годин</th><th>Відпустка, дні</th></tr></thead><tbody>';
   rows.forEach(r=>{html+='<tr><td><b>'+esc(r.employee.name)+'</b><br><span style="color:#737d8a">'+esc(r.employee.role)+'</span></td><td>'+r.workDays+'</td><td>'+r.offDays+'</td><td>'+fmtH(r.dayMin)+'</td><td>'+fmtH(r.nightMin)+'</td><td>'+fmtH(r.totalMin)+'</td><td>'+r.vacDays+'</td></tr>'});
   html+='</tbody></table>';
   $('statsWrap').innerHTML=html;
