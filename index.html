@@ -47,7 +47,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 </div></div>
 <div class="modal-bg" id="empBg"><div class="modal">
 <h2 id="empTitle">Новый сотрудник</h2><div class="field"><label>Имя и фамилия</label><input id="empName" placeholder="Например: Иван Петренко"></div>
-<div class="field"><label>Должность</label><input id="empRole" placeholder="Кассир"></div>
+<div class="field"><label>Должность</label><select id="empRole"><option value="УС">УС</option><option value="МС">МС</option></select></div>
 <div class="modal-actions"><button class="btn" id="empCancel">Отмена</button><button class="btn danger" id="empDelete">Удалить</button><button class="btn primary" id="empSave">Сохранить</button></div>
 </div></div>
 <div class="toast" id="toast"></div>
@@ -56,7 +56,7 @@ const KEY='multistaff_schedule_v1';
 const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const TYPES={shift:'Смена',open:'Открытие',close:'Закрытие',training:'Обучение',other:'Другое'};
 const defaultEmployees=[
-{id:1,name:'Александр',role:'Кассир'},{id:2,name:'Анна',role:'Кассир'},{id:3,name:'Максим',role:'Старший кассир'},{id:4,name:'Ольга',role:'Кассир'}
+{id:1,name:'Александр',role:'УС'},{id:2,name:'Анна',role:'УС'},{id:3,name:'Максим',role:'МС'},{id:4,name:'Ольга',role:'УС'}
 ];
 function iso(d){return d.toISOString().slice(0,10)}
 function localDate(s){const [y,m,day]=s.split('-').map(Number);return new Date(y,m-1,day)}
@@ -95,6 +95,7 @@ function render(){
  $('calendar').innerHTML=html;
  $('calendar').querySelectorAll('.shift').forEach(x=>x.onclick=()=>openShift(+x.dataset.id));
  $('calendar').querySelectorAll('.addday').forEach(x=>x.onclick=()=>newShift(+x.dataset.add,x.dataset.date));
+ $('calendar').querySelectorAll('.empedit').forEach(x=>x.onclick=()=>openEmp(+x.dataset.editEmp));
 }
 function colorFor(t){return t==='training'?'purple':t==='open'?'green':t==='close'?'yellow':''}
 function esc(s=''){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -114,7 +115,7 @@ $('addShift').onclick=()=>newShift();
 $('save').onclick=()=>{persist();toast('График сохранён')};
 $('addEmployee').onclick=()=>openEmp();
 $('importBtn').onclick=()=>admin?$('import').click():toast('Импорт доступен администратору');
-function openEmp(id){const e=id?state.employees.find(x=>x.id===id):null;$('empTitle').textContent=e?'Сотрудник':'Новый сотрудник';$('empName').value=e?.name||'';$('empRole').value=e?.role||'';$('empDelete').style.display=e?'inline-block':'none';$('empSave').dataset.id=e?.id||'';empBg.style.display='flex'}
+function openEmp(id){const e=id?state.employees.find(x=>x.id===id):null;$('empTitle').textContent=e?'Сотрудник':'Новый сотрудник';$('empName').value=e?.name||'';$('empRole').value=(e?.role==='УС'||e?.role==='МС')?e.role:'УС';$('empDelete').style.display=e?'inline-block':'none';$('empSave').dataset.id=e?.id||'';empBg.style.display='flex'}
 function closeEmp(){empBg.style.display='none'}
 $('empCancel').onclick=closeEmp;
 $('empSave').onclick=()=>{const name=$('empName').value.trim(),role=$('empRole').value.trim()||'Сотрудник';if(!name)return toast('Укажи имя');const id=+$('empSave').dataset.id;if(id){const e=state.employees.find(x=>x.id===id);e.name=name;e.role=role}else state.employees.push({id:Date.now(),name,role});persist();closeEmp();fillEmployees();render();toast('Сотрудник сохранён')};
