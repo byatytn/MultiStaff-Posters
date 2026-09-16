@@ -25,28 +25,28 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 /* Табличный календарь: на ПК и телефоне одна и та же структура, без "одного дня" на мобильном. */
 #calendar{overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 #calendar.week-view{display:grid;grid-template-columns:170px repeat(7,minmax(86px,1fr));width:100%;min-width:0}
-#calendar.month-view{display:grid;grid-template-columns:180px repeat(31,minmax(46px,1fr));width:max-content;min-width:100%}
+#calendar.month-view{display:grid;grid-template-columns:170px repeat(31,minmax(0,1fr));width:100%;min-width:0}
 #calendar .cell{min-width:0}
 #calendar.month-view .cell{min-width:0}
 #calendar.month-view .employee{grid-column:1;position:sticky;left:0;z-index:3}
 #calendar.month-view .employee-head{grid-column:1;position:sticky;left:0;z-index:5}
-#calendar.month-view .week-head{min-width:46px}
-#calendar.month-view .day{min-width:46px}
+#calendar.month-view .week-head{min-width:0}
+#calendar.month-view .day{min-width:0}
 #calendar .week-head.weekend{background:#17131a}
 #calendar .week-head.weekend strong{color:#c4a7ae}
 #calendar .week-head.today{box-shadow:inset 0 -3px 0 var(--red)}
 #calendar .month-day{font-size:10px;color:#737d8a;margin-top:2px}
-#calendar.month-view .employee{min-height:66px;padding:7px}
-#calendar.month-view .day{min-height:66px;padding:4px}
-#calendar.month-view .emptyday{height:52px;font-size:7px}
-#calendar.month-view .shift{padding:5px 2px;border-radius:5px;margin-bottom:2px;box-shadow:none;overflow:hidden}
-#calendar.month-view .shift .time{font-size:10px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:clip}
+#calendar.month-view .employee{min-height:62px;padding:6px}
+#calendar.month-view .day{min-height:62px;padding:3px}
+#calendar.month-view .emptyday{height:50px;font-size:6px}
+#calendar.month-view .shift{padding:4px 1px;border-radius:4px;margin-bottom:2px;box-shadow:none;overflow:hidden}
+#calendar.month-view .shift .time{font-size:9px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:clip;letter-spacing:-.35px}
 #calendar.month-view .shift .type{display:none}
 #calendar.month-view .addday{font-size:9px;width:22px;height:22px;line-height:20px}
 @media(max-width:600px){
   #calendar.week-view{grid-template-columns:86px repeat(7,minmax(0,1fr));width:100%;grid-auto-flow:row;grid-auto-rows:minmax(70px,auto)}
   #calendar.week-view .cell{min-width:0}
-  #calendar.month-view{grid-template-columns:118px repeat(31,48px);min-width:max-content}
+  #calendar.month-view{grid-template-columns:118px repeat(31,42px);min-width:max-content}
   #calendar.month-view .cell{min-width:0}
   #calendar.month-view .employee{min-height:60px;padding:4px 5px}
   #calendar.month-view .day{min-height:60px;padding:3px}
