@@ -221,6 +221,29 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .addday{font-size:7px}
   .tools .btn{font-size:11px}
 }
+/* Dashboard */
+.dashboard{margin-bottom:18px}
+.dashboard-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:13px}
+.dashboard-head h1{margin:0;font-size:22px}
+.dashboard-head p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dash-card{min-height:150px;padding:18px;background:#101419;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center}
+.dash-card span{font-size:12px;color:#aeb6c2}
+.dash-card b{font-size:28px;margin-top:8px;line-height:1.1}
+.dash-card small{font-size:11px;color:var(--muted);margin-top:7px}
+.temperature-card{border-color:#29303a}
+.alarm-card{transition:border-color .2s ease,background-color .2s ease}
+.alarm-card.active{border-color:#7a252b;background:#211216}
+.alarm-card.yellow{border-color:#695322;background:#1e1910}
+@media(max-width:600px){
+  .dashboard{margin-bottom:10px}
+  .dashboard-head h1{font-size:19px}
+  .dashboard-head p{font-size:11px}
+  .dashboard-grid{grid-template-columns:1fr;gap:7px}
+  .dash-card{min-height:110px;padding:14px;border-radius:12px}
+  .dash-card b{font-size:24px}
+}
+
 /* Archive + monthly statistics */
 .archive-modal{width:min(760px,100%)}
 .archive-months{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px;max-height:55vh;overflow:auto}
@@ -251,13 +274,22 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 <body>
 <header>
 <div class="top"><div><div class="brand">MULTI<i>STAFF</i></div><div class="sub">SCHEDULE · Кінотеатр «Атмосфера»</div></div><div class="city">Київ</div></div>
-<div class="toolbar"><div class="tabs"><button class="tab active" id="weekTab">Тиждень</button><button class="tab" id="archiveBtn">Архів</button><button class="tab" id="statsBtn">Статистика</button></div><button class="mode" id="mode">Режим співробітника</button></div>
+<div class="toolbar"><div class="tabs"><button class="tab active" id="homeTab">Головна</button><button class="tab" id="weekTab">Графік</button><button class="tab" id="archiveBtn">Архів</button><button class="tab" id="statsBtn">Статистика</button></div><button class="mode" id="mode">Режим співробітника</button></div>
 </header>
 <main>
-<div class="headrow"><div class="title"><h1>Графік співробітників</h1><p>Оберіть день і додавайте зміни співробітникам. Перегляд архіву та статистики доступний усім.</p></div><div class="tools"><input class="search" id="search" placeholder="Пошук співробітника…"><button class="btn ghost" id="importBtn">⇩ Календар</button><button class="btn primary" id="addShift">＋ Зміна</button><input id="import" type="file" accept=".ics,.ical,text/calendar"></div></div>
+<section id="dashboard" class="dashboard" style="display:none">
+  <div class="dashboard-head"><div><h1>Головна</h1><p id="dashboardDate">Сьогодні</p></div><button class="btn ghost" id="dashboardRefresh">Оновити</button></div>
+  <div class="dashboard-grid">
+    <div class="dash-card"><span>📅 Дата</span><b id="dashDate">—</b><small id="dashDay">—</small></div>
+    <div class="dash-card"><span>🎬 Сеансів сьогодні</span><b id="dashSessions">—</b><small>За поточний день</small></div>
+    <div class="dash-card temperature-card"><span>🌡️ Температура</span><b id="dashTemperature">Очікується</b><small>Датчики Tuya буде підключено пізніше</small></div>
+    <div class="dash-card alarm-card" id="dashAlarmCard"><span>🚨 Повітряна тривога</span><b id="dashAlarm">Перевірка…</b><small id="dashAlarmDetail">Статус оновлюється автоматично</small></div>
+  </div>
+</section>
+<div class="headrow" id="scheduleHead"><div class="title"><h1>Графік співробітників</h1><p>Оберіть день і додавайте зміни співробітникам. Перегляд архіву та статистики доступний усім.</p></div><div class="tools"><input class="search" id="search" placeholder="Пошук співробітника…"><button class="btn ghost" id="importBtn">⇩ Календар</button><button class="btn primary" id="addShift">＋ Зміна</button><input id="import" type="file" accept=".ics,.ical,text/calendar"></div></div>
 <div class="adminbar" id="adminbar"><span>⚙ Адміністратор · редагування графіка та співробітників</span><div class="admin-actions"><button class="btn small" id="addEmployee">＋ Співробітник</button><button class="btn primary small" id="save">Зберегти</button></div></div>
-<div class="summary"><div class="stat"><span id="shiftsLabel">Змін за тиждень</span><b id="weekShifts">0</b></div><div class="stat clickable" id="employeesCard" title="Керування співробітниками"><span>Співробітников</span><b id="employeeCount">0</b></div><div class="stat"><span>Працюють сьогодні</span><b id="todayWorkers">0</b></div><div class="stat"><span>Заплановано годин</span><b id="weekHours">0</b></div></div>
-<section class="card"><div class="calendar-head"><div class="month" id="period"></div><div class="calendar-actions"><div class="nav"><button class="iconbtn" id="prevPeriod" title="Попередній тиждень">‹</button><button class="btn ghost" id="todayPeriod">Сьогодні</button><button class="iconbtn" id="nextPeriod" title="Наступний тиждень">›</button></div><div class="calendar-status" id="calendarStatus">Графік завантажується…</div></div></div>
+<div class="summary" id="scheduleSummary"><div class="stat"><span id="shiftsLabel">Змін за тиждень</span><b id="weekShifts">0</b></div><div class="stat clickable" id="employeesCard" title="Керування співробітниками"><span>Співробітников</span><b id="employeeCount">0</b></div><div class="stat"><span>Працюють сьогодні</span><b id="todayWorkers">0</b></div><div class="stat"><span>Заплановано годин</span><b id="weekHours">0</b></div></div>
+<section class="card" id="scheduleCard"><div class="calendar-head"><div class="month" id="period"></div><div class="calendar-actions"><div class="nav"><button class="iconbtn" id="prevPeriod" title="Попередній тиждень">‹</button><button class="btn ghost" id="todayPeriod">Сьогодні</button><button class="iconbtn" id="nextPeriod" title="Наступний тиждень">›</button></div><div class="calendar-status" id="calendarStatus">Графік завантажується…</div></div></div>
 <div class="week" id="calendar"></div></section>
 </main>
 <div class="modal-bg" id="bg"><div class="modal">
@@ -829,11 +861,83 @@ $('weekTab').onclick=()=>{
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
  $('weekTab').classList.add('active');render();animateCalendar('back');
 };
+let dashboardTimer=null;
+function setScheduleView(visible){
+  $('dashboard').style.display=visible?'block':'none';
+  ['scheduleHead','adminbar','scheduleSummary','scheduleCard'].forEach(id=>{const el=$(id);if(el)el.style.display=visible?'':'none'});
+  $('homeTab').classList.toggle('active',visible);
+  $('weekTab').classList.toggle('active',!visible);
+  if(visible){
+    loadDashboard();
+    clearInterval(dashboardTimer);
+    dashboardTimer=setInterval(loadDashboard,10000);
+  }else{
+    clearInterval(dashboardTimer);
+    dashboardTimer=null;
+  }
+}
+function formatDashboardDate(date){
+  return date.toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'});
+}
+function formatDurationSeconds(total){
+  const s=Math.max(0,Math.floor(Number(total)||0));
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
+  return [h,m,sec].map((v,i)=>i===0?String(v).padStart(2,'0'):String(v).padStart(2,'0')).join(':');
+}
+let dashboardAlarmStartedAt=null;
+async function loadDashboard(){
+  const now=new Date();
+  $('dashboardDate').textContent=formatDashboardDate(now);
+  $('dashDate').textContent=now.toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
+  $('dashDay').textContent=now.toLocaleDateString('uk-UA',{weekday:'long'});
+  try{
+    const r=await fetch('/api/dashboard',{cache:'no-store'});
+    if(!r.ok)throw new Error('dashboard failed');
+    const d=await r.json();
+    $('dashSessions').textContent=Number(d.sessionsToday||0);
+    const alarm=d.alarm||{};
+    const card=$('dashAlarmCard');
+    card.classList.remove('active','yellow');
+    if(!alarm.ok){
+      $('dashAlarm').textContent='Статус недоступний';
+      $('dashAlarmDetail').textContent='Не вдалося отримати дані';
+      dashboardAlarmStartedAt=null;
+    }else if(!alarm.active){
+      $('dashAlarm').textContent='🟢 Небезпеки немає';
+      $('dashAlarmDetail').textContent='Повітряна тривога не активна';
+      dashboardAlarmStartedAt=null;
+    }else{
+      dashboardAlarmStartedAt=alarm.startedAt;
+      card.classList.add(alarm.level==='red'?'active':'yellow');
+      $('dashAlarm').textContent=alarm.level==='red'?'🔴 Тривога активна':'🟡 Жовтий рівень';
+      updateDashboardAlarmTimer();
+    }
+  }catch(e){
+    $('dashSessions').textContent='—';
+    $('dashAlarm').textContent='Статус недоступний';
+    $('dashAlarmDetail').textContent='Не вдалося отримати дані';
+    dashboardAlarmStartedAt=null;
+  }
+}
+function updateDashboardAlarmTimer(){
+  if(!dashboardAlarmStartedAt)return;
+  const started=new Date(dashboardAlarmStartedAt);
+  if(Number.isNaN(started.getTime()))return;
+  const elapsed=Math.max(0,Math.floor((Date.now()-started.getTime())/1000));
+  $('dashAlarmDetail').textContent='Триває: '+formatDurationSeconds(elapsed);
+}
+$('homeTab').onclick=()=>setScheduleView(true);
+$('weekTab').onclick=()=>{viewMode='week';cursor=monday(cursor);setScheduleView(false);render();animateCalendar('back')};
+if($('dashboardRefresh'))$('dashboardRefresh').onclick=loadDashboard;
+setInterval(()=>{if(dashboardAlarmStartedAt&&$('dashboard').style.display!=='none')updateDashboardAlarmTimer()},1000);
+
 async function boot(){
   cursor=monday(new Date());
   viewMode='week';
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   $('weekTab').classList.add('active');
+  $('homeTab').classList.remove('active');
+  setScheduleView(false);
   setAdmin(loadActiveMode()==='admin',false);
   $('calendar').innerHTML='<div style="grid-column:1/-1;padding:35px;text-align:center;color:#8f98a6">Загрузка графика…</div>';
   await loadShared();
