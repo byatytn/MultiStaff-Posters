@@ -99,7 +99,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 @media(max-width:600px){
   #calendar.week-view{grid-template-columns:86px repeat(7,minmax(0,1fr));width:100%;grid-auto-flow:row;grid-auto-rows:minmax(70px,auto)}
   #calendar.week-view .cell{min-width:0}
-  #calendar.month-view{grid-template-columns:118px repeat(31,42px);min-width:max-content}
+  #calendar.month-view{grid-template-columns:118px repeat(31,42px);width:100%;min-width:0;overflow-x:auto;overflow-y:visible;touch-action:pan-x}
   #calendar.month-view .cell{min-width:0}
   #calendar.month-view .employee{min-height:60px;padding:4px 5px}
   #calendar.month-view .day{min-height:60px;padding:3px}
@@ -751,11 +751,7 @@ function parseICS(text){const lines=text.replace(/\r/g,'').split('\n');const eve
 function parseDT(v){if(!v)return null;const x=v.replace(/[^0-9]/g,'').slice(0,14);if(x.length<8)return null;return x.slice(0,4)+'-'+x.slice(4,6)+'-'+x.slice(6,8)}
 function parseTime(v,def){if(!v)return def;const x=v.replace(/[^0-9]/g,'');if(x.length<11)return def;return x.slice(9,11)+':'+x.slice(11,13)}
 function importICS(text){const events=parseICS(text);let added=0;events.forEach((ev,i)=>{const date=parseDT(ev.DTSTART),end=parseDT(ev.DTEND);if(!date)return;let emp=state.employees.find(e=>(ev.SUMMARY||'').toLowerCase().includes(e.name.toLowerCase().split(' ')[0]));if(!emp)emp=state.employees[0];if(!emp)return;state.shifts.push({id:Date.now()+i,employeeId:emp.id,date,type:'shift',start:parseTime(ev.DTSTART,'09:00'),end:parseTime(ev.DTEND,'18:00')});added++});persist();render();toast('Імпортовано змін: '+added)}
-$('weekTab').onclick=()=>{
- viewMode='week';cursor=monday(cursor);
- document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
- $('weekTab').classList.add('active');render();animateCalendar('back');animateCalendar('back');
-};
+
 function monthKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
 function monthLabel(key){
   const [y,m]=key.split('-').map(Number);
@@ -867,7 +863,8 @@ function setScheduleView(visible){
     if(el)el.style.display=visible?'none':'';
   });
   $('homeTab').classList.toggle('active',visible);
-  $('weekTab').classList.toggle('active',!visible);
+  $('weekTab').classList.toggle('active',!visible && viewMode==='week');
+  $('archiveBtn').classList.toggle('active',!visible && viewMode==='archive');
   if(visible){
     loadDashboard();
     clearInterval(dashboardTimer);
