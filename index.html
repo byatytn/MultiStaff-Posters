@@ -780,6 +780,7 @@ function renderArchiveMonths(){
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
     $('archiveBtn').classList.add('active');
     hideModal(archiveBg);
+    setScheduleView(false);
     render();
     animateCalendar('forward');
   });
@@ -859,8 +860,12 @@ statsBg.onclick=e=>{if(e.target===statsBg)closeStats()};
 $('weekTab').onclick=()=>{viewMode='week';cursor=monday(cursor);setScheduleView(false);render();animateCalendar('back')};
 let dashboardTimer=null;
 function setScheduleView(visible){
+  // visible=true -> Головна; visible=false -> Графік/Архів.
   $('dashboard').style.display=visible?'block':'none';
-  ['scheduleHead','adminbar','scheduleSummary','scheduleCard'].forEach(id=>{const el=$(id);if(el)el.style.display=visible?'':'none'});
+  ['scheduleHead','adminbar','scheduleSummary','scheduleCard'].forEach(id=>{
+    const el=$(id);
+    if(el)el.style.display=visible?'none':'';
+  });
   $('homeTab').classList.toggle('active',visible);
   $('weekTab').classList.toggle('active',!visible);
   if(visible){
