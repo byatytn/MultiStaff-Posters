@@ -76,7 +76,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 #import{display:none}
 
 /* Табличний календар: на ПК і телефоні однакова структура, без "одного дня" на мобильном. */
-#calendar{overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+#calendar{overflow-x:auto;overflow-y:clip;overscroll-behavior-x:contain;overscroll-behavior-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;touch-action:auto}
 #calendar.week-view{display:grid;grid-template-columns:170px repeat(7,minmax(86px,1fr));width:100%;min-width:0}
 #calendar.month-view{display:grid;grid-template-columns:220px repeat(31,minmax(0,1fr));width:100%;min-width:0}
 #calendar .cell{min-width:0}
@@ -160,15 +160,17 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .date-tools input,.date-tools .btn{padding:8px;font-size:11px}
   .iconbtn{width:34px;height:34px}
 
-  /* Тиждень не перегортається свайпом: свайп усередині таблиці лише прокручує її по горизонталі.
-     Це дає змогу побачити всю зміну та праву частину календаря, не двигая всю страницу. */
+  /* Календар прокручується по горизонталі, але вертикальний свайп/колесо
+     повинні прокручувати всю сторінку, а не "залипати" всередині календаря. */
   body{overflow-x:hidden}
   #calendar.week-view{
     width:100%;
     min-width:0;
     overflow-x:auto;
-    overflow-y:hidden;
-    touch-action:pan-x;
+    overflow-y:clip;
+    overscroll-behavior-x:contain;
+    overscroll-behavior-y:auto;
+    touch-action:auto;
     grid-template-columns:100px repeat(7,80px);
   }
   #calendar.week-view .cell{min-width:0}
