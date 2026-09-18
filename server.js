@@ -279,6 +279,43 @@ function hasScheduleData(s) {
   ));
 }
 
+
+// Dashboard API: current date, today's cinema sessions and the shared air-alert state.
+app.get('/api/dashboard', async (req, res) => {
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Kyiv', year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(new Date());
+    const part = type => parts.find(x => x.type === type)?.value;
+    const dateStr = part('year') + '-' + part('month') + '-' + part('day');
+
+    const cinemaRef = db.collection('Cinema').doc('atmosfera');
+    const scheduleSnap = await cinemaRef.collection('Schedules').doc(dateStr).get();
+    const sessions = scheduleSnap.exists && Array.isArray(scheduleSnap.data()?.sessions)
+      ? scheduleSnap.data().sessions : [];
+
+    const alarmSnap = await cinemaRef.collection('BotConfig').doc('airAlertState').get();
+    const alarmState = alarmSnap.exists ? (alarmSnap.data() || {}) : {};
+    const level = String(alarmState.alertLevel || '').toLowerCase();
+    const active = !alarmState.ignored && (level === 'red' || level === 'yellow') && !!alarmState.startedAt;
+
+    res.json({
+      ok: true,
+      date: dateStr,
+      sessionsToday: sessions.length,
+      alarm: {
+        ok: true,
+        active,
+        level: active ? level : null,
+        startedAt: active ? alarmState.startedAt : null
+      }
+    });
+  } catch (e) {
+    console.error('[API] dashboard failed:', e);
+    res.status(500).json({ ok: false, error: 'Не удалось загрузить данные главной' });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, pid: process.pid, uptime: Math.round(process.uptime()) });
 });
