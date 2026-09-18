@@ -673,7 +673,7 @@ $('saveModal').onclick=async()=>{
   if(!admin||!$('employee').value)return;
   const obj={employeeId:+$('employee').value,date:$('date').value,type:selectedShiftType||'shift',start:$('start').value,end:$('end').value};
   if(!obj.date)return toast('Заповніть дату');
-  if(obj.type!=='off'&&obj.type!=='vacation'&&(!obj.start||!obj.end))return toast('Заповніть дату и время');
+  if(obj.type!=='off'&&obj.type!=='vacation'&&(!obj.start||!obj.end))return toast('Заповніть дату та час');
   if(obj.type==='off'||obj.type==='vacation'){obj.start='00:00';obj.end='00:00';}
 
   if(editing)Object.assign(editing,obj);
@@ -733,19 +733,19 @@ $('save').onclick=async()=>{
   if(saved!==false)toast('Графік збережено');
 };
 $('addEmployee').onclick=()=>openEmp();
-function renderEmployees(){const box=$('employeeList');if(!state.employees.length){box.innerHTML='<div class="empty-employees">Співробітников пока нет</div>';return}box.innerHTML=orderedEmployees().map(e=>'<div class="employee-row"><div class="avatar">'+initials(e.name)+'</div><div class="employee-info"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div><div class="employee-actions"><button class="iconbtn" title="Редагувати" data-edit-employee="'+e.id+'">✎</button><button class="iconbtn" title="Видалити" data-delete-employee="'+e.id+'">×</button></div></div>').join('');
+function renderEmployees(){const box=$('employeeList');if(!state.employees.length){box.innerHTML='<div class="empty-employees">Співробітників поки немає</div>';return}box.innerHTML=orderedEmployees().map(e=>'<div class="employee-row"><div class="avatar">'+initials(e.name)+'</div><div class="employee-info"><b>'+esc(e.name)+'</b><span>'+esc(e.role)+'</span></div><div class="employee-actions"><button class="iconbtn" title="Редагувати" data-edit-employee="'+e.id+'">✎</button><button class="iconbtn" title="Видалити" data-delete-employee="'+e.id+'">×</button></div></div>').join('');
 box.querySelectorAll('[data-edit-employee]').forEach(b=>b.onclick=()=>{closeEmployees();openEmp(+b.dataset.editEmployee)});
 box.querySelectorAll('[data-delete-employee]').forEach(b=>b.onclick=()=>deleteEmployee(+b.dataset.deleteEmployee)) }
-function openEmployees(){if(!admin)return toast('Керування співробітниками доступно администратору');renderEmployees();showModal(employeesBg)}
+function openEmployees(){if(!admin)return toast('Керування співробітниками доступне адміністратору');renderEmployees();showModal(employeesBg)}
 function closeEmployees(){hideModal(employeesBg)}
-function deleteEmployee(id){const e=state.employees.find(x=>x.id===id);if(!e)return;if(confirm('Видалити '+e.name+' и все его смены?')){state.employees=state.employees.filter(x=>x.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();fillEmployees();render();renderEmployees();toast('Співробітник удалён')}} 
+function deleteEmployee(id){const e=state.employees.find(x=>x.id===id);if(!e)return;if(confirm('Видалити '+e.name+' та всі його зміни?')){state.employees=state.employees.filter(x=>x.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();fillEmployees();render();renderEmployees();toast('Співробітника видалено')}} 
 $('employeesCard').onclick=openEmployees;$('employeesClose').onclick=closeEmployees;$('employeesAdd').onclick=()=>{closeEmployees();openEmp()};employeesBg.onclick=e=>{if(e.target===employeesBg)closeEmployees()};
 $('importBtn').onclick=()=>admin?$('import').click():toast('Імпорт доступний адміністратору');
 function openEmp(id){if(!admin)return toast('Увійдіть як адміністратор');const e=id?state.employees.find(x=>x.id===id):null;$('empTitle').textContent=e?'Співробітник':'Новий співробітник';$('empName').value=e?.name||'';$('empRole').value=(e?.role==='УС'||e?.role==='МС')?e.role:'УС';$('empDelete').style.display=e?'inline-block':'none';$('empSave').dataset.id=e?.id||'';showModal(empBg)}
 function closeEmp(){hideModal(empBg)}
 $('empCancel').onclick=closeEmp;
-$('empSave').onclick=()=>{if(!admin)return toast('Увійдіть як адміністратор');const name=$('empName').value.trim(),role=$('empRole').value.trim()||'Співробітник';if(!name)return toast('Вкажіть ім’я');const id=+$('empSave').dataset.id;if(id){const e=state.employees.find(x=>x.id===id);e.name=name;e.role=role}else state.employees.push({id:Date.now(),name,role});persist();closeEmp();fillEmployees();render();toast('Співробітник сохранён')};
-$('empDelete').onclick=()=>{if(!admin)return toast('Увійдіть як адміністратор');const id=+$('empSave').dataset.id;if(!id)return;if(confirm('Видалити сотрудніка и его смены?')){state.employees=state.employees.filter(e=>e.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();closeEmp();fillEmployees();render();toast('Співробітник удалён')}};
+$('empSave').onclick=()=>{if(!admin)return toast('Увійдіть як адміністратор');const name=$('empName').value.trim(),role=$('empRole').value.trim()||'Співробітник';if(!name)return toast('Вкажіть ім’я');const id=+$('empSave').dataset.id;if(id){const e=state.employees.find(x=>x.id===id);e.name=name;e.role=role}else state.employees.push({id:Date.now(),name,role});persist();closeEmp();fillEmployees();render();toast('Співробітника збережено')};
+$('empDelete').onclick=()=>{if(!admin)return toast('Увійдіть як адміністратор');const id=+$('empSave').dataset.id;if(!id)return;if(confirm('Видалити сотрудніка и его смены?')){state.employees=state.employees.filter(e=>e.id!==id);state.shifts=state.shifts.filter(s=>s.employeeId!==id);persist();closeEmp();fillEmployees();render();toast('Співробітника видалено')}};
 $('import').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importICS(r.result);r.readAsText(f);e.target.value=''};
 function parseICS(text){const lines=text.replace(/\r/g,'').split('\n');const events=[];let ev=null;for(const raw of lines){const line=raw.trim();if(line==='BEGIN:VEVENT'){ev={}}else if(line==='END:VEVENT'){if(ev)events.push(ev);ev=null}else if(ev){const p=line.indexOf(':');if(p<0)continue;const k=line.slice(0,p).split(';')[0],v=line.slice(p+1);ev[k]=v}}return events}
 function parseDT(v){if(!v)return null;const x=v.replace(/[^0-9]/g,'').slice(0,14);if(x.length<8)return null;return x.slice(0,4)+'-'+x.slice(4,6)+'-'+x.slice(6,8)}
@@ -856,11 +856,7 @@ $('statsPrev').onclick=()=>{const [y,m]=statsMonth.split('-').map(Number);const 
 $('statsNext').onclick=()=>{const [y,m]=statsMonth.split('-').map(Number);const d=new Date(y,m,1);statsMonth=monthKey(d);renderStats()};
 statsBg.onclick=e=>{if(e.target===statsBg)closeStats()};
 
-$('weekTab').onclick=()=>{
- viewMode='week';cursor=monday(cursor);
- document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
- $('weekTab').classList.add('active');render();animateCalendar('back');
-};
+$('weekTab').onclick=()=>{viewMode='week';cursor=monday(cursor);setScheduleView(false);render();animateCalendar('back')};
 let dashboardTimer=null;
 function setScheduleView(visible){
   $('dashboard').style.display=visible?'block':'none';
@@ -939,7 +935,7 @@ async function boot(){
   $('homeTab').classList.remove('active');
   setScheduleView(false);
   setAdmin(loadActiveMode()==='admin',false);
-  $('calendar').innerHTML='<div style="grid-column:1/-1;padding:35px;text-align:center;color:#8f98a6">Загрузка графика…</div>';
+  $('calendar').innerHTML='<div style="grid-column:1/-1;padding:35px;text-align:center;color:#8f98a6">Завантаження графіка…</div>';
   await loadShared();
   clearInterval(syncTimer);
   syncTimer=setInterval(syncShared,4000);
