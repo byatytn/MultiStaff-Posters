@@ -8,6 +8,36 @@
 <title>MultiStaff — График</title>
 <style>
 :root{--bg:#090b0e;--panel:#101419;--panel2:#14191f;--line:#29303a;--text:#f5f7fa;--muted:#8f98a6;--red:#ef3038;--purple:#7846ff;--green:#32d583;--yellow:#f5b94c;--shadow:0 24px 70px #0008}
+html.theme-light{
+  --bg:#f2f4f7;--panel:#ffffff;--panel2:#f7f8fa;--line:#d9dee6;--text:#171b22;--muted:#687282;
+  --shadow:0 16px 45px #18202d18;
+}
+html.theme-light body{background:radial-gradient(900px 500px at 50% -120px,#ffffff 0,#f5f7fa 52%,#eef1f5 100%)}
+html.theme-light header{background:#ffffffeb;border-bottom-color:#dfe3e9}
+html.theme-light .tab,html.theme-light .mode,html.theme-light .btn,html.theme-light .iconbtn{background:#f7f8fa;color:#596474}
+html.theme-light .tab.active{color:#171b22;background:#ffe9eb;border-color:#ef3038}
+html.theme-light .city{color:#3f4855}
+html.theme-light .search,html.theme-light .date-tools input{background:#fff;color:#171b22}
+html.theme-light .card,html.theme-light .dash-card,html.theme-light .stat{background:#fff}
+html.theme-light .calendar-head,html.theme-light .week-head,html.theme-light .employee-head{background:#f7f8fa}
+html.theme-light .employee{background:#fff}
+html.theme-light .day{background:#f3f5f7}
+html.theme-light .day.over{background:#e9edf2}
+html.theme-light .cell{border-color:#e1e5eb}
+html.theme-light .shift{background:#f8f9fb;border-color:#d8dee6;box-shadow:0 5px 15px #18202d0d}
+html.theme-light .emptyday{border-color:#d7dde5}
+html.theme-light .addday{background:#f7f8fa}
+html.theme-light .modal{background:#fff;border-color:#d8dee6}
+html.theme-light .field input,html.theme-light .field select,html.theme-light .field textarea,html.theme-light .quick-shift{background:#f7f8fa;color:#171b22;border-color:#d8dee6}
+html.theme-light .employee-row{border-color:#e1e5eb}
+html.theme-light .adminbar{background:#f3efff}
+html.theme-light .temperature-card{background:linear-gradient(135deg,#fff7f8 0%,#ffffff 58%,#f5f8fb 100%)}
+html.theme-light .temperature-sensor{background:linear-gradient(145deg,#ffffff,#f5f7fa)}
+html.theme-light .temperature-stat{background:#f4f6f8}
+html.theme-light .temperature-stat-icon{background:#e9edf2}
+html.theme-light .alarm-card.yellow{background:#fff9eb}
+html.theme-light .alarm-card.active{background:#fff0f2}
+html.theme-light .theme-toggle{background:#fff;color:#202631;border-color:#cdd4de;box-shadow:0 12px 35px #18202d22}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 button,input,select{font:inherit}button{cursor:pointer}body{background:radial-gradient(900px 500px at 50% -120px,#202631 0,#0d1014 48%,#090b0e 100%)}
 header{position:sticky;top:0;z-index:20;border-bottom:1px solid #252b34;background:#0d1014e8;backdrop-filter:blur(18px)}
@@ -20,6 +50,17 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}.stat{padding:13px 14px;background:#101419;border:1px solid var(--line);border-radius:13px}.stat span{font-size:11px;color:var(--muted)}.stat b{display:block;font-size:22px;margin-top:3px}.stat.clickable{cursor:pointer;transition:.15s}.stat.clickable:hover{border-color:#596474;background:#14191f;transform:translateY(-1px)}.stat.clickable:active{transform:translateY(0)}
 .modal-bg{display:none;position:fixed;inset:0;background:#000b;align-items:center;justify-content:center;padding:16px;z-index:50}.modal{width:min(480px,100%);background:#171b21;border:1px solid #333b46;border-radius:17px;padding:19px;box-shadow:0 30px 100px #000c}.modal h2{margin:0 0 4px;font-size:20px}.meta{color:var(--muted);font-size:12px}.field{margin-top:14px}.field label{display:block;color:#aab3bf;font-size:12px;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px;outline:none}.field textarea{resize:vertical;min-height:70px}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quick-shifts{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.quick-shift{border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px;padding:9px 6px;text-align:center}.quick-shift:hover,.quick-shift.active{border-color:var(--red);background:#241216}.quick-shift b{display:block;font-size:13px}.quick-shift span{display:block;color:#8f98a6;font-size:10px;margin-top:3px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.file{font-size:12px;color:#aab3bf}.employees-modal{width:min(620px,100%)}.employee-list{margin-top:15px;max-height:55vh;overflow:auto;border:1px solid var(--line);border-radius:12px}.employee-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid #252c34}.employee-row:last-child{border-bottom:0}.employee-row .avatar{width:38px;height:38px}.employee-info{min-width:0;flex:1}.employee-info b{display:block;font-size:13px}.employee-info span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.employee-actions{display:flex;gap:6px}.employee-actions .iconbtn{width:36px;height:36px}.empty-employees{padding:25px;text-align:center;color:var(--muted);font-size:13px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e9edf2;color:#111;padding:10px 14px;border-radius:10px;font-size:13px;box-shadow:0 15px 45px #0008;transition:.2s;z-index:80}.toast.show{opacity:1;transform:translate(-50%,0)}
+.theme-toggle{
+  position:fixed;right:18px;bottom:18px;z-index:100;
+  width:58px;height:42px;border:1px solid #3a424e;border-radius:999px;
+  background:#151a20;color:#fff;display:flex;align-items:center;justify-content:center;
+  gap:6px;font-size:17px;box-shadow:0 12px 35px #0009;backdrop-filter:blur(12px);
+  transition:.2s ease;
+}
+.theme-toggle:hover{transform:translateY(-2px);border-color:var(--red)}
+.theme-toggle:active{transform:translateY(0)}
+.theme-toggle .theme-icon{line-height:1}
+@media(max-width:600px){.theme-toggle{right:14px;bottom:14px;width:54px;height:40px}}
 
 /* Smooth UI transitions */
 .tab,.mode,.btn,.iconbtn,.quick-shift,.archive-month,.stat.clickable{
@@ -355,6 +396,9 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Перемкнути тему" title="Перемкнути тему">
+  <span class="theme-icon" id="themeIcon">☀️</span>
+</button>
 <header>
 <div class="top"><div><div class="brand">MULTI<i>STAFF</i></div><div class="sub">SCHEDULE · Кінотеатр «Атмосфера»</div></div><div class="city">Київ</div></div>
 <div class="toolbar"><div class="tabs"><button class="tab active" id="homeTab">Головна</button><button class="tab" id="weekTab">Графік</button><button class="tab" id="archiveBtn">Архів</button><button class="tab" id="statsBtn">Статистика</button></div><button class="mode" id="mode">Режим співробітника</button></div>
@@ -422,6 +466,13 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 </div></div>
 <div class="toast" id="toast"></div>
 <script>
+(function(){
+  const saved=localStorage.getItem('multistaff-theme');
+  const light=saved==='light';
+  document.documentElement.classList.toggle('theme-light',light);
+  document.documentElement.style.colorScheme=light?'light':'dark';
+})();
+
 const KEY='multistaff_schedule_v1';
 const DAYS=['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
 const TYPES={shift:'Зміна',open:'Відкриття',close:'Закриття',training:'Навчання',off:'Вихідній',other:'Інше'};
@@ -1081,6 +1132,19 @@ $('homeTab').onclick=()=>setScheduleView(true);
 $('weekTab').onclick=()=>{viewMode='week';cursor=monday(cursor);setScheduleView(false);render();animateCalendar('back')};
 if($('dashboardRefresh'))$('dashboardRefresh').onclick=loadDashboard;
 setInterval(()=>{if(dashboardAlarmStartedAt&&$('dashboard').style.display!=='none')updateDashboardAlarmTimer()},1000);
+
+const themeToggle=$('themeToggle');
+const themeIcon=$('themeIcon');
+function applyTheme(light){
+  document.documentElement.classList.toggle('theme-light',light);
+  document.documentElement.style.colorScheme=light?'light':'dark';
+  localStorage.setItem('multistaff-theme',light?'light':'dark');
+  themeIcon.textContent=light?'🌙':'☀️';
+  themeToggle.setAttribute('aria-label',light?'Увімкнути темну тему':'Увімкнути світлу тему');
+  themeToggle.title=light?'Темна тема':'Світла тема';
+}
+applyTheme(document.documentElement.classList.contains('theme-light'));
+themeToggle.onclick=()=>applyTheme(!document.documentElement.classList.contains('theme-light'));
 
 async function boot(){
   cursor=monday(new Date());
