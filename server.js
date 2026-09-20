@@ -82,19 +82,22 @@ function loadFirebaseServiceAccount() {
   throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is not set');
 }
 
-let credential;
+let credential = null;
+let db = null;
+let firebaseReady = false;
+
 try {
   const serviceAccount = loadFirebaseServiceAccount();
   credential = admin.credential.cert(serviceAccount);
+  admin.initializeApp({ credential });
+  db = admin.firestore();
+  db.settings({ ignoreUndefinedProperties: true });
+  firebaseReady = true;
   console.log('Firebase service-account configuration loaded successfully.');
 } catch (e) {
   console.error('Firebase configuration error:', e.message);
-  process.exit(1);
+  console.error('[BOOT] Firebase is unavailable; the web server will stay online and report Firebase errors through the API.');
 }
-
-admin.initializeApp({ credential });
-const db = admin.firestore();
-db.settings({ ignoreUndefinedProperties: true });
 
 process.on('SIGTERM', () => {
   console.warn('[SHUTDOWN] SIGTERM received from the platform.');
@@ -130,9 +133,13 @@ setInterval(() => {
 // There is deliberately NO connection to Cinema/atmosfera/Users.
 // Users is used by other MultiStaff systems and is never modified here.
 // Website source of truth: Cinema/atmosfera/StaffShedules/main.
-const staffSchedulesRef = db.doc('Cinema/atmosfera/StaffShedules/main');
+const staffSchedulesRef = db ? db.doc('Cinema/atmosfera/StaffShedules/main') : null;
 // Legacy path from an earlier build. It is read only for a one-time migration.
 async function refreshScheduleCache() {
+  if (!staffSchedulesRef) {
+    scheduleCache = { employees: [], shifts: [], updatedAt: null, loaded: false };
+    return;
+  }
   try {
     const snap = await staffSchedulesRef.get();
     if (!snap.exists) {
@@ -282,6 +289,9 @@ function hasScheduleData(s) {
 
 // Dashboard API: current date, today's cinema sessions and the shared air-alert state.
 app.get('/api/dashboard', async (req, res) => {
+  if (!firebaseReady || !db) {
+    return res.status(503).json({ ok: false, error: 'Firebase недоступний на сервері' });
+  }
   try {
     const parts = new Intl.DateTimeFormat('en-CA', {
       timeZone: 'Europe/Kyiv', year: 'numeric', month: '2-digit', day: '2-digit'
@@ -387,6 +397,9 @@ app.get('/api/state', (req, res) => {
 });
 
 app.put('/api/state', requireAdmin, async (req, res) => {
+  if (!firebaseReady || !db || !staffSchedulesRef) {
+    return res.status(503).json({ error: 'Firebase недоступний на сервері' });
+  }
   try {
     const data = req.body;
 
@@ -435,7 +448,7 @@ app.get(/.*/, (req, res) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const port = process.env.PORT || 3000;
