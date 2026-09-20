@@ -393,6 +393,54 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .stats-modal{padding:12px}
   .stats-table th,.stats-table td{padding:8px 6px;font-size:10px}
 }
+
+/* Dashboard: compact summary left + temperature panel right */
+.dashboard-grid{
+  grid-template-columns:minmax(270px,.82fr) minmax(0,2fr);
+  align-items:stretch;
+}
+.dashboard-side{
+  min-width:0;
+  display:grid;
+  grid-template-rows:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.dashboard-side .dash-card{min-height:0;height:100%}
+.temperature-card{grid-column:auto;min-height:0;height:100%}
+.temperature-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  padding:0 12px 12px;
+}
+.temperature-sensor{min-height:118px;padding:10px}
+.temperature-hall{font-size:13px}
+.temperature-value-row{margin:7px 0 5px}
+.temperature-value{font-size:30px}
+.temperature-mini-icon{font-size:30px}
+.temperature-state{font-size:11px}
+.temperature-state small{font-size:9px}
+.temperature-stats{gap:5px;margin-top:7px}
+.temperature-stat{padding:5px 6px;gap:4px}
+.temperature-stat-icon{width:20px;height:20px;font-size:11px}
+.temperature-stat-label{font-size:8px}
+.temperature-stat-value{font-size:9px}
+.temperature-updated{margin-top:5px;font-size:8px}
+.temperature-empty-text{margin-top:10px;font-size:10px}
+@media(max-width:900px){
+  .dashboard-grid{grid-template-columns:1fr}
+  .dashboard-side{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:none}
+  .temperature-card{grid-column:auto}
+}
+@media(max-width:600px){
+  .dashboard-grid{gap:8px}
+  .dashboard-side{grid-template-columns:1fr;grid-template-rows:none;gap:7px}
+  .dashboard-side .dash-card{min-height:96px}
+  .temperature-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:0 8px 8px}
+  .temperature-sensor{min-height:112px;padding:8px}
+  .temperature-value{font-size:26px}
+  .temperature-mini-icon{font-size:26px}
+}
+
 </style>
 </head>
 <body>
@@ -407,9 +455,12 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 <section id="dashboard" class="dashboard" style="display:none">
   <div class="dashboard-head"><div><h1>Головна</h1><p id="dashboardDate">Сьогодні</p></div><button class="btn ghost" id="dashboardRefresh">Оновити</button></div>
   <div class="dashboard-grid">
+    <div class="dashboard-side">
     <div class="dash-card"><span>📅 Дата</span><b id="dashDate">—</b><small id="dashDay">—</small></div>
     <div class="dash-card"><span>🎬 Сеансів сьогодні</span><b id="dashSessions">—</b><small>За поточний день</small></div>
-    <div class="dash-card temperature-card">
+<div class="dash-card alarm-card" id="dashAlarmCard"><span>🚨 Повітряна тривога</span><b id="dashAlarm">Перевірка…</b><small id="dashAlarmDetail">Статус оновлюється автоматично</small></div>
+    </div>
+<div class="dash-card temperature-card">
       <div class="temperature-head">
         <div class="temperature-title">
           <div class="temperature-icon">🌡️</div>
@@ -420,7 +471,6 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
       <div class="temperature-grid" id="temperatureGrid"></div>
       <div class="temperature-error" id="dashTemperatureDetail" style="display:none"></div>
     </div>
-    <div class="dash-card alarm-card" id="dashAlarmCard"><span>🚨 Повітряна тривога</span><b id="dashAlarm">Перевірка…</b><small id="dashAlarmDetail">Статус оновлюється автоматично</small></div>
   </div>
 </section>
 <div class="headrow" id="scheduleHead"><div class="title"><h1>Графік співробітників</h1><p>Оберіть день і додавайте зміни співробітникам. Перегляд архіву та статистики доступний усім.</p></div><div class="tools"><input class="search" id="search" placeholder="Пошук співробітника…"><button class="btn ghost" id="importBtn">⇩ Календар</button><button class="btn primary" id="addShift">＋ Зміна</button><input id="import" type="file" accept=".ics,.ical,text/calendar"></div></div>
