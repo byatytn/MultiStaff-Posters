@@ -232,7 +232,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 .dash-card b{font-size:28px;margin-top:8px;line-height:1.1}
 .dash-card small{font-size:11px;color:var(--muted);margin-top:7px}
 
-/* Temperature dashboard card */
+/* Compact multi-sensor temperature dashboard */
 .temperature-card{
   grid-column:1/-1;
   min-height:0;
@@ -240,60 +240,74 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   overflow:hidden;
   border:1px solid #7d1f2c;
   background:
-    radial-gradient(circle at 20% 35%,#7d172b55 0,transparent 38%),
-    linear-gradient(135deg,#171018 0%,#101419 58%,#111820 100%);
-  box-shadow:0 18px 55px #0008,0 0 35px #ef303815;
+    radial-gradient(circle at 10% 20%,#7d172b35 0,transparent 30%),
+    linear-gradient(135deg,#151116 0%,#101419 58%,#111820 100%);
+  box-shadow:0 16px 45px #0007,0 0 28px #ef303812;
 }
 .temperature-head{
   display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:18px 20px 14px;
+  padding:14px 16px 11px;
 }
-.temperature-title{display:flex;align-items:center;gap:13px}
+.temperature-title{display:flex;align-items:center;gap:10px}
 .temperature-icon{
-  width:54px;height:54px;display:grid;place-items:center;flex:none;
-  border-radius:14px;background:linear-gradient(145deg,#d52d3b,#76202c);
-  border:1px solid #ef4b56;box-shadow:0 10px 30px #ef303825;
-  font-size:29px;
+  width:42px;height:42px;display:grid;place-items:center;flex:none;
+  border-radius:11px;background:linear-gradient(145deg,#d52d3b,#76202c);
+  border:1px solid #ef4b56;box-shadow:0 7px 22px #ef303820;font-size:22px;
 }
-.temperature-heading{font-size:20px;font-weight:800;color:#f5f7fa}
-.temperature-subtitle{font-size:12px;color:#8f98a6;margin-top:3px}
+.temperature-heading{font-size:17px;font-weight:800;color:#f5f7fa}
+.temperature-subtitle{font-size:11px;color:#8f98a6;margin-top:2px}
 .temperature-online{
-  display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;
-  color:#52e5b1;background:#0e332c;border:1px solid #1c6d5b;font-size:12px;font-weight:700;
+  display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
+  color:#52e5b1;background:#0e332c;border:1px solid #1c6d5b;font-size:11px;font-weight:700;
 }
-.temperature-online .dot{width:8px;height:8px;border-radius:50%;background:#32d583;box-shadow:0 0 12px #32d583}
-.temperature-body{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(240px,.9fr);gap:18px;padding:0 20px 20px}
-.temperature-main{
-  min-height:230px;border:1px solid #8e2030;border-radius:15px;padding:20px 24px;
-  background:linear-gradient(135deg,#31121b,#1b1117 65%,#14181d);
-  position:relative;overflow:hidden;
+.temperature-online .dot{width:7px;height:7px;border-radius:50%;background:#32d583;box-shadow:0 0 9px #32d583}
+.temperature-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  padding:0 16px 16px;
 }
-.temperature-main:after{
-  content:'🌡';position:absolute;right:26px;top:28px;font-size:108px;opacity:.14;
-  filter:drop-shadow(0 0 18px #ff4254);
+.temperature-sensor{
+  min-width:0;
+  min-height:168px;
+  padding:13px;
+  border:1px solid #28313c;
+  border-radius:13px;
+  background:linear-gradient(145deg,#121920,#0f1419);
+  position:relative;
+  overflow:hidden;
 }
-.temperature-hall{font-size:18px;font-weight:800}
-.temperature-value{font-size:64px;line-height:1;margin:16px 0 15px;font-weight:900;letter-spacing:-2px}
-.temperature-state{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800;color:#32d583}
-.temperature-state small{display:block;color:#8f98a6;font-size:12px;font-weight:500;margin-top:3px}
-.temperature-stats{display:flex;flex-direction:column;gap:8px}
+.temperature-sensor.online{border-color:#61303a}
+.temperature-sensor.warm{border-color:#72511a;background:linear-gradient(145deg,#1b1710,#111519)}
+.temperature-sensor.cool{border-color:#274765}
+.temperature-sensor.empty{border-style:dashed;opacity:.72}
+.temperature-sensor-top{display:flex;align-items:center;justify-content:space-between;gap:7px}
+.temperature-hall{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.temperature-pill{font-size:10px;font-weight:700;padding:4px 7px;border-radius:999px;white-space:nowrap;color:#52e5b1;background:#0e332c;border:1px solid #1c6d5b}
+.temperature-pill.offline{color:#8993a0;background:#171d23;border-color:#2c343d}
+.temperature-value-row{display:flex;align-items:center;justify-content:space-between;gap:5px;margin:10px 0 7px}
+.temperature-value{font-size:37px;line-height:1;font-weight:900;letter-spacing:-1.5px}
+.temperature-mini-icon{font-size:39px;filter:drop-shadow(0 0 11px #ff425450)}
+.temperature-state{font-size:12px;font-weight:800;color:#32d583}
+.temperature-state small{display:block;color:#8f98a6;font-size:10px;font-weight:500;margin-top:2px}
+.temperature-sensor.warm .temperature-state{color:#f5b94c}
+.temperature-sensor.cool .temperature-state{color:#42b8ff}
+.temperature-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
 .temperature-stat{
-  min-height:58px;padding:11px 14px;border:1px solid #252e38;border-radius:12px;
-  background:#11171e;display:flex;align-items:center;gap:11px;
+  min-width:0;padding:7px 8px;border:1px solid #252e38;border-radius:9px;
+  background:#11171e;display:flex;align-items:center;gap:6px;
 }
-.temperature-stat-icon{width:34px;height:34px;border-radius:9px;background:#17202b;display:grid;place-items:center;font-size:19px}
-.temperature-stat-label{color:#9ca7b5;font-size:12px;flex:1}
-.temperature-stat-value{font-size:18px;font-weight:800}
-.temperature-error{padding:0 20px 20px;color:#ffb9bd}
+.temperature-stat-icon{font-size:14px;line-height:1}
+.temperature-stat-label{color:#8f98a6;font-size:9px;flex:1}
+.temperature-stat-value{font-size:11px;font-weight:800}
+.temperature-updated{margin-top:8px;color:#7f8996;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.temperature-empty-text{margin-top:18px;color:#7f8996;font-size:11px}
+.temperature-error{padding:0 16px 14px;color:#ffb9bd;font-size:11px}
 .alarm-card{transition:border-color .2s ease,background-color .2s ease}
 .alarm-card.active{border-color:#7a252b;background:#211216}
 .alarm-card.yellow{border-color:#695322;background:#1e1910}
-@media(max-width:760px){
-  .temperature-body{grid-template-columns:1fr;gap:10px}
-  .temperature-main{min-height:200px;padding:18px}
-  .temperature-value{font-size:50px}
-  .temperature-main:after{right:14px;top:28px;font-size:82px}
-  .temperature-stats{display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:900px){
+  .temperature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:600px){
   .dashboard{margin-bottom:10px}
@@ -302,13 +316,16 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   .dashboard-grid{grid-template-columns:1fr;gap:7px}
   .dash-card{min-height:110px;padding:14px;border-radius:12px}
   .temperature-card{padding:0;min-height:0}
-  .temperature-head{padding:14px}
-  .temperature-icon{width:46px;height:46px;font-size:24px}
-  .temperature-heading{font-size:17px}
-  .temperature-body{padding:0 14px 14px}
-  .temperature-main{min-height:185px;padding:16px}
-  .temperature-value{font-size:44px;margin:13px 0}
-  .temperature-stats{grid-template-columns:1fr}
+  .temperature-head{padding:12px 13px 9px}
+  .temperature-icon{width:38px;height:38px;font-size:20px}
+  .temperature-heading{font-size:15px}
+  .temperature-subtitle{font-size:10px}
+  .temperature-online{font-size:10px;padding:5px 8px}
+  .temperature-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:0 10px 10px}
+  .temperature-sensor{min-height:148px;padding:10px}
+  .temperature-value{font-size:31px}
+  .temperature-mini-icon{font-size:31px}
+  .temperature-hall{font-size:13px}
 }
 /* Archive + monthly statistics */
 .archive-modal{width:min(760px,100%)}
@@ -354,20 +371,9 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
           <div class="temperature-icon">🌡️</div>
           <div><div class="temperature-heading">Температура в залах</div><div class="temperature-subtitle">Поточні дані з Tuya</div></div>
         </div>
-        <div class="temperature-online" id="dashTemperatureStatus"><span class="dot"></span>Онлайн</div>
+        <div class="temperature-online" id="dashTemperatureStatus"><span class="dot"></span>0/5 онлайн</div>
       </div>
-      <div class="temperature-body">
-        <div class="temperature-main">
-          <div class="temperature-hall" id="dashTemperatureHall">Зал 4</div>
-          <div class="temperature-value" id="dashTemperature">—</div>
-          <div class="temperature-state" id="dashTemperatureState">↓ <span>Норма<small>Комфортна температура</small></span></div>
-        </div>
-        <div class="temperature-stats">
-          <div class="temperature-stat"><div class="temperature-stat-icon">💧</div><div class="temperature-stat-label">Вологість</div><div class="temperature-stat-value" id="dashHumidity">—</div></div>
-          <div class="temperature-stat"><div class="temperature-stat-icon">🔋</div><div class="temperature-stat-label">Батарея</div><div class="temperature-stat-value" id="dashBattery">—</div></div>
-          <div class="temperature-stat"><div class="temperature-stat-icon">◷</div><div class="temperature-stat-label">Оновлено</div><div class="temperature-stat-value" id="dashTemperatureTime">Щойно</div></div>
-        </div>
-      </div>
+      <div class="temperature-grid" id="temperatureGrid"></div>
       <div class="temperature-error" id="dashTemperatureDetail" style="display:none"></div>
     </div>
     <div class="dash-card alarm-card" id="dashAlarmCard"><span>🚨 Повітряна тривога</span><b id="dashAlarm">Перевірка…</b><small id="dashAlarmDetail">Статус оновлюється автоматично</small></div>
@@ -985,39 +991,62 @@ async function loadDashboard(){
       const tr=await fetch('/api/temperature',{cache:'no-store'});
       const td=await tr.json().catch(()=>({}));
       const sensors=Array.isArray(td.sensors)?td.sensors:[];
-      if(td.ok && sensors.length){
-        const s=sensors.find(x=>x && x.temperature!==null && x.temperature!==undefined) || sensors[0];
-        const hall=String(s.hall||'').replace(/^hall_/i,'Зал ');
-        $('dashTemperatureHall').textContent=hall;
-        $('dashTemperature').textContent=(s.temperature!==null && s.temperature!==undefined) ? Number(s.temperature).toFixed(1)+'°C' : '—';
-        $('dashHumidity').textContent=(s.humidity!==null && s.humidity!==undefined) ? Number(s.humidity)+'%' : '—';
-        $('dashBattery').textContent=(s.battery!==null && s.battery!==undefined) ? Number(s.battery)+'%' : '—';
-        $('dashTemperatureTime').textContent='Щойно';
-        $('dashTemperatureStatus').innerHTML='<span class="dot"></span>Онлайн';
-        $('dashTemperatureStatus').style.color='#52e5b1';
-        if(s.temperature!==null && s.temperature!==undefined){
-          const t=Number(s.temperature);
-          const state=t < 18 ? '↓' : t > 28 ? '↑' : '✓';
-          const label=t < 18 ? 'Прохолодно' : t > 28 ? 'Тепло' : 'Норма';
-          const note=t < 18 ? 'Нижче комфортної температури' : t > 28 ? 'Вище комфортної температури' : 'Комфортна температура';
-          $('dashTemperatureState').innerHTML=state+' <span>'+label+'<small>'+note+'</small></span>';
+      const grid=$('temperatureGrid');
+      const status=$('dashTemperatureStatus');
+      const sensors=Array.isArray(td.sensors)?td.sensors:[];
+      const slots=Array.from({length:5},(_,i)=>sensors[i]||null);
+      const online=sensors.filter(s=>s && s.temperature!==null && s.temperature!==undefined).length;
+
+      status.innerHTML='<span class="dot"></span>'+online+'/5 онлайн';
+      status.style.color=online>0?'#52e5b1':'#ff8a92';
+
+      grid.innerHTML=slots.map((s,index)=>{
+        if(!s){
+          return '<div class="temperature-sensor empty">'+
+            '<div class="temperature-sensor-top"><div class="temperature-hall">Датчик '+(index+1)+'</div><div class="temperature-pill offline">Не підключено</div></div>'+
+            '<div class="temperature-value-row"><div class="temperature-value">—°C</div><div class="temperature-mini-icon">🌡️</div></div>'+
+            '<div class="temperature-empty-text">Очікується підключення</div>'+
+            '</div>';
         }
+
+        const hall=String(s.hall||('Датчик '+(index+1))).replace(/^hall_/i,'Зал ');
+        const hasTemp=s.temperature!==null && s.temperature!==undefined;
+        const temp=hasTemp?Number(s.temperature):null;
+        const warm=temp!==null && temp>28;
+        const cool=temp!==null && temp<18;
+        const state=warm?'Тепло':cool?'Прохолодно':'Норма';
+        const note=warm?'Вище комфортної':cool?'Нижче комфортної':'Комфортна температура';
+        const stateIcon=warm?'↑':cool?'↓':'✓';
+        const cls=warm?'warm':cool?'cool':'online';
+        const humidity=s.humidity!==null && s.humidity!==undefined?Number(s.humidity)+'%':'—';
+        const battery=s.battery!==null && s.battery!==undefined?Number(s.battery)+'%':'—';
+        return '<div class="temperature-sensor '+cls+'">'+
+          '<div class="temperature-sensor-top"><div class="temperature-hall">'+esc(hall)+'</div><div class="temperature-pill">● Онлайн</div></div>'+
+          '<div class="temperature-value-row"><div class="temperature-value">'+(hasTemp?temp.toFixed(1):'—')+'°C</div><div class="temperature-mini-icon">🌡️</div></div>'+
+          '<div class="temperature-state">'+stateIcon+' '+state+'<small>'+note+'</small></div>'+
+          '<div class="temperature-stats">'+
+            '<div class="temperature-stat"><div class="temperature-stat-icon">💧</div><div class="temperature-stat-label">Вологість</div><div class="temperature-stat-value">'+humidity+'</div></div>'+
+            '<div class="temperature-stat"><div class="temperature-stat-icon">🔋</div><div class="temperature-stat-label">Батарея</div><div class="temperature-stat-value">'+battery+'</div></div>'+
+          '</div>'+
+          '<div class="temperature-updated">◷ Оновлено: щойно</div>'+
+          '</div>';
+      }).join('');
+
+      if(td.ok && sensors.length){
         $('dashTemperatureDetail').style.display='none';
       }else{
-        $('dashTemperature').textContent='—';
-        $('dashTemperatureDetail').textContent='Tuya Service недоступний';
+        $('dashTemperatureDetail').textContent=td.error || 'Tuya Service недоступний';
         $('dashTemperatureDetail').style.display='block';
-        $('dashTemperatureStatus').innerHTML='<span class="dot"></span>Офлайн';
-        $('dashTemperatureStatus').style.color='#ff8a92';
       }
     }catch(e){
-      $('dashTemperature').textContent='—';
+      $('temperatureGrid').innerHTML=Array.from({length:5},(_,i)=>
+        '<div class="temperature-sensor empty"><div class="temperature-sensor-top"><div class="temperature-hall">Датчик '+(i+1)+'</div><div class="temperature-pill offline">Офлайн</div></div><div class="temperature-value-row"><div class="temperature-value">—°C</div><div class="temperature-mini-icon">🌡️</div></div><div class="temperature-empty-text">Немає зв’язку з датчиком</div></div>'
+      ).join('');
       $('dashTemperatureDetail').textContent='Не вдалося отримати дані температури';
       $('dashTemperatureDetail').style.display='block';
-      $('dashTemperatureStatus').innerHTML='<span class="dot"></span>Офлайн';
+      $('dashTemperatureStatus').innerHTML='<span class="dot"></span>0/5 онлайн';
       $('dashTemperatureStatus').style.color='#ff8a92';
     }
-
     const alarm=d.alarm||{};
     const card=$('dashAlarmCard');
     card.classList.remove('active','yellow');
