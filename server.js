@@ -329,7 +329,9 @@ app.get('/api/dashboard', async (req, res) => {
 });
 
 function multistaffApiUrl() {
-  let url = String(process.env.MULTISTAFF_API_URL || '').trim().replace(/\/$/, '');
+  // Keep a working fallback so the website does not depend on a separately
+  // configured environment variable. The environment variable still wins.
+  let url = String(process.env.MULTISTAFF_API_URL || 'https://site--multistaff-api--wlx4qn2wxkf2.code.run').trim().replace(/\/$/, '');
   if (!url) return '';
   if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
   return url;
