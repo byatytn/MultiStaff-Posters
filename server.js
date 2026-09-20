@@ -318,6 +318,37 @@ app.get('/api/dashboard', async (req, res) => {
   }
 });
 
+function multistaffApiUrl() {
+  let url = String(process.env.MULTISTAFF_API_URL || '').trim().replace(/\\/$/, '');
+  if (!url) return '';
+  if (!/^https?:\\/\\//i.test(url)) url = 'https://' + url;
+  return url;
+}
+
+app.get('/api/temperature', async (req, res) => {
+  const baseUrl = multistaffApiUrl();
+  if (!baseUrl) {
+    return res.status(503).json({ ok: false, error: 'MULTISTAFF_API_URL не налаштований' });
+  }
+
+  try {
+    const response = await fetch(baseUrl + '/tuya/temperature/status', {
+      headers: { 'Accept': 'application/json' },
+      signal: AbortSignal.timeout(8000)
+    });
+    const body = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      return res.status(response.status).json(body);
+    }
+
+    res.json(body);
+  } catch (e) {
+    console.error('[API] temperature failed:', e.message);
+    res.status(502).json({ ok: false, error: 'Не вдалося отримати температуру з Tuya Service' });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, pid: process.pid, uptime: Math.round(process.uptime()) });
 });
