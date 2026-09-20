@@ -1011,8 +1011,8 @@ async function loadDashboard(){
         const hall=String(s.hall||('Датчик '+(index+1))).replace(/^hall_/i,'Зал ');
         const hasTemp=s.temperature!==null && s.temperature!==undefined;
         const temp=hasTemp?Number(s.temperature):null;
-        const warm=temp!==null && temp>28;
-        const cool=temp!==null && temp<18;
+        const warm=temp!==null && temp>25;
+        const cool=temp!==null && temp<22;
         const state=warm?'Тепло':cool?'Прохолодно':'Норма';
         const note=warm?'Вище комфортної':cool?'Нижче комфортної':'Комфортна температура';
         const stateIcon=warm?'↑':cool?'↓':'✓';
