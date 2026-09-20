@@ -297,7 +297,9 @@ app.get('/api/dashboard', async (req, res) => {
     const alarmSnap = await cinemaRef.collection('BotConfig').doc('airAlertState').get();
     const alarmState = alarmSnap.exists ? (alarmSnap.data() || {}) : {};
     const level = String(alarmState.alertLevel || '').toLowerCase();
-    const active = !alarmState.ignored && (level === 'red' || level === 'yellow') && !!alarmState.startedAt;
+    // "ignored" only means the bot should not send/cancel during an
+    // off-hours incident. The dashboard must still show the real active alert.
+    const active = (level === 'red' || level === 'yellow') && !!alarmState.startedAt;
 
     res.json({
       ok: true,
