@@ -282,7 +282,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   <div class="dashboard-grid">
     <div class="dash-card"><span>📅 Дата</span><b id="dashDate">—</b><small id="dashDay">—</small></div>
     <div class="dash-card"><span>🎬 Сеансів сьогодні</span><b id="dashSessions">—</b><small>За поточний день</small></div>
-    <div class="dash-card temperature-card"><span>🌡️ Температура</span><b id="dashTemperature">Очікується</b><small>Датчики Tuya буде підключено пізніше</small></div>
+    <div class="dash-card temperature-card"><span>🌡️ Температура</span><b id="dashTemperature">Завантаження…</b><small id="dashTemperatureDetail">Дані датчиків Tuya оновлюються автоматично</small></div>
     <div class="dash-card alarm-card" id="dashAlarmCard"><span>🚨 Повітряна тривога</span><b id="dashAlarm">Перевірка…</b><small id="dashAlarmDetail">Статус оновлюється автоматично</small></div>
   </div>
 </section>
@@ -893,6 +893,32 @@ async function loadDashboard(){
     if(!r.ok)throw new Error('dashboard failed');
     const d=await r.json();
     $('dashSessions').textContent=Number(d.sessionsToday||0);
+
+    try{
+      const tr=await fetch('/api/temperature',{cache:'no-store'});
+      const td=await tr.json().catch(()=>({}));
+      const sensors=Array.isArray(td.sensors)?td.sensors:[];
+      if(td.ok && sensors.length){
+        const available=sensors.filter(s=>s && s.temperature!==null && s.temperature!==undefined);
+        if(available.length){
+          $('dashTemperature').innerHTML=available.map(s=>{
+            const hall=String(s.hall||'').replace(/^hall_/i,'Зал ');
+            return esc(hall)+': '+Number(s.temperature).toFixed(1)+'°C';
+          }).join('<br>');
+          $('dashTemperatureDetail').textContent='Оновлено щойно · Tuya';
+        }else{
+          $('dashTemperature').textContent='—';
+          $('dashTemperatureDetail').textContent='Дані датчиків недоступні';
+        }
+      }else{
+        $('dashTemperature').textContent='—';
+        $('dashTemperatureDetail').textContent='Tuya Service недоступний';
+      }
+    }catch(e){
+      $('dashTemperature').textContent='—';
+      $('dashTemperatureDetail').textContent='Не вдалося отримати дані температури';
+    }
+
     const alarm=d.alarm||{};
     const card=$('dashAlarmCard');
     card.classList.remove('active','yellow');
