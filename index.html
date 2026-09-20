@@ -231,19 +231,85 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 .dash-card span{font-size:12px;color:#aeb6c2}
 .dash-card b{font-size:28px;margin-top:8px;line-height:1.1}
 .dash-card small{font-size:11px;color:var(--muted);margin-top:7px}
-.temperature-card{border-color:#29303a}
+
+/* Temperature dashboard card */
+.temperature-card{
+  grid-column:1/-1;
+  min-height:0;
+  padding:0;
+  overflow:hidden;
+  border:1px solid #7d1f2c;
+  background:
+    radial-gradient(circle at 20% 35%,#7d172b55 0,transparent 38%),
+    linear-gradient(135deg,#171018 0%,#101419 58%,#111820 100%);
+  box-shadow:0 18px 55px #0008,0 0 35px #ef303815;
+}
+.temperature-head{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:18px 20px 14px;
+}
+.temperature-title{display:flex;align-items:center;gap:13px}
+.temperature-icon{
+  width:54px;height:54px;display:grid;place-items:center;flex:none;
+  border-radius:14px;background:linear-gradient(145deg,#d52d3b,#76202c);
+  border:1px solid #ef4b56;box-shadow:0 10px 30px #ef303825;
+  font-size:29px;
+}
+.temperature-heading{font-size:20px;font-weight:800;color:#f5f7fa}
+.temperature-subtitle{font-size:12px;color:#8f98a6;margin-top:3px}
+.temperature-online{
+  display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;
+  color:#52e5b1;background:#0e332c;border:1px solid #1c6d5b;font-size:12px;font-weight:700;
+}
+.temperature-online .dot{width:8px;height:8px;border-radius:50%;background:#32d583;box-shadow:0 0 12px #32d583}
+.temperature-body{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(240px,.9fr);gap:18px;padding:0 20px 20px}
+.temperature-main{
+  min-height:230px;border:1px solid #8e2030;border-radius:15px;padding:20px 24px;
+  background:linear-gradient(135deg,#31121b,#1b1117 65%,#14181d);
+  position:relative;overflow:hidden;
+}
+.temperature-main:after{
+  content:'🌡';position:absolute;right:26px;top:28px;font-size:108px;opacity:.14;
+  filter:drop-shadow(0 0 18px #ff4254);
+}
+.temperature-hall{font-size:18px;font-weight:800}
+.temperature-value{font-size:64px;line-height:1;margin:16px 0 15px;font-weight:900;letter-spacing:-2px}
+.temperature-state{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800;color:#32d583}
+.temperature-state small{display:block;color:#8f98a6;font-size:12px;font-weight:500;margin-top:3px}
+.temperature-stats{display:flex;flex-direction:column;gap:8px}
+.temperature-stat{
+  min-height:58px;padding:11px 14px;border:1px solid #252e38;border-radius:12px;
+  background:#11171e;display:flex;align-items:center;gap:11px;
+}
+.temperature-stat-icon{width:34px;height:34px;border-radius:9px;background:#17202b;display:grid;place-items:center;font-size:19px}
+.temperature-stat-label{color:#9ca7b5;font-size:12px;flex:1}
+.temperature-stat-value{font-size:18px;font-weight:800}
+.temperature-error{padding:0 20px 20px;color:#ffb9bd}
 .alarm-card{transition:border-color .2s ease,background-color .2s ease}
 .alarm-card.active{border-color:#7a252b;background:#211216}
 .alarm-card.yellow{border-color:#695322;background:#1e1910}
+@media(max-width:760px){
+  .temperature-body{grid-template-columns:1fr;gap:10px}
+  .temperature-main{min-height:200px;padding:18px}
+  .temperature-value{font-size:50px}
+  .temperature-main:after{right:14px;top:28px;font-size:82px}
+  .temperature-stats{display:grid;grid-template-columns:1fr 1fr}
+}
 @media(max-width:600px){
   .dashboard{margin-bottom:10px}
   .dashboard-head h1{font-size:19px}
   .dashboard-head p{font-size:11px}
   .dashboard-grid{grid-template-columns:1fr;gap:7px}
   .dash-card{min-height:110px;padding:14px;border-radius:12px}
-  .dash-card b{font-size:24px}
+  .temperature-card{padding:0;min-height:0}
+  .temperature-head{padding:14px}
+  .temperature-icon{width:46px;height:46px;font-size:24px}
+  .temperature-heading{font-size:17px}
+  .temperature-body{padding:0 14px 14px}
+  .temperature-main{min-height:185px;padding:16px}
+  .temperature-value{font-size:44px;margin:13px 0}
+  .temperature-stats{grid-template-columns:1fr}
 }
-
 /* Archive + monthly statistics */
 .archive-modal{width:min(760px,100%)}
 .archive-months{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px;max-height:55vh;overflow:auto}
@@ -282,7 +348,28 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
   <div class="dashboard-grid">
     <div class="dash-card"><span>📅 Дата</span><b id="dashDate">—</b><small id="dashDay">—</small></div>
     <div class="dash-card"><span>🎬 Сеансів сьогодні</span><b id="dashSessions">—</b><small>За поточний день</small></div>
-    <div class="dash-card temperature-card"><span>🌡️ Температура</span><b id="dashTemperature">Завантаження…</b><small id="dashTemperatureDetail">Дані датчиків Tuya оновлюються автоматично</small></div>
+    <div class="dash-card temperature-card">
+      <div class="temperature-head">
+        <div class="temperature-title">
+          <div class="temperature-icon">🌡️</div>
+          <div><div class="temperature-heading">Температура в залах</div><div class="temperature-subtitle">Поточні дані з Tuya</div></div>
+        </div>
+        <div class="temperature-online" id="dashTemperatureStatus"><span class="dot"></span>Онлайн</div>
+      </div>
+      <div class="temperature-body">
+        <div class="temperature-main">
+          <div class="temperature-hall" id="dashTemperatureHall">Зал 4</div>
+          <div class="temperature-value" id="dashTemperature">—</div>
+          <div class="temperature-state" id="dashTemperatureState">↓ <span>Норма<small>Комфортна температура</small></span></div>
+        </div>
+        <div class="temperature-stats">
+          <div class="temperature-stat"><div class="temperature-stat-icon">💧</div><div class="temperature-stat-label">Вологість</div><div class="temperature-stat-value" id="dashHumidity">—</div></div>
+          <div class="temperature-stat"><div class="temperature-stat-icon">🔋</div><div class="temperature-stat-label">Батарея</div><div class="temperature-stat-value" id="dashBattery">—</div></div>
+          <div class="temperature-stat"><div class="temperature-stat-icon">◷</div><div class="temperature-stat-label">Оновлено</div><div class="temperature-stat-value" id="dashTemperatureTime">Щойно</div></div>
+        </div>
+      </div>
+      <div class="temperature-error" id="dashTemperatureDetail" style="display:none"></div>
+    </div>
     <div class="dash-card alarm-card" id="dashAlarmCard"><span>🚨 Повітряна тривога</span><b id="dashAlarm">Перевірка…</b><small id="dashAlarmDetail">Статус оновлюється автоматично</small></div>
   </div>
 </section>
@@ -899,24 +986,36 @@ async function loadDashboard(){
       const td=await tr.json().catch(()=>({}));
       const sensors=Array.isArray(td.sensors)?td.sensors:[];
       if(td.ok && sensors.length){
-        const available=sensors.filter(s=>s && s.temperature!==null && s.temperature!==undefined);
-        if(available.length){
-          $('dashTemperature').innerHTML=available.map(s=>{
-            const hall=String(s.hall||'').replace(/^hall_/i,'Зал ');
-            return esc(hall)+': '+Number(s.temperature).toFixed(1)+'°C';
-          }).join('<br>');
-          $('dashTemperatureDetail').textContent='Оновлено щойно · Tuya';
-        }else{
-          $('dashTemperature').textContent='—';
-          $('dashTemperatureDetail').textContent='Дані датчиків недоступні';
+        const s=sensors.find(x=>x && x.temperature!==null && x.temperature!==undefined) || sensors[0];
+        const hall=String(s.hall||'').replace(/^hall_/i,'Зал ');
+        $('dashTemperatureHall').textContent=hall;
+        $('dashTemperature').textContent=(s.temperature!==null && s.temperature!==undefined) ? Number(s.temperature).toFixed(1)+'°C' : '—';
+        $('dashHumidity').textContent=(s.humidity!==null && s.humidity!==undefined) ? Number(s.humidity)+'%' : '—';
+        $('dashBattery').textContent=(s.battery!==null && s.battery!==undefined) ? Number(s.battery)+'%' : '—';
+        $('dashTemperatureTime').textContent='Щойно';
+        $('dashTemperatureStatus').innerHTML='<span class="dot"></span>Онлайн';
+        $('dashTemperatureStatus').style.color='#52e5b1';
+        if(s.temperature!==null && s.temperature!==undefined){
+          const t=Number(s.temperature);
+          const state=t < 18 ? '↓' : t > 28 ? '↑' : '✓';
+          const label=t < 18 ? 'Прохолодно' : t > 28 ? 'Тепло' : 'Норма';
+          const note=t < 18 ? 'Нижче комфортної температури' : t > 28 ? 'Вище комфортної температури' : 'Комфортна температура';
+          $('dashTemperatureState').innerHTML=state+' <span>'+label+'<small>'+note+'</small></span>';
         }
+        $('dashTemperatureDetail').style.display='none';
       }else{
         $('dashTemperature').textContent='—';
         $('dashTemperatureDetail').textContent='Tuya Service недоступний';
+        $('dashTemperatureDetail').style.display='block';
+        $('dashTemperatureStatus').innerHTML='<span class="dot"></span>Офлайн';
+        $('dashTemperatureStatus').style.color='#ff8a92';
       }
     }catch(e){
       $('dashTemperature').textContent='—';
       $('dashTemperatureDetail').textContent='Не вдалося отримати дані температури';
+      $('dashTemperatureDetail').style.display='block';
+      $('dashTemperatureStatus').innerHTML='<span class="dot"></span>Офлайн';
+      $('dashTemperatureStatus').style.color='#ff8a92';
     }
 
     const alarm=d.alarm||{};
