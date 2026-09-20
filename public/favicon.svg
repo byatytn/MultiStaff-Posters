@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#160306"/><stop offset=".55" stop-color="#4d080d"/><stop offset="1" stop-color="#100204"/></linearGradient>
+ <linearGradient id="red" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ff4650"/><stop offset="1" stop-color="#b90f1b"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect x="4" y="4" width="120" height="120" rx="25" fill="url(#bg)" stroke="#ff2634" stroke-width="3" filter="url(#glow)"/>
+<path d="M25 40 Q64 47 103 40 L97 72 Q64 78 31 72 Z" fill="#330509" stroke="#ff2634" stroke-width="2.5"/>
+<g fill="url(#red)" filter="url(#glow)">
+ <circle cx="64" cy="52" r="7"/><path d="M53 68c0-7 5-11 11-11s11 4 11 11z"/>
+ <circle cx="43" cy="55" r="5"/><path d="M35 68c0-5 3.5-8 8-8s8 3 8 8z"/>
+ <circle cx="85" cy="55" r="5"/><path d="M77 68c0-5 3.5-8 8-8s8 3 8 8z"/>
+</g>
+<text x="64" y="91" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="800"><tspan fill="#fff">Multi</tspan><tspan fill="#ff2634">Staff</tspan></text>
+<text x="64" y="101" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="4.2" letter-spacing="1.6" fill="#d9dde3">CINEMA MANAGEMENT</text>
+</svg>
