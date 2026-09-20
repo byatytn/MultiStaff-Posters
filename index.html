@@ -59,7 +59,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 }
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--red)}
 .theme-toggle:active{transform:translateY(0)}
-.theme-toggle .theme-icon{line-height:1}
+.theme-toggle .theme-choice{line-height:1;opacity:.45;filter:grayscale(.7);transition:.2s}.theme-toggle .theme-choice.active{opacity:1;filter:none;transform:scale(1.08)}
 @media(max-width:600px){.theme-toggle{right:14px;bottom:14px;width:54px;height:40px}}
 
 /* Smooth UI transitions */
@@ -397,7 +397,7 @@ main{padding:18px 20px 40px}.headrow{display:flex;justify-content:space-between;
 </head>
 <body>
 <button class="theme-toggle" id="themeToggle" type="button" aria-label="Перемкнути тему" title="Перемкнути тему">
-  <span class="theme-icon" id="themeIcon">☀️</span>
+  <span class="theme-choice moon" id="themeMoon">🌙</span><span class="theme-choice sun" id="themeSun">☀️</span>
 </button>
 <header>
 <div class="top"><div><div class="brand">MULTI<i>STAFF</i></div><div class="sub">SCHEDULE · Кінотеатр «Атмосфера»</div></div><div class="city">Київ</div></div>
@@ -1134,12 +1134,14 @@ if($('dashboardRefresh'))$('dashboardRefresh').onclick=loadDashboard;
 setInterval(()=>{if(dashboardAlarmStartedAt&&$('dashboard').style.display!=='none')updateDashboardAlarmTimer()},1000);
 
 const themeToggle=$('themeToggle');
-const themeIcon=$('themeIcon');
+const themeMoon=$('themeMoon');
+const themeSun=$('themeSun');
 function applyTheme(light){
   document.documentElement.classList.toggle('theme-light',light);
   document.documentElement.style.colorScheme=light?'light':'dark';
   localStorage.setItem('multistaff-theme',light?'light':'dark');
-  themeIcon.textContent=light?'🌙':'☀️';
+  themeMoon.classList.toggle('active',light);
+  themeSun.classList.toggle('active',!light);
   themeToggle.setAttribute('aria-label',light?'Увімкнути темну тему':'Увімкнути світлу тему');
   themeToggle.title=light?'Темна тема':'Світла тема';
 }
