@@ -993,7 +993,6 @@ async function loadDashboard(){
       const sensors=Array.isArray(td.sensors)?td.sensors:[];
       const grid=$('temperatureGrid');
       const status=$('dashTemperatureStatus');
-      const sensors=Array.isArray(td.sensors)?td.sensors:[];
       const slots=Array.from({length:5},(_,i)=>sensors[i]||null);
       const online=sensors.filter(s=>s && s.temperature!==null && s.temperature!==undefined).length;
 
