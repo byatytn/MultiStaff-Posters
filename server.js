@@ -319,9 +319,9 @@ app.get('/api/dashboard', async (req, res) => {
 });
 
 function multistaffApiUrl() {
-  let url = String(process.env.MULTISTAFF_API_URL || '').trim().replace(/\\/$/, '');
+  let url = String(process.env.MULTISTAFF_API_URL || '').trim().replace(/\/$/, '');
   if (!url) return '';
-  if (!/^https?:\\/\\//i.test(url)) url = 'https://' + url;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
   return url;
 }
 
