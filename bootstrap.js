@@ -36,6 +36,25 @@ app.put('/api/kassa', requireAdmin, async (req, res) => {
     res.status(500).json({ error: 'Не удалось сохранить схему кассы' });
   }
 });
+
+// Shared ManagerAssist navigation. Inject the small menu into every HTML page
+// without changing the existing page markup, so schedule and Kassa stay in sync.
+app.use((req, res, next) => {
+  const originalSendFile = res.sendFile.bind(res);
+  res.sendFile = (filePath, options, callback) => {
+    if (!String(filePath).toLowerCase().endsWith('.html')) {
+      return originalSendFile(filePath, options, callback);
+    }
+    fs.readFile(filePath, 'utf8', (err, html) => {
+      if (err) return callback ? callback(err) : next(err);
+      const script = '<script src="/menu.js"></script>';
+      const output = html.includes('/menu.js') ? html : html.replace(/<\\/body>/i, script + '</body>');
+      res.type('html').send(output);
+      if (callback) callback();
+    });
+  };
+  next();
+});
 `;
 source=source.replace(marker,injected+'\n'+marker);
 const m=new Module(serverPath,module);
