@@ -48,9 +48,8 @@ app.use((req, res, next) => {
     fs.readFile(filePath, 'utf8', (err, html) => {
       if (err) return callback ? callback(err) : next(err);
       const script = '<script src="/menu.js"></script>';
-      const output = html.includes('/menu.js') ? html : html.replace(/<\\/body>/i, script + '</body>');
+      const output = html.includes('/menu.js') ? html : html.replace(/<\/body>/i, script + '</body>');
       res.type('html').send(output);
-      if (callback) callback();
     });
   };
   next();
