@@ -38,9 +38,7 @@
   }
 
   const top = document.querySelector('.top');
-  if (top && !existing) {
-    top.style.paddingLeft = '68px';
-  }
+  if (top && !existing) top.style.paddingLeft = '68px';
 
   const overlay = document.createElement('div');
   overlay.className = 'ma-menu-overlay';
@@ -57,8 +55,8 @@
     <a class="ma-menu-link ${path === '/' || path === '/index.html' ? 'active' : ''}" href="/">
       <span class="ma-menu-icon">⌂</span><span>Главное меню</span>
     </a>
-    <a class="ma-menu-link ${path.includes('/kassa') ? 'active' : ''}" href="/kassa.html">
-      <span class="ma-menu-icon">▣</span><span>Касса</span>
+    <a class="ma-menu-link ${path.includes('/notes') ? 'active' : ''}" href="/notes.html">
+      <span class="ma-menu-icon">▤</span><span>Заметки</span>
     </a>
   `;
 
