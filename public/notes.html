@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b0e">
+<title>ManagerAssist — Заметки</title>
+<style>
+:root{--bg:#090b0e;--panel:#101419;--panel2:#14191f;--line:#29303a;--text:#f5f7fa;--muted:#8f98a6;--red:#ef3038;--green:#32d583;--shadow:0 24px 70px #0008}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}body{background:radial-gradient(760px 480px at 82% 8%,#ef303814 0,transparent 65%),radial-gradient(900px 560px at 50% 105%,#7f111b28 0,transparent 68%),linear-gradient(145deg,#07090c,#0b0e12 48%,#090b0e)}
+header{height:66px;border-bottom:1px solid #252b34;background:#0d1014e8;backdrop-filter:blur(18px)}.top{max-width:1600px;margin:auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:900;letter-spacing:.8px;font-size:21px}.brand i{font-style:normal;color:var(--red)}.sub{font-size:9px;color:#737d8a;letter-spacing:1.5px;margin-top:2px}.online{font-size:11px;color:#9da6b2}.online:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);margin-right:7px}
+main{max-width:1100px;margin:auto;padding:55px 24px 70px}.head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:25px}.eyebrow{font-size:10px;color:#788392;letter-spacing:2px;text-transform:uppercase}.title{margin:7px 0 0;font-size:42px;line-height:1;font-weight:900}.title:after{content:".";color:var(--red)}.desc{margin:10px 0 0;color:var(--muted);font-size:13px}.actions{display:flex;gap:8px}.btn{border:1px solid var(--line);background:#13171c;color:#dce2e9;border-radius:10px;padding:11px 16px;font-weight:700;cursor:pointer}.btn:hover{border-color:#596474}.btn.primary{background:var(--red);border-color:var(--red);color:#fff}.btn.primary:hover{filter:brightness(1.08)}
+.notes-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.note{position:relative;min-height:170px;padding:20px;background:linear-gradient(145deg,#12171d,#0f1318);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);overflow:hidden}.note:before{content:"";position:absolute;left:0;top:0;width:48px;height:2px;background:var(--red)}.note h2{margin:0 65px 11px 0;font-size:18px;line-height:1.15}.note p{margin:0;color:#b2bac5;font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word}.note-meta{margin-top:16px;color:#697383;font-size:10px}.note-actions{position:absolute;right:12px;top:12px;display:flex;gap:5px}.icon{width:31px;height:31px;border:1px solid #29303a;background:#11151a;color:#9da6b2;border-radius:8px;cursor:pointer}.icon:hover{border-color:#596474;color:#fff}.icon.delete:hover{border-color:#7b242c;color:#ff8d94;background:#241216}.empty{grid-column:1/-1;padding:60px 20px;text-align:center;border:1px dashed #29303a;border-radius:15px;color:#697383}.empty b{display:block;color:#cbd2dc;font-size:15px;margin-bottom:6px}
+.modal-bg{display:none;position:fixed;inset:0;background:#000b;align-items:center;justify-content:center;padding:16px;z-index:100}.modal-bg.open{display:flex}.modal{width:min(520px,100%);background:#171b21;border:1px solid #333b46;border-radius:17px;padding:20px;box-shadow:0 30px 100px #000c}.modal h2{margin:0 0 5px;font-size:21px}.meta{color:var(--muted);font-size:12px}.field{margin-top:14px}.field label{display:block;color:#aab3bf;font-size:12px;margin-bottom:6px}.field input,.field textarea{width:100%;padding:12px;border:1px solid #343d49;background:#0d1115;color:#fff;border-radius:9px;outline:none}.field textarea{min-height:150px;resize:vertical}.field input:focus,.field textarea:focus{border-color:var(--red)}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e9edf2;color:#111;padding:10px 14px;border-radius:10px;font-size:13px;box-shadow:0 15px 45px #0008;transition:.2s;z-index:120}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:900px){.notes-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){main{padding:35px 14px}.head{align-items:flex-start;flex-direction:column}.title{font-size:34px}.actions,.actions .btn{width:100%}.notes-grid{grid-template-columns:1fr}.note{min-height:150px}}
+</style>
+</head>
+<body>
+<header><div class="top"><div><div class="brand">MANAGER<i>ASSIST</i></div><div class="sub">АТМОСФЕРА</div></div><div class="online">ONLINE</div></div></header>
+<main>
+  <div class="head"><div><div class="eyebrow">Рабочий журнал</div><h1 class="title">Заметки</h1><p class="desc">Короткие заметки и важная информация для работы кинотеатра.</p></div><div class="actions"><button class="btn primary" id="addBtn">＋ Добавить</button></div></div>
+  <section class="notes-grid" id="notesGrid"></section>
+</main>
+<div class="modal-bg" id="modalBg"><div class="modal">
+  <h2 id="modalTitle">Новая заметка</h2><div class="meta">Название и текст заметки сохраняются в ManagerAssist.</div>
+  <div class="field"><label>Название</label><input id="noteTitle" maxlength="80" placeholder="Например: Важный контакт"></div>
+  <div class="field"><label>Информация</label><textarea id="noteContent" maxlength="5000" placeholder="Текст заметки..."></textarea></div>
+  <div class="modal-actions"><button class="btn" id="cancelBtn">Отмена</button><button class="btn danger" id="deleteBtn" style="display:none">Удалить</button><button class="btn primary" id="saveBtn">Сохранить</button></div>
+</div></div>
+<div class="modal-bg" id="passwordBg"><div class="modal">
+  <h2>Режим администратора</h2><div class="meta">Введите пароль администратора для изменения заметок.</div>
+  <div class="field"><label>Пароль</label><input id="password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Пароль"></div>
+  <div class="modal-actions"><button class="btn" id="passwordCancel">Отмена</button><button class="btn primary" id="passwordLogin">Войти</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<script src="/menu.js"></script>
+<script>
+const $=id=>document.getElementById(id);let notes=[],editing=null,pendingAction=null;
+const SESSION_KEY='multistaff_admin_session';
+function token(){try{const x=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');return x?.token||''}catch{return ''}}
+function saveToken(t){localStorage.setItem(SESSION_KEY,JSON.stringify({token:t,expiresAt:Date.now()+6*60*60*1000}))}
+function toast(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>$('toast').classList.remove('show'),1800)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function formatDate(v){if(!v)return '';const d=new Date(v);return Number.isNaN(d.getTime())?'':d.toLocaleString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+async function load(){try{const r=await fetch('/api/notes',{cache:'no-store'});if(!r.ok)throw new Error();const d=await r.json();notes=Array.isArray(d.notes)?d.notes:[];render()}catch{toast('Не удалось загрузить заметки')}}
+function render(){const grid=$('notesGrid');if(!notes.length){grid.innerHTML='<div class="empty"><b>Пока нет заметок</b>Нажмите «Добавить», чтобы создать первую заметку.</div>';return}grid.innerHTML=notes.map(n=>`<article class="note"><div class="note-actions"><button class="icon" data-edit="${esc(n.id)}" title="Изменить">✎</button><button class="icon delete" data-delete="${esc(n.id)}" title="Удалить">×</button></div><h2>${esc(n.title)}</h2><p>${esc(n.content)}</p><div class="note-meta">Обновлено: ${esc(formatDate(n.updatedAt||n.createdAt))}</div></article>`).join('');grid.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>startEdit(b.dataset.edit));grid.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>removeNote(b.dataset.delete))}
+function openEditor(note=null){editing=note;pendingAction=null;$('modalTitle').textContent=note?'Редактировать заметку':'Новая заметка';$('noteTitle').value=note?.title||'';$('noteContent').value=note?.content||'';$('deleteBtn').style.display=note?'inline-block':'none';$('modalBg').classList.add('open');setTimeout(()=>$('noteTitle').focus(),30)}
+function startEdit(id){const n=notes.find(x=>x.id===id);if(n)openEditor(n)}
+function closeEditor(){$('modalBg').classList.remove('open');editing=null}
+function openPassword(action){pendingAction=action;$('password').value='';$('passwordBg').classList.add('open');setTimeout(()=>$('password').focus(),30)}
+function requireAdmin(action){if(token()){action();return}openPassword(action)}
+async function login(){const p=$('password').value.trim();if(!p)return;const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:p})});const d=await r.json().catch(()=>({}));if(!r.ok){toast(d.error||'Неверный пароль');return}saveToken(d.token);$('passwordBg').classList.remove('open');const action=pendingAction;pendingAction=null;if(action)action()}
+async function persist(next){const r=await fetch('/api/notes',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token()},body:JSON.stringify({notes:next})});const d=await r.json().catch(()=>({}));if(r.status===401){localStorage.removeItem(SESSION_KEY);openPassword(()=>persist(next));return false}if(!r.ok){toast(d.error||'Не удалось сохранить заметки');return false}notes=Array.isArray(d.notes)?d.notes:next;render();return true}
+async function saveNote(){const title=$('noteTitle').value.trim(),content=$('noteContent').value.trim();if(!title||!content){toast('Заполните название и информацию');return}const now=new Date().toISOString();let next;if(editing){next=notes.map(n=>n.id===editing.id?{...n,title,content,updatedAt:now}:n)}else{next=[...notes,{id:crypto.randomUUID(),title,content,createdAt:now,updatedAt:now}]}if(await persist(next)){closeEditor();toast('Заметка сохранена')}}
+function removeNote(id){requireAdmin(async()=>{if(!confirm('Удалить эту заметку?'))return;const next=notes.filter(n=>n.id!==id);if(await persist(next))toast('Заметка удалена')})}
+$('addBtn').onclick=()=>requireAdmin(()=>openEditor());$('cancelBtn').onclick=closeEditor;$('saveBtn').onclick=()=>requireAdmin(saveNote);$('deleteBtn').onclick=()=>{if(editing)removeNote(editing.id);closeEditor()};$('passwordCancel').onclick=()=>{$('passwordBg').classList.remove('open');pendingAction=null};$('passwordLogin').onclick=login;$('password').addEventListener('keydown',e=>{if(e.key==='Enter')login()});$('modalBg').addEventListener('click',e=>{if(e.target===$('modalBg'))closeEditor()});$('passwordBg').addEventListener('click',e=>{if(e.target===$('passwordBg')){$('passwordBg').classList.remove('open');pendingAction=null}});load();
+</script>
+</body>
+</html>
