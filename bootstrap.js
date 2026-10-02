@@ -28,9 +28,18 @@ app.use((req, res, next) => {
       if (err) return callback ? callback(err) : next(err);
 
       const script = '<script src="/menu.js"></script>';
-      const output = html.includes('/menu.js')
-        ? html
-        : html.replace(/<\\/body>/i, script + '</body>');
+      let output = html;
+
+      // Do not use a regex here: this code is compiled from a template string
+      // and escaping the closing HTML tag can accidentally produce invalid JS.
+      // A plain string replacement is deterministic and safe for our pages.
+      if (!html.includes('/menu.js')) {
+        const closingBody = '</body>';
+        const bodyIndex = html.toLowerCase().lastIndexOf(closingBody);
+        output = bodyIndex >= 0
+          ? html.slice(0, bodyIndex) + script + html.slice(bodyIndex)
+          : html + script;
+      }
 
       res.type('html').send(output);
     });
