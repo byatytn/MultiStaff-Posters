@@ -13,27 +13,26 @@ console.log('[BOOT] PID:', process.pid);
 console.log('[BOOT] PORT:', process.env.PORT || 3000);
 
 const ADMIN_PASSWORD = process.env.MULTISTAFF_ADMIN_PASSWORD || '2026';
-const MANAGER_ID = '1171';
 const SESSION_TTL = 6 * 60 * 60 * 1000;
 
 // Адмін-сесія має переживати перезапуск Node/хостингу.
-// Токен містить час завершення, managerId та захищений HMAC-підписом.
+// Токен містить час завершення та захищений HMAC-підписом.
 // Якщо MULTISTAFF_SESSION_SECRET заданий у середовищі — використовуємо його;
 // інакше стабільно виводимо секрет із поточного адмін-пароля.
 const SESSION_SECRET = process.env.MULTISTAFF_SESSION_SECRET ||
   crypto.createHash('sha256').update('multistaff-session:'+ADMIN_PASSWORD).digest('hex');
 
-function createAdminSession(managerId = MANAGER_ID) {
+function createAdminSession() {
   const expiresAt = Date.now() + SESSION_TTL;
-  const payload = Buffer.from(JSON.stringify({ exp: expiresAt, managerId: String(managerId) })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ exp: expiresAt })).toString('base64url');
   const signature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
   return payload + '.' + signature;
 }
 
-function getAdminSession(token) {
-  if (!token || typeof token !== 'string') return null;
+function verifyAdminSession(token) {
+  if (!token || typeof token !== 'string') return false;
   const dot = token.indexOf('.');
-  if (dot <= 0) return null;
+  if (dot <= 0) return false;
 
   const payload = token.slice(0, dot);
   const signature = token.slice(dot + 1);
@@ -41,21 +40,15 @@ function getAdminSession(token) {
 
   if (signature.length !== expected.length ||
       !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-    return null;
+    return false;
   }
 
   try {
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
-    if (!Number.isFinite(data.exp) || data.exp <= Date.now()) return null;
-    if (!data.managerId) return null;
-    return { ...data, managerId: String(data.managerId) };
+    return Number.isFinite(data.exp) && data.exp > Date.now();
   } catch {
-    return null;
+    return false;
   }
-}
-
-function verifyAdminSession(token) {
-  return !!getAdminSession(token);
 }
 
 function requireAdmin(req, res, next) {
@@ -67,15 +60,6 @@ function requireAdmin(req, res, next) {
   }
 
   next();
-}
-
-function getBearerToken(req) {
-  const header = req.get('authorization') || '';
-  return header.startsWith('Bearer ') ? header.slice(7) : '';
-}
-
-function getManagerSession(req) {
-  return getAdminSession(getBearerToken(req));
 }
 
 function loadFirebaseServiceAccount() {
@@ -388,81 +372,8 @@ app.post('/api/admin/login', (req, res) => {
     return res.status(401).json({ error: 'Неверный пароль' });
   }
 
-  // A successful ManagerAssist login is the authenticated manager account 1171.
-  const token = createAdminSession(MANAGER_ID);
-  res.json({ ok: true, token, managerId: MANAGER_ID, expiresIn: SESSION_TTL });
-});
-
-// Manager-specific notes.
-// The managerId is taken ONLY from the signed server session; the browser
-// cannot choose another managerId. This keeps notes isolated between accounts.
-function managerNotesRef(managerId) {
-  return db
-    .collection('Cinema').doc('ManagerAssist')
-    .collection('Orders').doc('notes')
-    .collection('managers').doc(String(managerId));
-}
-
-function cleanNotes(value) {
-  if (!Array.isArray(value)) return [];
-  return value
-    .filter(n => n && typeof n === 'object')
-    .slice(0, 500)
-    .map(n => ({
-      id: String(n.id || crypto.randomUUID()),
-      title: String(n.title || '').trim().slice(0, 80),
-      content: String(n.content || '').trim().slice(0, 5000),
-      createdAt: n.createdAt ? String(n.createdAt) : new Date().toISOString(),
-      updatedAt: n.updatedAt ? String(n.updatedAt) : new Date().toISOString()
-    }))
-    .filter(n => n.title && n.content);
-}
-
-app.get('/api/notes', requireAdmin, async (req, res) => {
-  if (!firebaseReady || !db) {
-    return res.status(503).json({ error: 'Firebase недоступний на сервері' });
-  }
-  try {
-    const session = getManagerSession(req);
-    if (!session || session.managerId !== MANAGER_ID) {
-      return res.status(403).json({ error: 'У менеджера нет доступа к заметкам' });
-    }
-
-    const snap = await managerNotesRef(session.managerId).get();
-    const notes = snap.exists && Array.isArray(snap.data()?.notes)
-      ? cleanNotes(snap.data().notes)
-      : [];
-
-    res.json({ ok: true, managerId: session.managerId, notes });
-  } catch (e) {
-    console.error('[API] notes read failed:', e);
-    res.status(500).json({ error: 'Не удалось загрузить заметки' });
-  }
-});
-
-app.put('/api/notes', requireAdmin, async (req, res) => {
-  if (!firebaseReady || !db) {
-    return res.status(503).json({ error: 'Firebase недоступний на сервері' });
-  }
-  try {
-    const session = getManagerSession(req);
-    if (!session || session.managerId !== MANAGER_ID) {
-      return res.status(403).json({ error: 'У менеджера нет доступа к заметкам' });
-    }
-
-    const notes = cleanNotes(req.body?.notes);
-    const ref = managerNotesRef(session.managerId);
-    await ref.set({
-      managerId: session.managerId,
-      notes,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: false });
-
-    res.json({ ok: true, managerId: session.managerId, notes });
-  } catch (e) {
-    console.error('[API] notes save failed:', e);
-    res.status(500).json({ error: 'Не удалось сохранить заметки' });
-  }
+  const token = createAdminSession();
+  res.json({ ok: true, token, expiresIn: SESSION_TTL });
 });
 
 app.get('/api/state', (req, res) => {
